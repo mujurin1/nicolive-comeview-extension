@@ -127,11 +127,12 @@ class _Nicolive {
       if (message.is184 && message.no != null) {
         noName184 = `${message.no} コメ`;
       }
+
       user = this.users[message.userId] = {
         id: message.userId,
         firstNo: message.no,
         is184: message.is184,
-        storeUser: {
+        storeUser: store.nicolive.users_primitable[message.userId] ?? {
           id: message.userId,
           name: message.name,
           kotehan,
