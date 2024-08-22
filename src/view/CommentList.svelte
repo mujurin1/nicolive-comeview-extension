@@ -1,13 +1,13 @@
 <script lang="ts">
   import { tick } from "svelte";
-  import { Nicolive } from "../store/Nicolive.svelte";
+  import { Nicolive, type NicoliveUser } from "../store/Nicolive.svelte";
   import { store } from "../store/store.svelte";
   import { iconNone } from "../utils";
 
   let listView: HTMLDivElement;
 
   $effect.pre(() => {
-    Nicolive.comments.length;
+    Nicolive.messages.length;
 
     const autoscroll = 
       listView && listView.offsetHeight + listView.scrollTop > listView.scrollHeight - 50;
@@ -26,19 +26,13 @@
 </script>
 
 <div bind:this={listView} class="comment-list" tabindex="-1">
-  {#each Nicolive.comments as comment (comment.commentId)}
-    <!-- {@const user = Nicolive.users.get(comment.userId!)} -->
-     {@const user = Nicolive.users[comment.userId!]}
-     {@const sharp = comment.type === "listener" && store.general.hideSharp && /[♯#＃]/.test(comment.content)}
-    <div
-      class="comment"
-      class:bold={
-        store.general.firstIsBold &&
-        comment.no != null &&
-        user?.firstNo === comment.no
-      }>
+  {#each Nicolive.messages as comment (comment.commentId)}
+    {@const user: NicoliveUser | undefined = Nicolive.users[comment.userId!]}
+    {@const bold = store.general.firstIsBold && comment.no != null && user?.firstNo === comment.no}
+    {@const hideSharp = store.general.hideSharp && comment.type === "listener" && /[♯#＃]/.test(comment.content)}
+    <div class="comment" class:bold>
       <div class="child no">{comment.no}</div>
-      {#if sharp}
+      {#if hideSharp}
         <div class="child icon"></div>
         <div class="child name"></div>
       {:else}
@@ -48,13 +42,17 @@
         </div>
         {#if (comment.name ?? comment.userId) !== null}
           <div class="child name" title={comment.name ?? (comment.userId as string)}>
-            {user?.name}
+            {#if user != null}
+              {@const name = (store.general.useKotehan && user.storeUser.kotehan) ? user.storeUser.kotehan : user.storeUser.name}
+              <!-- name が存在するのは生IDだけ -->
+              {name ?? ((store.general.nameToNo && user.noName184) ? user.noName184 : user.id)}
+            {/if}
           </div>
         {/if}
       {/if}
       <div class="child time">{comment.time}</div>
       <div class="child content">
-        {#if sharp}
+        {#if hideSharp}
           ＃シャープコメントだよ＃
         {:else if comment.link == null}
           {comment.content}
@@ -112,7 +110,8 @@
 
     }
   }
-      .bold {
-        font-weight: bold;
-      }
+
+  .bold {
+    font-weight: bold;
+  }
 </style>

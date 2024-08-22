@@ -1,4 +1,4 @@
-import { NO_SPEAK_NAME, store } from "./store.svelte";
+import { store } from "./store.svelte";
 
 export class BouyomiChan {
   public static get port() { return store.bouyomiChan.port; }
@@ -17,7 +17,7 @@ export class BouyomiChan {
   public static async speak(content: string, name: string | undefined, forceSpeak = false) {
     if (!forceSpeak && !store.yomiage.isSpeak) return;
 
-    if (name != null && !name.includes(NO_SPEAK_NAME)) {
+    if (name != null) {
       if (BouyomiChan.speakName === "mae") content = name + "。" + content;
       else if (BouyomiChan.speakName === "ato") content = content + "。" + name;
     }

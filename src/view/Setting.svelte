@@ -1,13 +1,26 @@
 <script lang="ts">
-    import Tab from "../components/Tab.svelte";
-    import { BouyomiChan } from "../store/BouyomiChan.svelte";
-    import { store, storeClear, storeSave, Yomiage } from "../store/store.svelte";
+  import Tab from "../components/Tab.svelte";
+  import { BouyomiChan } from "../store/BouyomiChan.svelte";
+  import { store, storeClear, storeSave, Yomiage } from "../store/store.svelte";
 
+  const names = ["コメント表示", "読み上げ", "Advanced"] as const;
   let { show = $bindable() }: { show: boolean } = $props();
+  let currentTab = $state<typeof names[number]>("コメント表示");
 
   let setting : HTMLDialogElement;
   let useAdvanced = $state(false);
   let savedata = $state("");
+
+  function init() {
+    bouyomiTest = "none";
+    trySave = "none";
+    checkedClearOk = false;
+  }
+
+  $effect(() => {
+    currentTab;
+    init();
+  })
 
   $effect(() => {
     if(!useAdvanced) return;
@@ -16,9 +29,10 @@
   })
 
   $effect(() => {
-    if(show) setting.showModal();
-    else {
-      bouyomiTest = "none";
+    if(show) {
+      setting.showModal();
+    } else {
+      init();
       useAdvanced = false;
       setting.close();
     }
@@ -32,6 +46,27 @@
       .then(() => (bouyomiTest = "ok"))
       .catch(() => (bouyomiTest = "miss"));
   }
+
+  let trySave = $state<"none" | "ok" | "miss">("none");
+  let checkedClearOk = $state(false);
+
+  function save() {
+    try{
+      storeSave(JSON.parse(savedata));
+      trySave = "ok";
+    } catch{
+      trySave = "miss";
+    }
+  }
+
+  function clear() {
+    if(checkedClearOk){
+      storeClear();
+      checkedClearOk = false;
+    } else {
+      checkedClearOk = true;
+    }
+  }
 </script>
 
 <dialog bind:this={setting} class="mordal">
@@ -39,38 +74,42 @@
   <button class="close-btn" onclick={() => show = false}>閉じる</button>
 
   <div class="mordal-body">
-    <Tab names={["一般", "読み上げ", "Advanced"]}>
+    <Tab {names} bind:currentTab>
 
 {#snippet content(tabId)}
   <div class="content">
-    {#if tabId === "一般"}
+    {#if tabId === "コメント表示"}
+
+      <div class="top">
+        <div class="explanation from-next">←このアイコンがある項目は過去のコメントに遡っては反映されません</div>
+      </div>
 
       <div class="line">
         <div>
-          <div>接続時に取得する過去コメント数</div>
+          <div class="explanation">接続時に取得する過去コメント数</div>
           <div class="hint">実際に取得するコメント数とは誤差があります</div>
         </div>
         <input type="number" bind:value={store.general.maxBackwards} />
       </div>
 
       <div class="line">
-        <label for="kotehan">コテハンを使用する</label>
+        <label class="explanation from-next" for="kotehan">コテハンを使用する</label>
         <input type="checkbox" id="kotehan" bind:checked={store.general.useKotehan} />
       </div>
 
       <div class="line">
-        <label for="link">URLを含むコメントをリンクにする</label>
+        <label class="explanation from-next" for="link">URLを含むコメントをリンクにする</label>
         <input type="checkbox" id="link" bind:checked={store.general.urlToLink} />
       </div>
 
       <div class="line">
-        <label for="bold">最初のコメントを太字にする</label>
+        <label class="explanation" for="bold">最初のコメントを太字にする</label>
         <input type="checkbox" id="bold" bind:checked={store.general.firstIsBold} />
       </div>
 
       <div class="line">
         <div>
-          <label for="184">184の表示名をコメ番にする</label>
+          <label class="explanation" for="184">184の表示名をコメ番にする</label>
           <br>
           <div class="hint">184の表示名はその人の最初のコメント番号になります</div>
         </div>
@@ -79,7 +118,7 @@
 
       <div class="line">
         <div>
-          <label for="sharp">シャープ(♯ # ＃)を含むコメントを隠す＆読み上げない</label>
+          <label class="explanation" for="sharp">シャープ(♯ # ＃)を含むコメントを隠す＆読み上げない</label>
           <br>
           <div class="hint">用途: ボドゲや初見プレイなどでリスナー同士で考察するなど</div>
         </div>
@@ -157,8 +196,17 @@
       {:else}
         <div class="list" style="display: flex;">
           <div>データの変更</div>
-          <button type="button" onclick={() => storeSave(JSON.parse(savedata))}>保存する</button>
-          <button type="button" onclick={storeClear}>初期化する</button>
+          <button type="button" onclick={save}>保存する</button>
+          {#if checkedClearOk}
+            <button type="button" onclick={clear}>本当に初期化する?</button>
+          {:else}
+            <button type="button" onclick={clear}>初期化する</button>
+          {/if}
+          {#if trySave === "ok"}
+            <div style="color: blue; font-size: 0.8rem;">保存しました</div>
+          {:else if trySave === "miss"}
+            <div style="color: red; font-size: 0.8rem;">保存に失敗しました。JSONとして不正な値です</div>
+          {/if}
         </div>
         <div>※コメビュの保存データのJSONです。注意して操作してください</div>
         <div>※キー(property key)を消して保存した場合そのキーの値は上書きされません</div>
@@ -223,6 +271,19 @@
     }
   }
 
+  .explanation {
+    &::before {
+      color: transparent;
+      content: "◆";
+      font-size: 0.7rem;
+      margin-left: -5px;
+    }
+    
+    &.from-next::before {
+      color: darkolivegreen;
+    }
+  }
+
   .list {
     font-size: 1rem;
     margin-bottom: 5px;
@@ -236,8 +297,12 @@
     color: darkblue;
     margin-top: -3px;
     font-size: 0.75rem;
-    text-indent: 0.5rem;
+    text-indent: 1rem;
     line-height: normal;
+  }
+
+  .top {
+    margin-bottom: 10px;
   }
 
   select {

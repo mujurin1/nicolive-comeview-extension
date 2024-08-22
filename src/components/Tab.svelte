@@ -2,12 +2,12 @@
   import type { Snippet } from "svelte";
   type Name = $$Generic<string>;
 
-  let { names, content }: {
+  let { names,  currentTab = $bindable(), content }: {
     names: readonly Name[];
+    currentTab: Name;
     content: Snippet<[Name]>;
   } = $props();
 
-  let currentTab = $state(names[0]);
 </script>
 
 <div class="tab">

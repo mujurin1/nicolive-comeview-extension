@@ -5,6 +5,7 @@
     "target": "esnext",
     "module": "esnext",
     "resolveJsonModule": true,
+    "skipLibCheck": true,
     "allowJs": true,
     "checkJs": true,
     "isolatedModules": true,

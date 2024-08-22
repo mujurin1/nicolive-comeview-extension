@@ -7,13 +7,10 @@ export type SpeakName = typeof SpeakName[number];
 export const Yomiage = ["棒読みちゃん", "VOICEVOX"] as const;
 export type Yomiage = typeof Yomiage[number];
 
-/** ユーザー名にこれが付いていた場合は名前を読み上げない */
-export const NO_SPEAK_NAME = "#--no-speak-name";
-
-export interface NicoliveUser {
-  id: string | number;
-  name: string | undefined;
-  kotehan: string | undefined;
+export interface StoreUser_Nicolive {
+  id: number | string;
+  name?: string;
+  kotehan?: string;
 }
 
 /**
@@ -39,7 +36,8 @@ const defaultStore = {
     hideSharp: false,
   },
   nicolive: {
-    users_primitable: {} as Record<string, NicoliveUser>,
+    /** 生IDのユーザーのみ */
+    users_primitable: {} as Record<string, StoreUser_Nicolive>,
     pinnLives: [] as { id: string, description: string; }[],
   },
   yomiage: {
