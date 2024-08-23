@@ -1,5 +1,4 @@
 import js from "@eslint/js";
-// import prettier from "eslint-config-prettier";
 import svelte from "eslint-plugin-svelte";
 import globals from "globals";
 import svelteParser from "svelte-eslint-parser";
@@ -13,13 +12,12 @@ const defaultConfig = tsEslint.config({
     js.configs.recommended,
     ...tsEslint.configs.strictTypeChecked,
     ...tsEslint.configs.stylisticTypeChecked,
-    // prettier,
   ],
   languageOptions: {
     parser: tsEslint.parser,
     parserOptions: {
       sourceType: "module",
-      ecmaVersion: "latest", // 2023
+      ecmaVersion: "latest",
       project: "./tsconfig.json",
       tsconfigRootDir: import.meta.dirname,
       extraFileExtensions: [".svelte"]
@@ -66,7 +64,12 @@ const defaultConfig = tsEslint.config({
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-import-type-side-effects": "error",
     "@typescript-eslint/no-require-imports": "error",
-    "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+    "@typescript-eslint/no-unused-vars": ["warn", {
+      "argsIgnorePattern": "^_",
+      "caughtErrorsIgnorePattern": "^_",
+      "destructuredArrayIgnorePattern": "^_",
+      "varsIgnorePattern": "^_",
+    }],
     "@typescript-eslint/no-useless-empty-export": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/non-nullable-type-assertion-style": "warn",
@@ -138,15 +141,9 @@ export default [
   { linterOptions: { reportUnusedDisableDirectives: true } },
   {
     ignores: [
-      ".svelte-kit/",
-      ".vercel/", // adapter-vercel output dir
-      ".vercel_build_output/", // old output dir
-      "static/",
-      "build/",
-      "dist/",
-      "coverage/", // vitest coverage
-      "vitest.config.ts.timestamp*", // vite temp files
-      "node_modules/"
+      "node_modules/",
+      "assets/",
+      "dist/"
     ]
   }
 ];

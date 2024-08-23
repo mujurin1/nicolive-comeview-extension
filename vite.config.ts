@@ -3,12 +3,11 @@ import { svelte } from "@sveltejs/vite-plugin-svelte";
 import { defineConfig } from "vite";
 import zipPack from "vite-plugin-zip-pack";
 
-
 // https://crxjs.dev/vite-plugin/concepts/manifest
 const manifest = defineManifest({
   manifest_version: 3,
   name: "ニコ生コメビュ",
-  version: "0.1",
+  version: "0.1.1",
   icons: {
     128: "assets/128x128.png",
   },

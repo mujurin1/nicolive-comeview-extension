@@ -1,4 +1,4 @@
-import { NicoliveClient, timestampToMs } from "@mujurin/nicolive-api-ts";
+import { NicoliveClient, NicoliveWatchError, timestampToMs } from "@mujurin/nicolive-api-ts";
 import type { ChunkedMessage } from "@mujurin/nicolive-api-ts/build/gen/dwango_pb";
 import { iconNone, timeString } from "../utils";
 import { BouyomiChan } from "./BouyomiChan.svelte";
@@ -39,8 +39,7 @@ class _Nicolive {
   private _canSpeak = false;
 
   public url = $state("");
-  public get maxBackwards() { return store.general.maxBackwards; }
-  public set maxBackwards(value) { store.general.maxBackwards = value; }
+  public errorMessages = $state<string[]>([]);
 
   public client = $state<NicoliveClient>();
   public messages = $state<NicoliveMessage[]>([]);
@@ -61,8 +60,18 @@ class _Nicolive {
     this.close();
     this.messages = [];
     this.users = {};
+    this.errorMessages = [];
 
-    this.client = await NicoliveClient.create(this.url, "now", this.maxBackwards);
+    try {
+      this.client = await NicoliveClient.create(this.url, "now", store.general.maxBackwards, false);
+    } catch (e) {
+      if (!(e instanceof NicoliveWatchError)) throw e;
+
+      this.errorMessages.push(e.message);
+
+      return;
+    }
+
     this.url = this.client.liveId;
 
     this.client.onWsState.on(event => this.connectWs = event === "open");
@@ -73,11 +82,12 @@ class _Nicolive {
     });
 
     this.client.onMessage.on(this.onMessage);
+    this.client.onMessageOld.on(this.onMessageOld);
 
     document.title = `${this.client.title} - ${this.client.liveId}`;
 
     // デバッグ用
-    // setDebug(this.client);
+    setDebug(this.client);
   }
 
   public close() {
@@ -106,6 +116,19 @@ class _Nicolive {
     }
 
     this.messages.push(comment);
+  };
+
+  private readonly onMessageOld = (messages: ChunkedMessage[]) => {
+    const comments = messages
+      .map(message => {
+        const comment = parseMessage(message, this);
+        if (comment == null) return;
+        this.getUserAndUpsert(comment);
+        return comment;
+      })
+      .filter(comment => comment != null);
+
+    this.messages.unshift(...comments);
   };
 
   /**
@@ -197,7 +220,6 @@ function parseMessage({ meta, payload }: ChunkedMessage, nicolive: _Nicolive): N
     } else if (data.case === "nicoad") {
       type = "system";
       is184 = true;
-      // TODO: ニコニ広告が復活したらメッセージを確認する
       if (data.value.versions.case === "v0") {
         const { latest, ranking } = data.value.versions.value;
         const i = latest?.message == null ? "" : `「${latest?.message}」`;
@@ -266,22 +288,26 @@ function setDebug(client: NicoliveClient) {
   client.onWsState.on(event => console.log(`wsClient: ${event}`));
   client.onMessageState.on(event => console.log(`commentClient: ${event}`));
   client.onMessageEntry.on(event => console.log(`commentEntry: ${event}`));
-  client.onMessage.on(({ meta: _meta, payload: { value, case: _case } }) => {
-    const meta =
-      _meta == null
-        ? "none"
-        : {
-          ..._meta,
-          at: _meta.at == null ? "-" : new Date(timestampToMs(_meta.at)).toLocaleString(),
-        };
+  client.onMessage.on(x);
+  client.onMessageOld.on(msgs => x(...msgs));
 
-    if (_case === "state") {
-      console.log("###", _case, meta, value);
-    } else if (_case === "signal") {
-      console.log("###", _case, meta, value);
-    } else if (_case === "message") {
-      console.log("###", _case, value.data.case, meta);
-      console.log(value.data.value);
+  function x(...messages: ChunkedMessage[]) {
+    for (const { meta: _meta, payload: { value, case: _case } } of messages) {
+      const meta =
+        _meta == null
+          ? "none"
+          : {
+            ..._meta,
+            at: _meta.at == null ? "-" : new Date(timestampToMs(_meta.at)).toLocaleString(),
+          };
+      if (_case === "state") {
+        console.log("###", _case, meta, value);
+      } else if (_case === "signal") {
+        console.log("###", _case, meta, value);
+      } else if (_case === "message") {
+        console.log("###", _case, value.data.case, meta);
+        console.log(value.data.value);
+      }
     }
-  });
+  }
 }

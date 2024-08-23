@@ -4,36 +4,26 @@
   import Setting from "./Setting.svelte";
 
   let showSetting = $state(false);
-
   let openTabs = $state<chrome.tabs.Tab[]>([]);
-  
+  let allReceived = $state(false);
+
   chrome.tabs.query({}, tabs => {
     openTabs = tabs.filter(tab => tab?.url?.includes("https://live.nicovideo.jp/watch"));
   });
-</script>
 
-{#snippet connection(text: string, on: boolean)}
-  <div class:connect-on={on} class:connect-off={!on}>
-    {text}
-  </div>
-{/snippet}
+  async function fetchBackword(maxBackwords: number) {
+    if (Nicolive.client != null && !Nicolive.client.allReceivedBackward) {
+      await Nicolive.client.fetchBackwardMessages(maxBackwords);
+    }
+
+    allReceived = Nicolive.client?.allReceivedBackward ?? false;
+  }
+</script>
 
 <div class="header">
   <div class="left">
     <div class="head-item connect-item">
-      <input bind:value={Nicolive.url}
-        size="18"
-        placeholder="URL (lv ch user/)"
-        />
-        <!-- list="tabList" -->
-
-      <!-- <datalist id="tabList">
-        {#each openTabs as tab (getNicoliveId(tab.url!))}
-          <option value={getNicoliveId(tab.url!)}>
-            {tab.title}
-          </option>
-        {/each}
-      </datalist> -->
+      <input bind:value={Nicolive.url} size="18" placeholder="URL (lv ch user/)" />
       {#if Nicolive.connectComment}
         <button type="button" onclick={() => Nicolive.close()}>切断</button>
       {:else}
@@ -41,16 +31,46 @@
       {/if}
     </div>
 
+    <div class="head-item connect-item">
+      {#if Nicolive.connectWs && Nicolive.connectComment}
+        <div title="接続に問題はありません！">😀</div>
+      {:else if Nicolive.connectWs || Nicolive.connectComment}
+        <div
+          title={`ws:${Nicolive.connectWs ? "ON" : "off"} co:${Nicolive.connectComment ? "ON" : "off"}
+    ws: ウェブソケットの接続状態
+    co: メッセージ(コメント)の接続状態
+        `}
+        >
+          🙄
+        </div>
+      {:else}
+        <div title="接続状態を表すアイコンです">😶</div>
+      {/if}
+
+      {#if Nicolive.errorMessages.length > 0}
+        <div title={Nicolive.errorMessages.join("\n")}>😡 {Nicolive.errorMessages.length}件</div>
+      {/if}
+    </div>
+
+    {#if !allReceived}
+      <div class="head-item">
+        {#if Nicolive.client == null}
+          <div>過去コメント －－</div>
+        {:else}
+          <div>過去コメント</div>
+          <button type="button" title="過去コメントを1000件取得" onclick={() => fetchBackword(1000)}
+            >千</button
+          >
+          <button type="button" title="過去コメントを全て取得" onclick={() => fetchBackword(1e10)}
+            >全</button
+          >
+        {/if}
+      </div>
+    {/if}
+
     <div class="head-item">
       <label for="speak">読み上げ</label>
       <input type="checkbox" id="speak" bind:checked={store.yomiage.isSpeak} />
-    </div>
-
-    <div class="head-item" title="ウェブソケットの接続状態">
-      {@render connection("WS:", Nicolive.connectWs)}
-    </div>
-    <div class="head-item" title="メッセージ(コメント)サーバーとの接続状態">
-      {@render connection("CO:", Nicolive.connectComment)}
     </div>
   </div>
 
@@ -73,6 +93,7 @@
       display: flex;
       justify-content: space-between;
       white-space: nowrap;
+      height: 100%;
       width: min-content;
       overflow: hidden;
     }
@@ -81,6 +102,8 @@
   .head-item {
     display: flex;
     font-size: 1rem;
+    height: 26px;
+    box-sizing: border-box;
 
     &:not(:last-child) {
       margin-right: 10px;
@@ -102,16 +125,6 @@
         margin-right: 5px;
       }
     }
-  }
-
-  .connect-on::after {
-    color: blue;
-    content: "ON";
-  }
-
-  .connect-off::after {
-    color: red;
-    content: "OFF";
   }
 
   .setting-btn {
