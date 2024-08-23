@@ -89,7 +89,7 @@
           <div class="explanation">接続時に取得する過去コメント数</div>
           <div class="hint">実際に取得するコメント数とは誤差があります</div>
         </div>
-        <input type="number" bind:value={store.general.maxBackwards} />
+        <input type="number" bind:value={store.general.minBackwards} />
       </div>
 
       <div class="line">

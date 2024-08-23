@@ -4,20 +4,6 @@
   import Setting from "./Setting.svelte";
 
   let showSetting = $state(false);
-  let openTabs = $state<chrome.tabs.Tab[]>([]);
-  let allReceived = $state(false);
-
-  chrome.tabs.query({}, tabs => {
-    openTabs = tabs.filter(tab => tab?.url?.includes("https://live.nicovideo.jp/watch"));
-  });
-
-  async function fetchBackword(maxBackwords: number) {
-    if (Nicolive.client != null && !Nicolive.client.allReceivedBackward) {
-      await Nicolive.client.fetchBackwardMessages(maxBackwords);
-    }
-
-    allReceived = Nicolive.client?.allReceivedBackward ?? false;
-  }
 </script>
 
 <div class="header">
@@ -36,13 +22,16 @@
         <div title="接続に問題はありません！">😀</div>
       {:else if Nicolive.connectWs || Nicolive.connectComment}
         <div
-          title={`ws:${Nicolive.connectWs ? "ON" : "off"} co:${Nicolive.connectComment ? "ON" : "off"}
+          title={`接続中・・・
+ws:${Nicolive.connectWs ? "ON" : "off"} co:${Nicolive.connectComment ? "ON" : "off"}
     ws: ウェブソケットの接続状態
     co: メッセージ(コメント)の接続状態
         `}
         >
           🙄
         </div>
+      {:else if Nicolive.client != null}
+        <div title="接続はありませんが過去コメントがある場合は取得できます">😴</div>
       {:else}
         <div title="接続状態を表すアイコンです">😶</div>
       {/if}
@@ -52,18 +41,26 @@
       {/if}
     </div>
 
-    {#if !allReceived}
+    {#if !Nicolive.allReceivedBackward}
       <div class="head-item">
         {#if Nicolive.client == null}
           <div>過去コメント －－</div>
         {:else}
           <div>過去コメント</div>
-          <button type="button" title="過去コメントを1000件取得" onclick={() => fetchBackword(1000)}
-            >千</button
+          <button
+            type="button"
+            title="過去コメントを1000件取得"
+            onclick={() => Nicolive.fetchBackword(1000)}
           >
-          <button type="button" title="過去コメントを全て取得" onclick={() => fetchBackword(1e10)}
-            >全</button
+            千
+          </button>
+          <button
+            type="button"
+            title="過去コメントを全て取得"
+            onclick={() => Nicolive.fetchBackword(1e10)}
           >
+            全
+          </button>
         {/if}
       </div>
     {/if}

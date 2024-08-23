@@ -47,6 +47,7 @@ class _Nicolive {
   public connectWs = $state(false);
   public connectComment = $state(false);
 
+  public vposBaseTimeMs?: number;
   /**
    * 接続している放送単位でのユーザーの情報を管理する\
    * システムメッセージのコメントのユーザーは管理しない
@@ -54,16 +55,21 @@ class _Nicolive {
    * `Map`だと内部の値が変更されても通知されないためオブジェクトで管理する
    */
   public users = $state<Record<string | number, NicoliveUser>>({});
+  /**
+   * 全ての過去メッセージを受信しているか
+   */
+  public allReceivedBackward = $state(false);
 
   public async connect() {
     this._canSpeak = false;
     this.close();
     this.messages = [];
     this.users = {};
+    this.allReceivedBackward = false;
     this.errorMessages = [];
 
     try {
-      this.client = await NicoliveClient.create(this.url, "now", store.general.maxBackwards, false);
+      this.client = await NicoliveClient.create(this.url, "now", store.general.minBackwards, false);
     } catch (e) {
       if (!(e instanceof NicoliveWatchError)) throw e;
 
@@ -76,6 +82,10 @@ class _Nicolive {
 
     this.client.onWsState.on(event => this.connectWs = event === "open");
     this.client.onMessageState.on(event => this.connectComment = event === "open");
+    this.client.onWsMessage.on("messageServer", data => { this.vposBaseTimeMs = new Date(data.vposBaseTime).getTime(); });
+    this.client.onWsState.on(event => {
+      if (event === "disconnect") this.client!.close();
+    });
 
     this.client.onMessageEntry.on(message => {
       if (message === "segment") this._canSpeak = true;
@@ -93,6 +103,14 @@ class _Nicolive {
   public close() {
     if (this.client == null) return;
     this.client.close();
+  }
+
+  public async fetchBackword(maxBackwords: number) {
+    if (this.client != null && !this.client.getAllReceivedBackward()) {
+      await this.client.fetchBackwardMessages(maxBackwords);
+    }
+
+    this.allReceivedBackward = this.client?.getAllReceivedBackward() ?? false;
   }
 
   // デバッグ用
@@ -202,7 +220,7 @@ function parseMessage({ meta, payload }: ChunkedMessage, nicolive: _Nicolive): N
   let iconUrl: string | undefined;
   let is184: boolean;
   let name: string | undefined;
-  const time = timestampToMs(meta.at!) - nicolive.client!.beginTime.getTime();
+  let time = timestampToMs(meta.at!) - nicolive.client!.beginTime.getTime();
   let content: string;
   let link: string | undefined;
 
@@ -216,6 +234,7 @@ function parseMessage({ meta, payload }: ChunkedMessage, nicolive: _Nicolive): N
       no = data.value.no;
       iconUrl = parseIconUrl(userId);
       name = data.value.name;
+      time = data.value.vpos * 10 - (nicolive.client!.beginTime.getTime() - nicolive.vposBaseTimeMs!);
       content = data.value.content;
     } else if (data.case === "nicoad") {
       type = "system";
@@ -286,6 +305,7 @@ function parseKotehan(str: string): string | undefined {
 
 function setDebug(client: NicoliveClient) {
   client.onWsState.on(event => console.log(`wsClient: ${event}`));
+  client.onWsMessage._debugAllOn(event => console.log("wsMsg: ", event));
   client.onMessageState.on(event => console.log(`commentClient: ${event}`));
   client.onMessageEntry.on(event => console.log(`commentEntry: ${event}`));
   client.onMessage.on(x);
@@ -298,7 +318,7 @@ function setDebug(client: NicoliveClient) {
           ? "none"
           : {
             ..._meta,
-            at: _meta.at == null ? "-" : new Date(timestampToMs(_meta.at)).toLocaleString(),
+            "#date": _meta.at == null ? "-" : new Date(timestampToMs(_meta.at)).toLocaleString(),
           };
       if (_case === "state") {
         console.log("###", _case, meta, value);
