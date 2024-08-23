@@ -22,6 +22,8 @@ export class BouyomiChan {
       else if (BouyomiChan.speakName === "ato") content = content + "。" + name;
     }
 
+    content = encodeURIComponent(content);
+
     await fetch(`http://localhost:${BouyomiChan.port}/talk?text=${content}`);
   }
 }
