@@ -11,14 +11,23 @@ const manifest = defineManifest({
   icons: {
     128: "assets/128x128.png",
   },
-  permissions: ["storage"],
+  permissions: ["storage", "declarativeNetRequestWithHostAccess"],
   action: {
     // default_popup: "index.html",
   },
+  declarative_net_request: {
+    rule_resources: [
+      {
+        id: "api-request-user-agent",
+        enabled: true,
+        path: "src/rules.json"
+      }
+    ]
+  },
   host_permissions: [
     "*://*.nicovideo.jp/*",
-    // "*://*.nimg.jp/*",
-    // "*://*.dmc.nico/*",
+    "*://*.nimg.jp/*",
+    "*://*.dmc.nico/*",
   ],
   content_scripts: [
     // {

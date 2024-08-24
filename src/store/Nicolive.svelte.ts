@@ -83,9 +83,6 @@ class _Nicolive {
     this.client.onWsState.on(event => this.connectWs = event === "open");
     this.client.onMessageState.on(event => this.connectComment = event === "open");
     this.client.onWsMessage.on("messageServer", data => { this.vposBaseTimeMs = new Date(data.vposBaseTime).getTime(); });
-    this.client.onWsState.on(event => {
-      if (event === "disconnect") this.client!.close();
-    });
 
     this.client.onMessageEntry.on(message => {
       if (message === "segment") this._canSpeak = true;

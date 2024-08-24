@@ -31,7 +31,7 @@ ws:${Nicolive.connectWs ? "ON" : "off"} co:${Nicolive.connectComment ? "ON" : "o
           🙄
         </div>
       {:else if Nicolive.client != null}
-        <div title="接続はありませんが過去コメントがある場合は取得できます">😴</div>
+        <div title="現在接続していませんが、過去コメントがある場合は取得できます">😴</div>
       {:else}
         <div title="接続状態を表すアイコンです">😶</div>
       {/if}
