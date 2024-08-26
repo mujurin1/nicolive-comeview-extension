@@ -86,7 +86,7 @@
 
       <div class="line">
         <div>
-          <label class="explanation" for="fetch-connecting-backward">接続時に過去コメントを取得するか</label>
+          <label class="explanation" for="fetch-connecting-backward">接続時に過去コメントを取得する</label>
           <div class="hint">OFFの場合でも少しだけ過去コメントを取得する場合があります</div>
         </div>
         <input type="checkbox" id="fetch-connecting-backward" bind:checked={store.general.fetchConnectingBackward} />
@@ -172,7 +172,7 @@
             {@const selected = store.yomiage.use === yomi}
             {@const disabled = yomi === "VOICEVOX"}
             <input type="radio" id={yomi} name="contact" value={yomi} onclick={() => store.yomiage.use = yomi} checked={selected} {disabled}/>
-            <label for={yomi}>{yomi}</label>
+            <label class:disabled for={yomi}>{yomi}</label>
           {/each}
         </div>
       </div>
@@ -226,6 +226,14 @@
 </dialog>
 
 <style>
+  input[type="radio"] {
+    margin-right: 0;
+
+    & + label:not(:last-child) {
+      margin-right: 10px;
+    }
+  }
+  
   .mordal {
     background-color: #c0cbd6;
 

@@ -19,7 +19,7 @@
       {/if}
     </div>
 
-    <div class="head-item connect-item">
+    <div class="head-item">
       {#if Nicolive.state === "none"}
         <div title="接続状態を表すアイコンです">😶</div>
       {:else if Nicolive.state === "opened"}
@@ -58,17 +58,17 @@ ws:${Nicolive.connectWs ? "ON" : "off"} co:${Nicolive.connectComment ? "ON" : "o
           <div>過去コメント</div>
           <button
             type="button"
-            title="過去コメントを最低100件取得"
-            onclick={() => Nicolive.fetchBackword(100)}
+            title="過去コメントを500件ほど取得します"
+            onclick={() => Nicolive.fetchBackword(1)}
           >
-            千
+            少し
           </button>
           <button
             type="button"
-            title="過去コメントを全て取得"
+            title="過去コメントを全て取得します"
             onclick={() => Nicolive.fetchBackword(1e10)}
           >
-            全
+            全て
           </button>
         {/if}
       </div>

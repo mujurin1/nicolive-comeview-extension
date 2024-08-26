@@ -11,6 +11,14 @@ input[type=checkbox],
 input[type=radio],
 button {
   cursor: pointer;
+
+  &:disabled {
+    cursor: not-allowed !important;
+  }
+}
+
+.disabled {
+  cursor: not-allowed !important;
 }
 
 input[type=checkbox] {
