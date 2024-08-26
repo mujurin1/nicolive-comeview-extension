@@ -86,50 +86,50 @@
 
       <div class="line">
         <div>
-          <div class="explanation">接続時に取得する過去コメント数</div>
-          <div class="hint">実際に取得するコメント数とは誤差があります</div>
+          <label class="explanation" for="fetch-connecting-backward">接続時に過去コメントを取得するか</label>
+          <div class="hint">OFFの場合でも少しだけ過去コメントを取得する場合があります</div>
         </div>
-        <input type="number" bind:value={store.general.minBackwards} />
+        <input type="checkbox" id="fetch-connecting-backward" bind:checked={store.general.fetchConnectingBackward} />
       </div>
 
       <div class="line">
-        <label class="explanation from-next" for="kotehan">コテハンを使用する</label>
-        <input type="checkbox" id="kotehan" bind:checked={store.general.useKotehan} />
+        <label class="explanation from-next" for="user-kotehan">コテハンを使用する</label>
+        <input type="checkbox" id="user-kotehan" bind:checked={store.general.useKotehan} />
       </div>
 
       <div class="line">
-        <label class="explanation from-next" for="link">URLを含むコメントをリンクにする</label>
-        <input type="checkbox" id="link" bind:checked={store.general.urlToLink} />
+        <label class="explanation from-next" for="url-to-link">URLを含むコメントをリンクにする</label>
+        <input type="checkbox" id="url-to-link" bind:checked={store.general.urlToLink} />
       </div>
 
       <div class="line">
-        <label class="explanation" for="bold">最初のコメントを太字にする</label>
-        <input type="checkbox" id="bold" bind:checked={store.general.firstIsBold} />
+        <label class="explanation" for="first-is-bold">最初のコメントを太字にする</label>
+        <input type="checkbox" id="first-is-bold" bind:checked={store.general.firstIsBold} />
       </div>
 
       <div class="line">
         <div>
-          <label class="explanation" for="184">184の表示名をコメ番にする</label>
+          <label class="explanation" for="name-to-no">184の表示名をコメ番にする</label>
           <br>
           <div class="hint">184の表示名はその人の最初のコメント番号になります</div>
         </div>
-        <input type="checkbox" id="184" bind:checked={store.general.nameToNo} />
+        <input type="checkbox" id="name-to-no" bind:checked={store.general.nameToNo} />
       </div>
 
       <div class="line">
         <div>
-          <label class="explanation" for="sharp">シャープ(♯ # ＃)を含むコメントを隠す＆読み上げない</label>
+          <label class="explanation" for="hide-sharp">シャープ(♯ # ＃)を含むコメントを隠す＆読み上げない</label>
           <br>
           <div class="hint">用途: ボドゲや初見プレイなどでリスナー同士で考察するなど</div>
         </div>
-        <input type="checkbox" id="sharp" bind:checked={store.general.hideSharp} />
+        <input type="checkbox" id="hide-sharp" bind:checked={store.general.hideSharp} />
       </div>
 
     {:else if tabId === "読み上げ"}
 
       <div class="line">
-        <label for="speak">コメントを読み上げる</label>
-        <input type="checkbox" id="speak" bind:checked={store.yomiage.isSpeak} />
+        <label for="is-speak">コメントを読み上げる</label>
+        <input type="checkbox" id="is-speak" bind:checked={store.yomiage.isSpeak} />
       </div>
 
       <div class="line">
@@ -142,8 +142,8 @@
       </div>
 
       <div class="line">
-        <label for="system">システムメッセージの読み上げ</label>
-        <input type="checkbox" id="system" bind:checked={store.yomiage.speakSystem} />
+        <label for="speak-system">システムメッセージの読み上げ</label>
+        <input type="checkbox" id="speak-system" bind:checked={store.yomiage.speakSystem} />
       </div>
 
       <div class="line">

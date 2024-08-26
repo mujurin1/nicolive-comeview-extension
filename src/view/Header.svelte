@@ -10,17 +10,21 @@
   <div class="left">
     <div class="head-item connect-item">
       <input bind:value={Nicolive.url} size="18" placeholder="URL (lv ch user/)" />
-      {#if Nicolive.connectComment}
+      {#if Nicolive.state === "none" || Nicolive.state === "disconnected"}
+        <button type="button" onclick={() => Nicolive.connect()}>接続</button>
+      {:else if Nicolive.state === "opened"}
         <button type="button" onclick={() => Nicolive.close()}>切断</button>
       {:else}
-        <button type="button" onclick={() => Nicolive.connect()}>接続</button>
+        <button type="button" disabled>接続中</button>
       {/if}
     </div>
 
     <div class="head-item connect-item">
-      {#if Nicolive.connectWs && Nicolive.connectComment}
+      {#if Nicolive.state === "none"}
+        <div title="接続状態を表すアイコンです">😶</div>
+      {:else if Nicolive.state === "opened"}
         <div title="接続に問題はありません！">😀</div>
-      {:else if Nicolive.connectWs || Nicolive.connectComment}
+      {:else if Nicolive.state === "connecting"}
         <div
           title={`接続中・・・
 ws:${Nicolive.connectWs ? "ON" : "off"} co:${Nicolive.connectComment ? "ON" : "off"}
@@ -30,10 +34,10 @@ ws:${Nicolive.connectWs ? "ON" : "off"} co:${Nicolive.connectComment ? "ON" : "o
         >
           🙄
         </div>
-      {:else if Nicolive.client != null}
+      {:else if Nicolive.state === "reconnecting" || Nicolive.state === "reconnect_failed"}
+        <div title={`ネットワークエラーまたは再接続要求により再接続中です`}>😥 再接続中‥</div>
+      {:else if Nicolive.state === "disconnected"}
         <div title="現在接続していませんが、過去コメントがある場合は取得できます">😴</div>
-      {:else}
-        <div title="接続状態を表すアイコンです">😶</div>
       {/if}
 
       {#if Nicolive.errorMessages.length > 0}
@@ -41,16 +45,21 @@ ws:${Nicolive.connectWs ? "ON" : "off"} co:${Nicolive.connectComment ? "ON" : "o
       {/if}
     </div>
 
-    {#if !Nicolive.allReceivedBackward}
+    {#if Nicolive.canFetchBackwaardMessage}
       <div class="head-item">
         {#if Nicolive.client == null}
           <div>過去コメント －－</div>
+        {:else if Nicolive.isFetchingBackwardMessage}
+          <div title="１セグメント毎の待機時間は１秒">過去コメント取得中‥</div>
+          <button type="button" onclick={() => Nicolive.client?.stopFetchBackwardMessages()}>
+            中断
+          </button>
         {:else}
           <div>過去コメント</div>
           <button
             type="button"
-            title="過去コメントを1000件取得"
-            onclick={() => Nicolive.fetchBackword(1000)}
+            title="過去コメントを最低100件取得"
+            onclick={() => Nicolive.fetchBackword(100)}
           >
             千
           </button>

@@ -12,19 +12,19 @@
   updateOpenTabs();
 
   $effect(() => {
-    if (first && Nicolive.connectComment) first = false;
+    if (first && Nicolive.state === "opened") first = false;
   });
+  $effect(() => console.log("LOGOGO", Nicolive.state));
 
   function updateOpenTabs() {
     chrome.tabs.query({}, tabs => {
       openTabs = tabs
-        .filter(tab => tab?.url?.includes("https://live.nicovideo.jp/watch"))
+        .filter(tab => tab?.url?.includes("https://live.nicovideo.jp/watch/"))
         .map(tab => ({ id: getNicoliveId(tab.url!)!, title: /(.*?) - /.exec(tab.title!)![1] }));
     });
   }
 
   function connect(id: string) {
-    first = false;
     Nicolive.url = id;
     Nicolive.connect();
   }

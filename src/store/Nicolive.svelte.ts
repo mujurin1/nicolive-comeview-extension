@@ -1,4 +1,4 @@
-import { NicoliveClient, NicoliveWatchError, timestampToMs } from "@mujurin/nicolive-api-ts";
+import { NicoliveClient, NicoliveWatchError, timestampToMs, type NicoliveClientState } from "@mujurin/nicolive-api-ts";
 import type { ChunkedMessage } from "@mujurin/nicolive-api-ts/build/gen/dwango_pb";
 import { iconNone, timeString } from "../utils";
 import { BouyomiChan } from "./BouyomiChan.svelte";
@@ -38,14 +38,16 @@ class _Nicolive {
   /** 接続開始時の過去コメを読み上げないためのフラグ */
   private _canSpeak = false;
 
+  public state = $state<"none" | NicoliveClientState>("none");
+  public connectWs = $state(false);
+  public connectComment = $state(false);
+
   public url = $state("");
   public errorMessages = $state<string[]>([]);
 
   public client = $state<NicoliveClient>();
   public messages = $state<NicoliveMessage[]>([]);
 
-  public connectWs = $state(false);
-  public connectComment = $state(false);
 
   public vposBaseTimeMs?: number;
   /**
@@ -56,36 +58,67 @@ class _Nicolive {
    */
   public users = $state<Record<string | number, NicoliveUser>>({});
   /**
-   * 全ての過去メッセージを受信しているか
+   * 過去メッセージを取得可能か (全て取得しているか)
    */
-  public allReceivedBackward = $state(false);
+  public canFetchBackwaardMessage = $state(true);
+  /**
+   * 過去コメントを取得中か
+   */
+  public isFetchingBackwardMessage = $state(false);
 
   public async connect() {
+    if (!this.url) return;
+    if (!(this.state === "none" || this.state === "disconnected")) return;
+
+    this.client?.dispose();
     this._canSpeak = false;
-    this.close();
     this.messages = [];
     this.users = {};
-    this.allReceivedBackward = false;
+    this.canFetchBackwaardMessage = true;
     this.errorMessages = [];
+    this.isFetchingBackwardMessage = false;
+
+    this.state = "connecting";
 
     try {
-      this.client = await NicoliveClient.create(this.url, "now", store.general.minBackwards, false);
+      this.client = await NicoliveClient.create(this.url, "now", store.general.fetchConnectingBackward ? 1 : 0, false);
     } catch (e) {
+      this.state = "disconnected";
       if (!(e instanceof NicoliveWatchError)) throw e;
 
       this.errorMessages.push(e.message);
-
       return;
     }
 
     this.url = this.client.liveId;
 
-    this.client.onWsState.on(event => this.connectWs = event === "open");
-    this.client.onMessageState.on(event => this.connectComment = event === "open");
+    this.client.onState.on(event => this.state = event);
+    this.client.onLog.on("info", message => {
+      if (message.type === "reconnect") {
+        if (message.sec == null) this.errorMessages = [];
+        else this.errorMessages.push(`ネットワークエラーが発生したため再接続中です\n    待機時間: ${message.sec}秒`);
+      }
+      else this.errorMessages.push(JSON.stringify(message));
+    });
+    this.client.onLog.on("error", message => {
+      let msg = message.type;
+      if ("error" in message) msg += `\n${message.error}`;
+      this.errorMessages.push(msg);
+    });
+
+    this.client.onWsState.on(event => {
+      this.connectWs = event === "opened";
+    });
+    this.client.onMessageState.on(event => {
+      this.connectComment = event === "opened";
+    }
+    );
     this.client.onWsMessage.on("messageServer", data => { this.vposBaseTimeMs = new Date(data.vposBaseTime).getTime(); });
 
     this.client.onMessageEntry.on(message => {
-      if (message === "segment") this._canSpeak = true;
+      if (message === "segment") {
+        this._canSpeak = true;
+      }
     });
 
     this.client.onMessage.on(this.onMessage);
@@ -98,16 +131,16 @@ class _Nicolive {
   }
 
   public close() {
-    if (this.client == null) return;
-    this.client.close();
+    this.client?.close();
   }
 
   public async fetchBackword(maxBackwords: number) {
-    if (this.client != null && !this.client.getAllReceivedBackward()) {
-      await this.client.fetchBackwardMessages(maxBackwords);
-    }
+    if (this.client == null) return;
+    this.isFetchingBackwardMessage = true;
 
-    this.allReceivedBackward = this.client?.getAllReceivedBackward() ?? false;
+    await this.client.fetchBackwardMessages(maxBackwords);
+    this.isFetchingBackwardMessage = this.client.isFetchingBackwardMessage;
+    this.canFetchBackwaardMessage = this.client.canFetchBackwardMessage();
   }
 
   // デバッグ用
@@ -307,6 +340,8 @@ function setDebug(client: NicoliveClient) {
   client.onMessageEntry.on(event => console.log(`commentEntry: ${event}`));
   client.onMessage.on(x);
   client.onMessageOld.on(msgs => x(...msgs));
+
+  client.onLog._debugAllOn(event => console.log("state: ", event.data[0]));
 
   function x(...messages: ChunkedMessage[]) {
     for (const { meta: _meta, payload: { value, case: _case } } of messages) {

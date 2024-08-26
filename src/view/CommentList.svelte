@@ -26,7 +26,7 @@
 </script>
 
 <div bind:this={listView} class="comment-list" tabindex="-1">
-  {#each Nicolive.messages as comment (comment.commentId)}
+  {#each Nicolive.messages as comment}
     {@const user: NicoliveUser | undefined = Nicolive.users[comment.userId!]}
     {@const bold = store.general.firstIsBold && comment.no != null && user?.firstNo === comment.no}
     {@const hideSharp = store.general.hideSharp && comment.type === "listener" && /[♯#＃]/.test(comment.content)}

@@ -24,7 +24,8 @@ export interface StoreUser_Nicolive {
  */
 const defaultStore = {
   general: {
-    minBackwards: 50,
+    /** 接続時に過去コメントを取得するか */
+    fetchConnectingBackward: true,
     useKotehan: true,
     /** URLを含むコメントをリンクにする */
     urlToLink: true,
