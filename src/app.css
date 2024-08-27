@@ -9,12 +9,27 @@ main {
 label[for],
 input[type=checkbox],
 input[type=radio],
-button {
+button,
+select {
   cursor: pointer;
 
   &:disabled {
     cursor: not-allowed !important;
   }
+}
+
+details {
+  width: 100% !important;
+
+  &>summary {
+    cursor: pointer;
+    width: 100%;
+  }
+}
+
+input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .disabled {
@@ -24,6 +39,34 @@ button {
 input[type=checkbox] {
   margin: 2px;
   aspect-ratio: 1 / 1;
-  /* height: 100%; */
-  /* min-width: 24px; */
+}
+
+fieldset {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  line-height: 0;
+
+  margin: 8px 0 3px 0;
+  padding: 0;
+
+  legend {
+    position: sticky;
+    font-size: 0.8em;
+    margin-left: 8px;
+    z-index: 2;
+  }
+
+  *:last-child {
+    background-color: transparent;
+    box-sizing: border-box;
+    width: 100% !important;
+    font-size: 1em;
+
+    margin: 0;
+    padding: 10px 0 5px 10px;
+
+    border: none;
+    outline: none;
+  }
 }

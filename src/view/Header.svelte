@@ -4,12 +4,30 @@
   import Setting from "./Setting.svelte";
 
   let showSetting = $state(false);
+
+  let dbgCommentId = 1;
+  let dbgComment = $state("@こて@よび");
+  function sendDbgComment() {
+    Nicolive.dbgAddMessage({
+      type: "listener",
+      is184: true,
+      commentId: `${dbgCommentId++}`,
+      userId: "#1",
+      no: -1,
+      iconUrl: undefined,
+      name: undefined,
+      time: "time",
+      content: dbgComment,
+      link: undefined,
+      includeSharp: false,
+    });
+  }
 </script>
 
 <div class="header">
   <div class="left">
     <div class="head-item connect-item">
-      <input bind:value={Nicolive.url} size="18" placeholder="URL (lv ch user/)" />
+      <input type="text" bind:value={Nicolive.url} size="18" placeholder="URL (lv ch user/)" />
       {#if Nicolive.state === "none" || Nicolive.state === "disconnected"}
         <button type="button" onclick={() => Nicolive.connect()}>接続</button>
       {:else if Nicolive.state === "opened"}
@@ -18,6 +36,13 @@
         <button type="button" disabled>接続中</button>
       {/if}
     </div>
+
+    <!-- デバッグ用
+      <div>
+        <button type="button" onclick={sendDbgComment}>テスト</button>
+        <input type="text" bind:value={dbgComment} />
+      </div>
+     -->
 
     <div class="head-item">
       {#if Nicolive.state === "none"}

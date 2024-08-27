@@ -11,6 +11,7 @@ export interface StoreUser_Nicolive {
   id: number | string;
   name?: string;
   kotehan?: string;
+  yobina?: string;
 }
 
 /**
@@ -26,7 +27,10 @@ const defaultStore = {
   general: {
     /** 接続時に過去コメントを取得するか */
     fetchConnectingBackward: true,
+    /** @コテハン. @[空白文字]の場合は削除される */
     useKotehan: true,
+    /** @コテハン@呼び名. 表示名とは別の呼び名を設定する */
+    useYobina: false,
     /** URLを含むコメントをリンクにする */
     urlToLink: true,
     /** 最初のコメントを強調する */

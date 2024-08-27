@@ -144,30 +144,33 @@ class _Nicolive {
   }
 
   // デバッグ用
-  public addMessage(...messages: NicoliveMessage[]) {
-    this.messages.push(...messages);
+  public dbgAddMessage(...messages: NicoliveMessage[]) {
+    for (const message of messages) {
+      this.getUserAndUpsert(message);
+      this.messages.push(message);
+    }
   }
 
-  private readonly onMessage = (message: ChunkedMessage) => {
-    const comment = parseMessage(message, this);
-    if (comment == null) return;
+  private readonly onMessage = (chunkedMessage: ChunkedMessage) => {
+    const message = parseMessage(chunkedMessage, this);
+    if (message == null) return;
 
-    const user = this.getUserAndUpsert(comment);
+    const user = this.getUserAndUpsert(message);
 
-    if (this._canSpeak && !(store.general.hideSharp && comment.includeSharp)) {
+    if (this._canSpeak && !(store.general.hideSharp && message.includeSharp)) {
       const storeUser = user?.storeUser;
       let name: string | undefined;
       if (storeUser != null) {
         name = (store.general.useKotehan && storeUser.kotehan != null) ? storeUser.kotehan : storeUser.name;
       }
-      void BouyomiChan.speak(comment.content, name);
+      void BouyomiChan.speak(message.content, name);
     }
 
-    this.messages.push(comment);
+    this.messages.push(message);
   };
 
-  private readonly onMessageOld = (messages: ChunkedMessage[]) => {
-    const comments = messages
+  private readonly onMessageOld = (chunkedMessage: ChunkedMessage[]) => {
+    const message = chunkedMessage
       .map(message => {
         const comment = parseMessage(message, this);
         if (comment == null) return;
@@ -176,7 +179,7 @@ class _Nicolive {
       })
       .filter(comment => comment != null);
 
-    this.messages.unshift(...comments);
+    this.messages.unshift(...message);
   };
 
   /**
@@ -186,12 +189,16 @@ class _Nicolive {
   private getUserAndUpsert(message: NicoliveMessage): NicoliveUser | undefined {
     if (message.type === "system" || message.userId == null) return;
 
-    const kotehan = store.general.useKotehan
-      ? parseKotehan(message.content)
-      : undefined;
-
+    let kotehan: string | 0 | undefined;
+    let yobina: string | 0 | undefined;
+    if (store.general.useKotehan || store.general.useYobina) {
+      const [_kotehan, _yobina] = parseKotehanAndYobina(message.content);
+      if (store.general.useKotehan) kotehan = _kotehan;
+      if (store.general.useYobina) yobina = _yobina;
+    }
     let user = this.users[message.userId];
 
+    // この if else 内ではストアの更新は行わない
     if (user == null) {
       // ユーザーデータを新規作成
       let noName184: string | undefined;
@@ -206,7 +213,8 @@ class _Nicolive {
         storeUser: store.nicolive.users_primitable[message.userId] ?? {
           id: message.userId,
           name: message.name,
-          kotehan,
+          kotehan: kotehan === 0 ? undefined : kotehan,
+          yobina: yobina === 0 ? undefined : yobina,
         },
         noName184,
       };
@@ -217,20 +225,23 @@ class _Nicolive {
 
         if (user.is184) user.noName184 = `${message.no} コメ`;
       }
-      if (kotehan != null) {
-        user.storeUser.kotehan = kotehan;
-      }
+      if (kotehan != null) user.storeUser.kotehan = kotehan === 0 ? undefined : kotehan;
+      if (yobina != null) user.storeUser.yobina = yobina === 0 ? undefined : yobina;
     }
 
-    // ストアのユーザーデータを更新
-    // 184は枠毎にIDが変わるので保存しない
-    if (
-      !user.is184 && (
-        // 保存する条件
-        kotehan != null
-      )
-    ) {
-      store.nicolive.users_primitable[user.id] = user.storeUser;
+    // ここでストアのユーザーデータの更新を行う
+    // MEMO: 184は枠毎にIDが変わるので保存しない
+    if (!user.is184) {
+      if (kotehan === 0) user.storeUser.kotehan = undefined;
+      if (yobina === 0) user.storeUser.yobina = undefined;
+
+      if (user.storeUser.kotehan == null && user.storeUser.yobina == null) {
+        if (store.nicolive.users_primitable[user.id] != null)
+          // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+          delete store.nicolive.users_primitable[user.id];  // 値を削除する
+      } else {
+        store.nicolive.users_primitable[user.id] = user.storeUser;
+      }
     }
 
     return user;
@@ -329,8 +340,23 @@ function parseIconUrl(userId?: string | number) {
   return `https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/${Math.floor(userId / 1e4)}/${userId}.jpg`;
 }
 
-function parseKotehan(str: string): string | undefined {
-  return /[@＠]([^\s@＠]+)/.exec(str)?.[1];
+/**
+ * 文字列からコテハンと呼び名をパースする\
+ * `0`は削除するフラグ
+ * @param str パースする文字列
+ * @returns [コテハン, 呼び名]
+ */
+function parseKotehanAndYobina(str: string): [string | 0 | undefined, string | 0 | undefined] {
+  const reg = /[@＠](\s|[^\s@＠]+)?[^@＠]*(?:[@＠](\s|[^\s@＠]+))?/.exec(str);
+  if (reg == null) return [undefined, undefined];
+
+  const kotehan = reg[1];
+  const yobina = reg[2];
+
+  return [
+    /\s/.test(kotehan) ? 0 : kotehan,
+    /\s/.test(yobina) ? 0 : yobina,
+  ];
 }
 
 function setDebug(client: NicoliveClient) {

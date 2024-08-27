@@ -59,8 +59,7 @@
 
     &.selected {
       color: black;
-      background-color: #d6ecf0;
-      background-color: #fbe5af;
+      background-color: #ffeec3;
     }
   }
 </style>
