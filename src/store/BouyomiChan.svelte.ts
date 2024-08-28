@@ -5,10 +5,10 @@ export class BouyomiChan {
   public static set port(value) { store.bouyomiChan.port = value; }
   public static get isSpeak() { return store.yomiage.isSpeak; }
   public static set isSpeak(value) { store.yomiage.isSpeak = value; }
-  public static get speakName() { return store.yomiage.speakName; }
-  public static set speakName(value) { store.yomiage.speakName = value; }
-  public static get speakSystem() { return store.yomiage.speakSystem; }
-  public static set speakSystem(value) { store.yomiage.speakSystem = value; }
+  public static get speakName() { return store.yomiage.speachName; }
+  public static set speakName(value) { store.yomiage.speachName = value; }
+  public static get speakSystem() { return store.yomiage.speachSystem; }
+  public static set speakSystem(value) { store.yomiage.speachSystem = value; }
 
   public static switchSpeak() {
     BouyomiChan.isSpeak = !BouyomiChan.isSpeak;

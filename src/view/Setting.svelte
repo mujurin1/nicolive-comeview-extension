@@ -1,11 +1,11 @@
 <script lang="ts">
   import Tab from "../components/Tab.svelte";
   import { BouyomiChan } from "../store/BouyomiChan.svelte";
-  import { store, storeClear, storeSave, Yomiage } from "../store/store.svelte";
+  import { SpeachNameType, store, storeClear, storeSave, Yomiage } from "../store/store.svelte";
 
   const names = ["コメント表示", "読み上げ", "Advanced"] as const;
   let { show = $bindable() }: { show: boolean } = $props();
-  let currentTab = $state<typeof names[number]>("コメント表示");
+  let currentTab = $state<typeof names[number]>("読み上げ");
 
   let setting : HTMLDialogElement;
   let useAdvanced = $state(false);
@@ -108,11 +108,11 @@
 
       <div class="line">
         <input type="checkbox" id="user-yobina" bind:checked={store.general.useYobina} />
-        <label class="explanation from-next" for="user-yobina">呼び名機能を使う　(@..@呼び名)</label>
+        <label class="explanation from-next" for="user-yobina">呼び名機能を使う　(@@呼び名)</label>
         <details class="hint">
           <summary>見た目の名前と読み上げられる名前を変えるための機能です</summary>
           <div>@@の直後が空白文字なら、呼び名が削除されます</div>
-          <div>「@...@呼び名」で表示名とは別に呼び名を設定できます</div>
+          <div>「@コテハン@呼び名」で表示名とは別に呼び名を設定できます</div>
           <div>（正確には２つめの「@文字列」が呼び名になります）</div>
           <div>※実験的機能です。次のバージョンから無くなるかもしれません</div>
         </details>
@@ -157,15 +157,52 @@
 
       <fieldset>
         <legend>名前の読み上げ位置</legend>
-        <select bind:value={store.yomiage.speakName}>
+        <select bind:value={store.yomiage.speachName}>
           <option value="none">読み上げない</option>
           <option value="mae">コメントの前</option>
           <option value="ato">コメントの後</option>
         </select>
       </fieldset>
 
+      <div>
+        <fieldset>
+          <legend>読み上げる名前のタイプ (右側の項目を優先します)</legend>
+
+          <div>
+            {#each SpeachNameType as speachName (speachName)}
+              {@const selected = store.yomiage.speachNameTypes[speachName]}
+              <button
+                class="select-btn"
+                data-selected={selected}
+                type="button"
+                onclick={() => store.yomiage.speachNameTypes[speachName] = !selected}
+              >
+              {speachName}
+            </button>
+              {/each}<!-- MEMO:空白除去のためのコメント
+         --><button
+              class="select-btn"
+              data-selected={store.general.useYobina}
+              type="button"
+              title="「コメント表示 > 呼び名機能を使う」で変更できます"
+              disabled
+            >
+              呼び名
+            </button>
+        </div>
+        </fieldset>
+        {#if store.yomiage.speachNameTypes["コメ番"] && !store.general.nameToNo}
+          <div class="hint warning">コメ番は名前として使用されません「コメント表示 > 184の表示名をコメ番にする」も有効にする必要があります</div>
+        {/if}
+        {#if store.yomiage.speachNameTypes["コテハン"] && !store.general.useKotehan}
+          <div class="hint warning">コテハンは名前として使用されません「コメント表示 > コテハンを使用する」も有効にする必要があります</div>
+        {/if}
+        <div class="hint">呼び名は「コメント表示 > 呼び名機能を使う」設定で切り替えられます</div>
+        <div class="hint ">呼び名があるときだけそれを名前として読み上げたい時のための項目です</div>
+      </div>
+
       <div class="line">
-        <input type="checkbox" id="speak-system" bind:checked={store.yomiage.speakSystem} />
+        <input type="checkbox" id="speak-system" bind:checked={store.yomiage.speachSystem} />
         <label for="speak-system">システムメッセージの読み上げ</label>
       </div>
 
@@ -190,19 +227,20 @@
           {#each Yomiage as yomi (yomi)}
             {@const selected = store.yomiage.use === yomi}
             {@const disabled = yomi === "VOICEVOX"}
-            <input type="radio" id={yomi} name="contact" value={yomi} onclick={() => store.yomiage.use = yomi} checked={selected} {disabled}/>
-            <label class:disabled for={yomi}>{yomi}</label>
+            <input type="radio" id={yomi} name="contact" value={yomi} onclick={() => store.yomiage.use = yomi} checked={selected} {disabled}/><!--
+            MEMO:空白除去のためのコメント
+         --><label class:disabled for={yomi}>{yomi}</label>
           {/each}
         </div>
       </div>
 
       <div class="line">
-        <input type="checkbox" id="speak-system" bind:checked={store.yomiage.speakSystem} />
+        <input type="checkbox" id="speak-system" bind:checked={store.yomiage.speachSystem} />
         <label for="speak-system">システムメッセージの読み上げ</label>
       </div>
 
       <div class="line">
-        <input type="checkbox" id="speak-system" bind:checked={store.yomiage.speakSystem} />
+        <input type="checkbox" id="speak-system" bind:checked={store.yomiage.speachSystem} />
         <label for="speak-system">システムメッセージの読み上げ</label>
       </div>
 
@@ -216,12 +254,12 @@
       {/if}
 
       <div class="line">
-        <input type="checkbox" id="speak-system" bind:checked={store.yomiage.speakSystem} />
+        <input type="checkbox" id="speak-system" bind:checked={store.yomiage.speachSystem} />
         <label for="speak-system">システムメッセージの読み上げ</label>
       </div>
 
       <div class="line">
-        <input type="checkbox" id="speak-system" bind:checked={store.yomiage.speakSystem} />
+        <input type="checkbox" id="speak-system" bind:checked={store.yomiage.speachSystem} />
         <label for="speak-system">システムメッセージの読み上げ</label>
       </div>
 
@@ -272,10 +310,14 @@
     min-width: 80px;
   }
   input[type="radio"] {
-    margin-right: 0;
+    margin: 0;
 
-    & + label:not(:last-child) {
-      margin-right: 10px;
+    & + label {
+      padding-left: 5px;
+      
+      &:not(:last-child){
+        margin-right: 10px;
+      }
     }
   }
   input[type=checkbox] {
@@ -375,6 +417,33 @@
     
     font-size: 0.75rem;
     text-indent: 1rem;
+  }
+
+  .warning {
+    color: crimson;
+  }
+
+  .select-btn {
+    border-radius: 0;
+    border: 2px solid black;
+    border-color: #f9f9f954;
+    color: ghostwhite;
+    font-size: 1rem;
+
+    &:not(:last-child) {
+      margin-right: 3px;
+    }
+
+    &[data-selected="true"] {
+      background-color: #4889f4;
+    }
+    &[data-selected="false"] {
+      background-color: #f2686f;
+      background-color: #888888;
+    }
+    &[disabled] {
+      filter: contrast(70%);
+    }
   }
 
 </style>

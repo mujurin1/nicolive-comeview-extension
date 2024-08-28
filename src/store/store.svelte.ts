@@ -7,6 +7,13 @@ export type SpeakName = typeof SpeakName[number];
 export const Yomiage = ["棒読みちゃん", "VOICEVOX"] as const;
 export type Yomiage = typeof Yomiage[number];
 
+/**
+ * 読み上げる名前\
+ * `"呼び名"`は{@link store.general.useYobina}と同じ値になるのでここでは不要
+ */
+export const SpeachNameType = ["ユーザー名", "コメ番", "コテハン"] as const;
+export type SpeachNameType = typeof SpeachNameType[number];
+
 export interface StoreUser_Nicolive {
   id: number | string;
   name?: string;
@@ -48,8 +55,13 @@ const defaultStore = {
   yomiage: {
     isSpeak: false,
     use: "棒読みちゃん" as Yomiage,
-    speakName: "none" as SpeakName,
-    speakSystem: true,
+    speachName: "none" as SpeakName,
+    speachNameTypes: {
+      "ユーザー名": true as boolean,
+      "コメ番": false as boolean,
+      "コテハン": true as boolean,
+    } satisfies { [K in SpeachNameType]: boolean; },
+    speachSystem: true,
   },
   bouyomiChan: {
     port: 50080,

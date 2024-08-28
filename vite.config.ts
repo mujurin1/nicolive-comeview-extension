@@ -57,7 +57,7 @@ export default defineConfig({
       input: {
         main: "./index.html"
       }
-    }
+    },
   },
 
   // 拡張機能でホットリロードを使うにはポートの指定が必要

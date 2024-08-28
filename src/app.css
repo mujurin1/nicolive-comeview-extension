@@ -50,14 +50,15 @@ fieldset {
   margin: 8px 0 3px 0;
   padding: 0;
 
-  legend {
+  &>legend {
     position: sticky;
     font-size: 0.8em;
     margin-left: 8px;
     z-index: 2;
+    text-overflow: ellipsis;
   }
 
-  *:last-child {
+  &>*:last-child {
     background-color: transparent;
     box-sizing: border-box;
     width: 100% !important;
