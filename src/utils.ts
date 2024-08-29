@@ -15,3 +15,13 @@ export function timeString(ms: number): string {
 function pad(num: number): string {
   return `00${num}`.slice(-2);
 }
+
+export function onErrorImage(e: Event) {
+  const img = e.currentTarget as HTMLImageElement;
+  img.src = iconNone;
+}
+
+export function parseIconUrl(userId?: string | number) {
+  if (typeof userId !== "number") return iconNone;
+  return `https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/${Math.floor(userId / 1e4)}/${userId}.jpg`;
+}

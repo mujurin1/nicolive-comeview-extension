@@ -1,17 +1,24 @@
 <script lang="ts">
-  import Tab from "../components/Tab.svelte";
-  import { BouyomiChan } from "../store/BouyomiChan.svelte";
-  import { SpeachNameType, store, storeClear, storeSave, Yomiage } from "../store/store.svelte";
+    import Tab from "../components/Tab.svelte";
+    import UserSetting from "../components/UserSetting.svelte";
+    import { BouyomiChan } from "../store/BouyomiChan.svelte";
+    import { SpeachNameType, type StoreUser_Nicolive, Yomiage } from "../store/data";
+    import { Nicolive } from "../store/Nicolive.svelte";
+    import { store, storeClear, storeSave } from "../store/store.svelte";
 
-  const names = ["コメント表示", "読み上げ", "Advanced"] as const;
+  const names = ["一般", "読み上げ", "コメント表示", "Advanced"] as const;
   let { show = $bindable() }: { show: boolean } = $props();
-  let currentTab = $state<typeof names[number]>("読み上げ");
+  let currentTab = $state<typeof names[number]>("コメント表示");
 
   let setting : HTMLDialogElement;
   let useAdvanced = $state(false);
   let savedata = $state("");
+  let serchUserQuery = $state("");
+  let hitUsers = $state<Set<StoreUser_Nicolive>>(new Set());
 
-  function init() {
+  let initSerchUser = $state(false);
+
+  function changeTabedInit() {
     bouyomiTest = "none";
     trySave = "none";
     checkedClearOk = false;
@@ -19,24 +26,44 @@
 
   $effect(() => {
     currentTab;
-    init();
-  })
+    changeTabedInit();
+  });
+
+  $effect(() => {
+    if(show) {
+      setting.showModal();
+    } else {
+      changeTabedInit();
+      useAdvanced = false;
+      setting.close();
+    }
+  });
+
+  $effect(() => {
+    if(!show || initSerchUser || currentTab !== "コメント表示") return;
+    initSerchUser = true;
+    serchUser();
+  });
+
+  function serchUser() {
+    hitUsers = new Set([
+      ...Object.values(store.nicolive.users_primitable),
+      ...Object.values(Nicolive.users).map(u => u.storeUser),
+    ]);
+
+    if (serchUserQuery) {
+      for(const user of hitUsers) {
+        if(!user.name?.includes(serchUserQuery))
+          hitUsers.delete(user);
+      }
+    }
+  }
 
   $effect(() => {
     if(!useAdvanced) return;
     
     savedata = JSON.stringify(store, null, 2);
   })
-
-  $effect(() => {
-    if(show) {
-      setting.showModal();
-    } else {
-      init();
-      useAdvanced = false;
-      setting.close();
-    }
-  });
 
   let bouyomiTest = $state<"none" | "try" | "miss" | "ok">("none");
 
@@ -69,19 +96,6 @@
   }
 </script>
 
-{#snippet hintContainer(texts: string[])}
-  {@const x = { s: undefined! as HTMLSpanElement, i: 0 }}
-  <button
-    type="button"
-    style="width: 10px;"
-    onclick={() => {
-        if(++x.i >= texts.length) x.i = 0;
-        x.s.innerText = texts[x.i];
-    }}
-  >▼</button>
-  <span bind:this={x.s}>{texts[0]}</span>
-{/snippet}
-
 <dialog bind:this={setting} class="mordal">
   <button class="close-btn" onclick={() => show = false}>閉じる</button>
 
@@ -90,7 +104,7 @@
 
 {#snippet content(tabId)}
   <div class="content" data-tabId={tabId}>
-    {#if tabId === "コメント表示"}
+    {#if tabId === "一般"}
 
       <div class="line">
         <div class="explanation from-next" style="font-size: 0.7rem;">←このアイコンがある項目は過去のコメントに遡っては反映されません</div>
@@ -168,7 +182,7 @@
         <fieldset>
           <legend>読み上げる名前のタイプ (右側の項目を優先します)</legend>
 
-          <div>
+          <div style="display: flex;">
             {#each SpeachNameType as speachName (speachName)}
               {@const selected = store.yomiage.speachNameTypes[speachName]}
               <button
@@ -177,14 +191,14 @@
                 type="button"
                 onclick={() => store.yomiage.speachNameTypes[speachName] = !selected}
               >
-              {speachName}
-            </button>
-              {/each}<!-- MEMO:空白除去のためのコメント
-         --><button
+                {speachName}
+              </button>
+            {/each}
+            <button
               class="select-btn"
               data-selected={store.general.useYobina}
               type="button"
-              title="「コメント表示 > 呼び名機能を使う」で変更できます"
+              title="「一般 > 呼び名機能を使う」で変更できます"
               disabled
             >
               呼び名
@@ -192,12 +206,12 @@
         </div>
         </fieldset>
         {#if store.yomiage.speachNameTypes["コメ番"] && !store.general.nameToNo}
-          <div class="hint warning">コメ番は名前として使用されません「コメント表示 > 184の表示名をコメ番にする」も有効にする必要があります</div>
+          <div class="hint warning">コメ番は名前として使用されません「一般 > 184の表示名をコメ番にする」も有効にする必要があります</div>
         {/if}
         {#if store.yomiage.speachNameTypes["コテハン"] && !store.general.useKotehan}
-          <div class="hint warning">コテハンは名前として使用されません「コメント表示 > コテハンを使用する」も有効にする必要があります</div>
+          <div class="hint warning">コテハンは名前として使用されません「一般 > コテハンを使用する」も有効にする必要があります</div>
         {/if}
-        <div class="hint">呼び名は「コメント表示 > 呼び名機能を使う」設定で切り替えられます</div>
+        <div class="hint">呼び名は「一般 > 呼び名機能を使う」設定で切り替えられます</div>
         <div class="hint ">呼び名があるときだけそれを名前として読み上げたい時のための項目です</div>
       </div>
 
@@ -223,25 +237,14 @@
           <div class="hint">VOICEVOX は対応予定。現在は利用不可です</div>
         </div>
 
-        <div>
+        <div style="display: flex;">
           {#each Yomiage as yomi (yomi)}
             {@const selected = store.yomiage.use === yomi}
             {@const disabled = yomi === "VOICEVOX"}
-            <input type="radio" id={yomi} name="contact" value={yomi} onclick={() => store.yomiage.use = yomi} checked={selected} {disabled}/><!--
-            MEMO:空白除去のためのコメント
-         --><label class:disabled for={yomi}>{yomi}</label>
+            <input type="radio" id={yomi} name="contact" value={yomi} onclick={() => store.yomiage.use = yomi} checked={selected} {disabled}/>
+            <label class:disabled for={yomi}>{yomi}</label>
           {/each}
         </div>
-      </div>
-
-      <div class="line">
-        <input type="checkbox" id="speak-system" bind:checked={store.yomiage.speachSystem} />
-        <label for="speak-system">システムメッセージの読み上げ</label>
-      </div>
-
-      <div class="line">
-        <input type="checkbox" id="speak-system" bind:checked={store.yomiage.speachSystem} />
-        <label for="speak-system">システムメッセージの読み上げ</label>
       </div>
 
       {#if store.yomiage.use === "棒読みちゃん"}
@@ -253,14 +256,30 @@
         <div></div>
       {/if}
 
-      <div class="line">
-        <input type="checkbox" id="speak-system" bind:checked={store.yomiage.speachSystem} />
-        <label for="speak-system">システムメッセージの読み上げ</label>
+    {:else if tabId === "コメント表示"}
+
+      <h2 style="margin: 0;">リスナー一覧ページ</h2>
+
+      <div class="line" style="margin-bottom: 30px;">
+        <button type="button" onclick={serchUser}>検索</button>
+        <input type="text" placeholder="検索するユーザー名" bind:value={serchUserQuery} />
       </div>
 
-      <div class="line">
-        <input type="checkbox" id="speak-system" bind:checked={store.yomiage.speachSystem} />
-        <label for="speak-system">システムメッセージの読み上げ</label>
+      <!-- # コメントビューの見た目を変える
+      * 表示項目の編集
+      * 背景やグリッド線の色
+      * フォントサイズ
+      
+      
+      # ユーザー毎にコメントの見た目を変える
+      * 文字の色・スタイル
+      * フォント
+      * 背景色 -->
+
+      <div class="user-list">
+        {#each hitUsers as user (user.id)}
+          <UserSetting user={user} />
+        {/each}
       </div>
 
     {:else if tabId === "Advanced"}
@@ -303,28 +322,30 @@
 </dialog>
 
 <style>
-  select {
-    width: 140px;
-  }
-  button {
-    min-width: 80px;
-  }
-  input[type="radio"] {
-    margin: 0;
+  * {
+    :global(select) {
+      width: 140px;
+    }
+    :global(button) {
+      min-width: 80px;
+    }
+    :global(input[type="radio"]) {
+      margin: 0;
 
-    & + label {
-      padding-left: 5px;
-      
-      &:not(:last-child){
-        margin-right: 10px;
+      :global(& + label) {
+        padding-left: 5px;
+
+        :global(&:not(:last-child)) {
+          margin-right: 10px;
+        }
       }
     }
-  }
-  input[type=checkbox] {
-    min-width: 20px;
-  }
-  input[type=number] {
-    width: 80px;
+    :global(input[type=checkbox]) {
+      min-width: 20px;
+    }
+    :global(input[type=number]) {
+      width: 80px;
+    }
   }
 
   .mordal {
@@ -335,6 +356,10 @@
     
     padding: 0;
     border: 2px solid black;
+
+    &:focus {
+      outline: none;
+    }
   }
 
   .close-btn {
@@ -367,26 +392,6 @@
     }
   }
 
-  .line {
-    display: grid;
-    grid-template:
-            "a b" auto
-            ". c" auto / auto 1fr;
-
-    align-items: center;
-
-    & > *:nth-child(1) {
-      grid-area: a;
-      margin-right: 15px;
-    }
-    & > *:nth-child(2) {
-      grid-area: b;
-    }
-    & > *:nth-child(3) {
-      grid-area: c;
-    }
-  }
-
   .explanation {
     &::before {
       color: transparent;
@@ -409,18 +414,35 @@
     }
   }
 
-  .hint {
-    color: darkblue;
-    margin-top: -3px;
-    width: fit-content;
-    line-height: normal;
-    
-    font-size: 0.75rem;
-    text-indent: 1rem;
+  .user-list {
+    :global(& > *:not(:last-child)) {
+      margin-bottom: 5px;
+    }
   }
 
-  .warning {
-    color: crimson;
+
+  :global(.line) {
+    display: grid;
+    grid-template:
+            "a b" auto
+            ". c" auto / auto 1fr;
+
+    align-items: center;
+
+    :global(& > *:nth-child(1)) {
+      grid-area: a;
+      margin-right: 15px;
+    }
+    :global(& > *:nth-child(2)) {
+      grid-area: b;
+    }
+    :global(& > *:nth-child(3)) {
+      grid-area: c;
+    }
+  }
+
+  .hint {
+    margin-top: -3px;
   }
 
   .select-btn {

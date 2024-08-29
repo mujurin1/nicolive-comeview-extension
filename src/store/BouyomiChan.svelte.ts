@@ -14,7 +14,7 @@ export class BouyomiChan {
     BouyomiChan.isSpeak = !BouyomiChan.isSpeak;
   }
 
-  public static async speak(content: string, name: string | undefined, forceSpeak = false) {
+  public static async speak(content: string, name: string | null, forceSpeak = false) {
     if (!forceSpeak && !store.yomiage.isSpeak) return;
 
     if (name != null) {

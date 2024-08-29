@@ -1,8 +1,10 @@
 import { NicoliveClient, NicoliveWatchError, timestampToMs, type NicoliveClientState } from "@mujurin/nicolive-api-ts";
 import type { ChunkedMessage } from "@mujurin/nicolive-api-ts/build/gen/dwango_pb";
-import { iconNone, timeString } from "../utils";
+import { parseIconUrl, timeString } from "../utils";
 import { BouyomiChan } from "./BouyomiChan.svelte";
-import { store, type StoreUser_Nicolive } from "./store.svelte";
+import { autoUpdateCommentCss } from "./CssStyle.svelte";
+import type { StoreUser_Nicolive } from "./data";
+import { store } from "./store.svelte";
 
 export interface NicoliveMessage {
   type: "listener" | "owner" | "system";
@@ -13,7 +15,7 @@ export interface NicoliveMessage {
   userId: string | number | undefined;
   no: number | undefined;
   iconUrl: string | undefined;
-  name: string | undefined;
+  name: string | null;
   time: string;
   content: string;
   /** コメントに含まれるURL */
@@ -37,6 +39,8 @@ export interface NicoliveUser {
 class _Nicolive {
   /** 接続開始時の過去コメを読み上げないためのフラグ */
   private _canSpeak = false;
+  /** ストアを監視してCSSを更新する機能のクリーンアップ関数 */
+  private _cleanupAutoUpdateComentCss: (() => void)[] = [];
 
   public state = $state<"none" | NicoliveClientState>("none");
   public connectWs = $state(false);
@@ -70,13 +74,7 @@ class _Nicolive {
     if (!this.url) return;
     if (!(this.state === "none" || this.state === "disconnected")) return;
 
-    this.client?.dispose();
-    this._canSpeak = false;
-    this.messages = [];
-    this.users = {};
-    this.canFetchBackwaardMessage = true;
-    this.errorMessages = [];
-    this.isFetchingBackwardMessage = false;
+    this.cleanup();
 
     this.state = "connecting";
 
@@ -159,7 +157,7 @@ class _Nicolive {
 
     if (this._canSpeak && !(store.general.hideSharp && message.includeSharp)) {
       const storeUser = user?.storeUser;
-      let name: string | undefined;
+      let name: string | null = null;
       if (storeUser != null) {
         if (store.general.useYobina && storeUser.yobina != null) name = storeUser.yobina;
         else if (store.general.useKotehan && storeUser.kotehan != null) name = storeUser.kotehan;
@@ -196,8 +194,8 @@ class _Nicolive {
     const [kotehan, yobina] = parseKotehanAndYobina(message.content);
     const user = this.users[message.userId] ?? createUser(message)!;
 
+
     // this.users を更新
-    if (this.users[message.userId] == null) this.users[message.userId] = user;
     if (message.no != null && user.firstNo != null && message.no < user.firstNo) {
       user.firstNo = message.no;
       if (user.is184) user.noName184 = `${message.no}コメ`;
@@ -206,22 +204,48 @@ class _Nicolive {
     if (yobina != null) user.storeUser.yobina = yobina === 0 ? undefined : yobina;
 
     // store を更新
-    // MEMO: 184は枠毎にIDが変わるので保存しない
-    if (!user.is184) {
-      if (kotehan === 0) user.storeUser.kotehan = undefined;
-      if (yobina === 0) user.storeUser.yobina = undefined;
+    if (kotehan === 0) user.storeUser.kotehan = undefined;
+    if (yobina === 0) user.storeUser.yobina = undefined;
 
-      if (user.storeUser.kotehan == null && user.storeUser.yobina == null) {
-        if (store.nicolive.users_primitable[user.id] != null)
-          // ストアのユーザーデータの削除. ここで行う必要があるか?
-          // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-          delete store.nicolive.users_primitable[user.id];  // 値を削除する
-      } else {
-        store.nicolive.users_primitable[user.id] = user.storeUser;
-      }
+    // 保存する条件
+    if (
+      user.storeUser.name !== message.name ||
+      user.storeUser.kotehan != null ||
+      user.storeUser.yobina != null ||
+      user.storeUser.format != null
+    ) {
+      if (message.name !== null) user.storeUser.name = message.name;
+      store.nicolive.users_primitable[user.id] = user.storeUser;
+    }
+
+    if (this.users[message.userId] == null) {
+      this.users[message.userId] = user;
+      this.onFirstComment(user);
     }
 
     return user;
+  }
+
+  /**
+   * 初コメのユーザー
+   */
+  private onFirstComment(user: NicoliveUser) {
+    this._cleanupAutoUpdateComentCss.push(autoUpdateCommentCss(user));
+  }
+
+  private cleanup() {
+    for (const cleanupFn of this._cleanupAutoUpdateComentCss) {
+      cleanupFn();
+    }
+
+    this.client?.dispose();
+    this._canSpeak = false;
+    this._cleanupAutoUpdateComentCss = [];
+    this.messages = [];
+    this.users = {};
+    this.canFetchBackwaardMessage = true;
+    this.errorMessages = [];
+    this.isFetchingBackwardMessage = false;
   }
 }
 
@@ -304,17 +328,12 @@ function parseMessage({ meta, payload }: ChunkedMessage, nicolive: _Nicolive): N
     no,
     iconUrl,
     is184,
-    name,
+    name: name ?? null,
     time: timeString(time),
     content,
     link,
     includeSharp: /[♯#＃]/.test(content),
   };
-}
-
-function parseIconUrl(userId?: string | number) {
-  if (typeof userId !== "number") return iconNone;
-  return `https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/${Math.floor(userId / 1e4)}/${userId}.jpg`;
 }
 
 function createUser(message: NicoliveMessage): NicoliveUser | undefined {
@@ -362,14 +381,14 @@ function parseKotehanAndYobina(str: string): [string | 0 | undefined, string | 0
 
 
 function setDebug(client: NicoliveClient) {
-  client.onWsState.on(event => console.log(`wsClient: ${event}`));
-  client.onWsMessage._debugAllOn(event => console.log("wsMsg: ", event));
-  client.onMessageState.on(event => console.log(`commentClient: ${event}`));
-  client.onMessageEntry.on(event => console.log(`commentEntry: ${event}`));
+  client.onWsState.on(event => { console.log(`wsClient: ${event}`); });
+  client.onWsMessage._debugAllOn(event => { console.log("wsMsg: ", event); });
+  client.onMessageState.on(event => { console.log(`commentClient: ${event}`); });
+  client.onMessageEntry.on(event => { console.log(`commentEntry: ${event}`); });
   client.onMessage.on(x);
-  client.onMessageOld.on(msgs => x(...msgs));
+  client.onMessageOld.on(msgs => { x(...msgs); });
 
-  client.onLog._debugAllOn(event => console.log("state: ", event.data[0]));
+  client.onLog._debugAllOn(event => { console.log("state: ", event.data[0]); });
 
   function x(...messages: ChunkedMessage[]) {
     for (const { meta: _meta, payload: { value, case: _case } } of messages) {

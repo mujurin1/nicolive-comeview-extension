@@ -54,7 +54,6 @@ fieldset {
     position: sticky;
     font-size: 0.8em;
     margin-left: 8px;
-    z-index: 2;
     text-overflow: ellipsis;
   }
 
@@ -65,9 +64,23 @@ fieldset {
     font-size: 1em;
 
     margin: 0;
-    padding: 10px 0 5px 10px;
+    padding: 10px 10px 5px 10px;
 
     border: none;
     outline: none;
   }
+}
+
+
+.hint {
+  color: darkblue;
+  width: fit-content;
+  line-height: normal;
+
+  font-size: 0.75rem;
+  text-indent: 1rem;
+}
+
+.warning {
+  color: crimson;
 }

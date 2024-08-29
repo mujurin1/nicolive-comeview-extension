@@ -1,8 +1,8 @@
 <script lang="ts">
   import { getNicoliveId } from "@mujurin/nicolive-api-ts";
+  import LegacyCommentList from "./components/LegacyCommentList.svelte";
   import { Nicolive } from "./store/Nicolive.svelte";
   import { store } from "./store/store.svelte";
-  import CommentList from "./view/CommentList.svelte";
   import Header from "./view/Header.svelte";
 
   let first = $state(true);
@@ -14,7 +14,6 @@
   $effect(() => {
     if (first && Nicolive.state === "opened") first = false;
   });
-  $effect(() => console.log("LOGOGO", Nicolive.state));
 
   function updateOpenTabs() {
     chrome.tabs.query({}, tabs => {
@@ -89,7 +88,7 @@
           </div>
         </div>
       {:else}
-        <CommentList />
+        <LegacyCommentList />
       {/if}
     </div>
   </div>
@@ -107,6 +106,10 @@
     background-color: ghostwhite;
     height: 100%;
     overflow: hidden;
+
+    &:focus {
+      outline: none;
+    }
   }
 
   .pinn-area-wrap {

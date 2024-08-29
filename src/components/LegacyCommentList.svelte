@@ -1,8 +1,9 @@
 <script lang="ts">
   import { tick } from "svelte";
+  import { getCssClassNameFromMessage } from "../store/CssStyle.svelte";
   import { Nicolive, type NicoliveUser } from "../store/Nicolive.svelte";
   import { store } from "../store/store.svelte";
-  import { iconNone } from "../utils";
+  import { onErrorImage } from "../utils";
 
   let listView: HTMLDivElement;
 
@@ -18,30 +19,27 @@
       });
     }
   });
-
-  function onErrorImage(e: Event) {
-    const img = e.currentTarget as HTMLImageElement;
-    img.src = iconNone;
-  }
 </script>
 
-<div bind:this={listView} class="comment-list" tabindex="-1">
-  {#each Nicolive.messages as comment}
-    {@const user: NicoliveUser | undefined = Nicolive.users[comment.userId!]}
-    {@const bold = store.general.firstIsBold && comment.no != null && user?.firstNo === comment.no}
-    {@const hideSharp = store.general.hideSharp && comment.type === "listener" && /[♯#＃]/.test(comment.content)}
-    <div class="comment" class:bold>
-      <div class="child no">{comment.no}</div>
+<div bind:this={listView} class="comment-list">
+  {#each Nicolive.messages as message}
+    {@const user: NicoliveUser | undefined = Nicolive.users[message.userId!]}
+    {@const bold = store.general.firstIsBold && message.no != null && user?.firstNo === message.no}
+    {@const hideSharp = store.general.hideSharp && message.type === "listener" && /[♯#＃]/.test(message.content)}
+    <div class={`comment cm-default ${getCssClassNameFromMessage(message)}`} class:bold>
+      <div class="child no">{message.no}</div>
       {#if hideSharp}
         <div class="child icon"></div>
-        <div class="child name"></div>
+        <div class="child name">#シャープ#</div>
       {:else}
         <div class="child icon">
-          <!-- svelte-ignore a11y_missing_attribute -->
-          <img src={comment.iconUrl} onerror={onErrorImage} />
+          {#if user != null}
+            <!-- svelte-ignore a11y_missing_attribute -->
+            <img src={message.iconUrl} onerror={onErrorImage} />
+          {/if}
         </div>
-        {#if (comment.name ?? comment.userId) !== null}
-          <div class="child name" title={comment.name ?? (comment.userId as string)}>
+        {#if (message.name ?? message.userId) !== null}
+          <div class="child name" title={message.name ?? (message.userId as string)}>
             {#if user != null}
               {@const name = (store.general.useKotehan && user.storeUser.kotehan) ? user.storeUser.kotehan : user.storeUser.name}
               <!-- name が存在するのは生IDだけ -->
@@ -50,14 +48,14 @@
           </div>
         {/if}
       {/if}
-      <div class="child time">{comment.time}</div>
+      <div class="child time">{message.time}</div>
       <div class="child content">
         {#if hideSharp}
           ＃シャープコメントだよ＃
-        {:else if comment.link == null}
-          {comment.content}
+        {:else if message.link == null}
+          {message.content}
         {:else}
-          <a href={comment.link} target="_blank" title={comment.link}>{comment.content}</a>
+          <a href={message.link} target="_blank" title={message.link}>{message.content}</a>
         {/if}
       </div>
     </div>
@@ -75,8 +73,8 @@
     display: flex;
     min-height: 30px;
 
-    font-size: 1rem;
-    border-bottom: 1px solid black;
+    /* font-size: 1rem; */
+    border-top: 1px solid black;
 
     & > .child {
       margin-right: 6px;
@@ -98,6 +96,7 @@
       }
     }
     & > .name {
+      cursor: pointer;
       flex: 0 0 100px;
       overflow: hidden;
       white-space: nowrap;
@@ -107,7 +106,6 @@
     }
     & > .content {
       flex: 1 0 10px;
-
     }
   }
 
