@@ -15,7 +15,7 @@
       userId: "#1",
       no: -1,
       iconUrl: undefined,
-      name: undefined,
+      name: null,
       time: "time",
       content: dbgComment,
       link: undefined,

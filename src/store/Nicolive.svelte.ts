@@ -275,7 +275,7 @@ function parseMessage({ meta, payload }: ChunkedMessage, nicolive: _Nicolive): N
       is184 = data.value.rawUserId == null;
       no = data.value.no;
       iconUrl = parseIconUrl(userId);
-      name = data.value.name;
+      if (!is184) name = data.value.name;
       time = data.value.vpos * 10 - (nicolive.client!.beginTime.getTime() - nicolive.vposBaseTimeMs!);
       content = data.value.content;
     } else if (data.case === "nicoad") {
