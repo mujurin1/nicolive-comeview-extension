@@ -4,9 +4,9 @@ import { defaultStore } from "./data";
 export const store = $state(structuredClone(defaultStore));
 
 
-export function storeLoad() {
-  return chrome.storage.local.get(undefined)
-    .then(value => overriteClone(store, value as typeof store));
+export async function storeLoad() {
+  const value = await chrome.storage.local.get(undefined);
+  return overriteClone(store, value as typeof store);
 }
 
 /**

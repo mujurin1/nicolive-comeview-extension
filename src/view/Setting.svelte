@@ -10,7 +10,7 @@
   let { show = $bindable() }: { show: boolean } = $props();
   let currentTab = $state<typeof names[number]>("コメント表示");
 
-  let setting : HTMLDialogElement;
+  let setting = $state<HTMLDialogElement>();
   let useAdvanced = $state(false);
   let savedata = $state("");
   let serchUserQuery = $state("");
@@ -22,6 +22,7 @@
     bouyomiTest = "none";
     trySave = "none";
     checkedClearOk = false;
+    initSerchUser = false;
   }
 
   $effect(() => {
@@ -30,12 +31,12 @@
   });
 
   $effect(() => {
-    if(show) {
-      setting.showModal();
+    if (show) {
+      setting?.showModal();
     } else {
       changeTabedInit();
       useAdvanced = false;
-      setting.close();
+      setting?.close();
     }
   });
 
@@ -78,7 +79,7 @@
   let checkedClearOk = $state(false);
 
   function save() {
-    try{
+    try {
       storeSave(JSON.parse(savedata));
       trySave = "ok";
     } catch{
@@ -87,7 +88,7 @@
   }
 
   function clear() {
-    if(checkedClearOk){
+    if(checkedClearOk) {
       storeClear();
       checkedClearOk = false;
     } else {
@@ -96,11 +97,12 @@
   }
 </script>
 
-<dialog bind:this={setting} class="mordal">
-  <button class="close-btn" onclick={() => show = false}>閉じる</button>
+{#if show}
+  <dialog bind:this={setting} class="mordal">
+    <button class="close-btn" onclick={() => show = false}>閉じる</button>
 
-  <div class="mordal-body">
-    <Tab {names} bind:currentTab>
+    <div class="mordal-body">
+      <Tab {names} bind:currentTab>
 
 {#snippet content(tabId)}
   <div class="content" data-tabId={tabId}>
@@ -298,28 +300,29 @@
           {:else}
             <button type="button" onclick={clear}>初期化する</button>
           {/if}
-          {#if trySave === "ok"}
-            <div style="color: blue; font-size: 0.8rem;">保存しました</div>
-          {:else if trySave === "miss"}
-            <div style="color: red; font-size: 0.8rem;">保存に失敗しました。JSONとして不正な値です</div>
-          {/if}
         </div>
         <div>※コメビュの保存データのJSONです。注意して操作してください</div>
         <div>※キー(property key)を消して保存した場合そのキーの値は上書きされません</div>
-        <textarea
-          style="width: 100%;"
-          rows="20"
-          bind:value={savedata}
-        ></textarea>
+
+        {#if trySave === "ok"}
+          <div style="color: blue; font-size: 0.8rem;">保存しました</div>
+        {:else if trySave === "miss"}
+          <div style="color: red; font-size: 0.8rem;">保存に失敗しました。JSONとして不正な値です</div>
+        {:else}
+          <div>　</div>
+        {/if}
+
+        <textarea style="width: 100%;" rows="20" bind:value={savedata}></textarea>
       {/if}
 
     {/if}
   </div>
 {/snippet}
 
-    </Tab>
-  </div>
-</dialog>
+      </Tab>
+    </div>
+  </dialog>
+{/if}
 
 <style>
   * {
@@ -350,7 +353,6 @@
 
   .mordal {
     background-color: #c0cbd6;
-    font-size: 1rem;
 
     width: 80%;
     height: 80%;
@@ -383,8 +385,8 @@
     height: 100%;
     padding: 15px;
 
-
     &:not([data-tabid="Advanced"]) {
+      font-size: 1rem;
 
       & > *:not(:last-child) {
         margin-bottom: 15px;

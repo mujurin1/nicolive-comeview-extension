@@ -28,9 +28,10 @@ export function autoUpdateCommentCss(user: NicoliveUser) {
       if (format == null) {
         clearClass(className);
       } else {
-        if (store.nicolive.users_primitable[userId] == null) {
-          store.nicolive.users_primitable[userId] = Nicolive.users[userId].storeUser;
-        }
+        // セーブはここでやるべきではない
+        // if (store.nicolive.users_primitable[userId] == null) {
+        //   store.nicolive.users_primitable[userId] = Nicolive.users[userId].storeUser;
+        // }
         const style = createCssRule(format)!;
         upsertClass(className, style);
       }
