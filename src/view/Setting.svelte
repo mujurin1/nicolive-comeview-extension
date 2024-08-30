@@ -350,6 +350,7 @@
 
   .mordal {
     background-color: #c0cbd6;
+    font-size: 1rem;
 
     width: 80%;
     height: 80%;
@@ -384,7 +385,6 @@
 
 
     &:not([data-tabid="Advanced"]) {
-      font-size: 1rem;
 
       & > *:not(:last-child) {
         margin-bottom: 15px;

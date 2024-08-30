@@ -5,6 +5,7 @@
     "target": "esnext",
     "module": "esnext",
     "lib": ["DOM", "ES2023"],
+    "types": ["svelte"],
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "allowJs": true,

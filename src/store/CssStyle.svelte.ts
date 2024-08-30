@@ -69,7 +69,7 @@ function createCssRule(item: CommentFormat): string | undefined {
   if (item.fontFamily != null) str += `font-family: ${item.fontFamily};`;
   if (item.fontSize != null) str += `font-size: ${item.fontSize}px;`;
   if (item.isBold === true) str += `font-weight: bold;`;
-  if (item.isItally === true) str += `font-style: italy;`;
+  if (item.isItally === true) str += `font-style: italic;`;
   if (item.backgroundColor != null) str += `background-color: ${item.backgroundColor};`;
   if (item.nameColor != null) str += `.name { color: ${item.nameColor}; }`;
   if (item.contentColor != null) str += `.content { color: ${item.contentColor}; }`;

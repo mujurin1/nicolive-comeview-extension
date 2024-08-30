@@ -69,5 +69,5 @@
 
 <div class="line">
   <input type="checkbox" id="isItally" bind:checked={format.isItally} />
-  <label for="isItally">斜体</label>
+  <label for="isItally">イタリック体</label>
 </div>
