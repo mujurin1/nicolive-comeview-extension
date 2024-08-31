@@ -1,13 +1,15 @@
 <script lang="ts">
-  import { getNicoliveId, sleep } from "@mujurin/nicolive-api-ts";
+  import { getNicoliveId } from "@mujurin/nicolive-api-ts";
   import LegacyCommentList from "./components/LegacyCommentList.svelte";
-  import { createStateStore } from "./lib/CustomStore.svelte";
   import { Nicolive } from "./store/Nicolive.svelte";
-  import { store } from "./store/store.svelte";
+  import { extentionState, type ExtentionState } from "./store/store.svelte";
   import Header from "./view/Header.svelte";
 
   let first = $state(true);
-  let newPinn = $state<(typeof store.nicolive.pinnLives)[number]>({ id: "", description: "" });
+  let newPinn = $state<ExtentionState["nicolive"]["pinnLives"][number]>({
+    id: "",
+    description: "",
+  });
 
   let openTabs = $state<{ id: string; title: string }[]>([]);
   updateOpenTabs();
@@ -30,62 +32,26 @@
   }
 
   function remove(id: string) {
-    const index = store.nicolive.pinnLives.findIndex(pinn => pinn.id === id);
+    const index = $extentionState.nicolive.pinnLives.findIndex(pinn => pinn.id === id);
     if (index === -1) return;
-    store.nicolive.pinnLives.splice(index, 1);
+    $extentionState.nicolive.pinnLives.splice(index, 1);
   }
 
   function add() {
     if (
       getNicoliveId(newPinn.id) == null ||
-      store.nicolive.pinnLives.find(pinn => pinn.id === newPinn.id) != null
+      $extentionState.nicolive.pinnLives.find(pinn => pinn.id === newPinn.id) != null
     )
       return;
 
-    store.nicolive.pinnLives.push(newPinn);
+    $extentionState.nicolive.pinnLives.push(newPinn);
     newPinn = { id: "", description: "" };
   }
-
-  let flg = false;
-  const {
-    stateHolder,
-    store: myState,
-    onStoreSetted,
-  } = createStateStore({ obj: { v1: 0, v2: "" }, num: 10 }, () => {
-    const updated = async () => {
-      if (flg) return;
-      flg = true;
-      await sleep(1);
-      flg = false;
-
-      const x = structuredClone($state.snapshot(stateHolder.state));
-      x.obj.v1 -= 1000;
-      stateHolder.state = x;
-    };
-
-    onStoreSetted.on(updated);
-
-    const intervalId = setInterval(() => {
-      const value = structuredClone($state.snapshot(stateHolder.state));
-      // value.obj.v1 += 100;
-      value.obj.v2 += ".";
-      stateHolder.state = value;
-    }, 1000);
-
-    return () => {
-      onStoreSetted.off(updated);
-      clearInterval(intervalId);
-    };
-  });
 </script>
 
 <main>
   <div class="view">
     <Header />
-
-    <input type="number" bind:value={$myState.obj.v1} />
-    <input type="text" bind:value={$myState.obj.v2} />
-    {JSON.stringify($myState)}
 
     <div class="content" tabindex="-1">
       {#if first}
@@ -93,7 +59,7 @@
           <div class="pinn-area">
             <div class="title">ピン留めした放送</div>
             <div class="pinns">
-              {#each store.nicolive.pinnLives as pinn (pinn)}
+              {#each $extentionState.nicolive.pinnLives as pinn (pinn)}
                 <button type="button" onclick={() => connect(pinn.id)}>接続</button>
                 <input type="text" bind:value={pinn.id} />
                 <input type="text" bind:value={pinn.description} size="10" />

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Nicolive } from "../store/Nicolive.svelte";
-  import { store } from "../store/store.svelte";
+  import { extentionState } from "../store/store.svelte";
   import Setting from "./Setting.svelte";
 
   let showSetting = $state(false);
@@ -101,7 +101,7 @@ ws:${Nicolive.connectWs ? "ON" : "off"} co:${Nicolive.connectComment ? "ON" : "o
 
     <div class="head-item">
       <label for="speak">読み上げ</label>
-      <input type="checkbox" id="speak" bind:checked={store.yomiage.isSpeak} />
+      <input type="checkbox" id="speak" bind:checked={$extentionState.yomiage.isSpeak} />
     </div>
   </div>
 

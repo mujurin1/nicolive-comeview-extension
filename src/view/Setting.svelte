@@ -4,7 +4,7 @@
     import { BouyomiChan } from "../store/BouyomiChan.svelte";
     import { SpeachNameType, type StoreUser_Nicolive, Yomiage } from "../store/data";
     import { Nicolive } from "../store/Nicolive.svelte";
-    import { store, storeClear, storeSave } from "../store/store.svelte";
+    import { extentionState, storeClear, storeSave } from "../store/store.svelte";
 
   const names = ["一般", "読み上げ", "コメント表示", "Advanced"] as const;
   let { show = $bindable() }: { show: boolean } = $props();
@@ -48,7 +48,7 @@
 
   function serchUser() {
     hitUsers = new Set([
-      ...Object.values(store.nicolive.users_primitable),
+      ...Object.values($extentionState.nicolive.users_primitable),
       ...Object.values(Nicolive.users).map(u => u.storeUser),
     ]);
 
@@ -63,7 +63,7 @@
   $effect(() => {
     if(!useAdvanced) return;
     
-    savedata = JSON.stringify(store, null, 2);
+    savedata = JSON.stringify($extentionState, null, 2);
   })
 
   let bouyomiTest = $state<"none" | "try" | "miss" | "ok">("none");
@@ -113,7 +113,7 @@
       </div>
 
       <div class="line">
-        <input type="checkbox" id="user-kotehan" bind:checked={store.general.useKotehan} />
+        <input type="checkbox" id="user-kotehan" bind:checked={$extentionState.general.useKotehan} />
         <label class="explanation from-next" for="user-kotehan">コテハンを使用する　(@コテハン)</label>
         <details class="hint">
           <summary>「@コテハン」でコテハンを設定できます</summary>
@@ -123,7 +123,7 @@
       </div>
 
       <div class="line">
-        <input type="checkbox" id="user-yobina" bind:checked={store.general.useYobina} />
+        <input type="checkbox" id="user-yobina" bind:checked={$extentionState.general.useYobina} />
         <label class="explanation from-next" for="user-yobina">呼び名機能を使う　(@@呼び名)</label>
         <details class="hint">
           <summary>見た目の名前と読み上げられる名前を変えるための機能です</summary>
@@ -135,29 +135,29 @@
       </div>
 
       <div class="line">
-        <input type="checkbox" id="name-to-no" bind:checked={store.general.nameToNo} />
+        <input type="checkbox" id="name-to-no" bind:checked={$extentionState.general.nameToNo} />
         <label class="explanation" for="name-to-no">184の表示名をコメ番にする</label>
         <div class="hint">184の表示名はその人の最初のコメント番号になります</div>
       </div>
 
       <div class="line">
-        <input type="checkbox" id="fetch-connecting-backward" bind:checked={store.general.fetchConnectingBackward} />
+        <input type="checkbox" id="fetch-connecting-backward" bind:checked={$extentionState.general.fetchConnectingBackward} />
         <label class="explanation" for="fetch-connecting-backward">接続時に過去コメントを取得する</label>
         <div class="hint">OFFの場合でも少しだけ過去コメントを取得する場合があります</div>
       </div>
 
       <div class="line">
-        <input type="checkbox" id="url-to-link" bind:checked={store.general.urlToLink} />
+        <input type="checkbox" id="url-to-link" bind:checked={$extentionState.general.urlToLink} />
         <label class="explanation from-next" for="url-to-link">URLを含むコメントをリンクにする</label>
       </div>
 
       <div class="line">
-        <input type="checkbox" id="first-is-bold" bind:checked={store.general.firstIsBold} />
+        <input type="checkbox" id="first-is-bold" bind:checked={$extentionState.general.firstIsBold} />
         <label class="explanation" for="first-is-bold">最初のコメントを太字にする</label>
       </div>
 
       <div class="line">
-        <input type="checkbox" id="hide-sharp" bind:checked={store.general.hideSharp} />
+        <input type="checkbox" id="hide-sharp" bind:checked={$extentionState.general.hideSharp} />
         <div>
           <label class="explanation" for="hide-sharp">シャープ(♯ # ＃)を含むコメントを隠す＆読み上げない</label>
         </div>
@@ -167,13 +167,13 @@
     {:else if tabId === "読み上げ"}
 
       <div class="line" style="margin-bottom: 30px;">
-        <input type="checkbox" id="is-speak" bind:checked={store.yomiage.isSpeak} />
+        <input type="checkbox" id="is-speak" bind:checked={$extentionState.yomiage.isSpeak} />
         <label for="is-speak">コメントを読み上げる</label>
       </div>
 
       <fieldset>
         <legend>名前の読み上げ位置</legend>
-        <select bind:value={store.yomiage.speachName}>
+        <select bind:value={$extentionState.yomiage.speachName}>
           <option value="none">読み上げない</option>
           <option value="mae">コメントの前</option>
           <option value="ato">コメントの後</option>
@@ -186,19 +186,19 @@
 
           <div style="display: flex;">
             {#each SpeachNameType as speachName (speachName)}
-              {@const selected = store.yomiage.speachNameTypes[speachName]}
+              {@const selected = $extentionState.yomiage.speachNameTypes[speachName]}
               <button
                 class="select-btn"
                 data-selected={selected}
                 type="button"
-                onclick={() => store.yomiage.speachNameTypes[speachName] = !selected}
+                onclick={() => $extentionState.yomiage.speachNameTypes[speachName] = !selected}
               >
                 {speachName}
               </button>
             {/each}
             <button
               class="select-btn"
-              data-selected={store.general.useYobina}
+              data-selected={$extentionState.general.useYobina}
               type="button"
               title="「一般 > 呼び名機能を使う」で変更できます"
               disabled
@@ -207,10 +207,10 @@
             </button>
         </div>
         </fieldset>
-        {#if store.yomiage.speachNameTypes["コメ番"] && !store.general.nameToNo}
+        {#if $extentionState.yomiage.speachNameTypes["コメ番"] && !$extentionState.general.nameToNo}
           <div class="hint warning">コメ番は名前として使用されません「一般 > 184の表示名をコメ番にする」も有効にする必要があります</div>
         {/if}
-        {#if store.yomiage.speachNameTypes["コテハン"] && !store.general.useKotehan}
+        {#if $extentionState.yomiage.speachNameTypes["コテハン"] && !$extentionState.general.useKotehan}
           <div class="hint warning">コテハンは名前として使用されません「一般 > コテハンを使用する」も有効にする必要があります</div>
         {/if}
         <div class="hint">呼び名は「一般 > 呼び名機能を使う」設定で切り替えられます</div>
@@ -218,7 +218,7 @@
       </div>
 
       <div class="line">
-        <input type="checkbox" id="speak-system" bind:checked={store.yomiage.speachSystem} />
+        <input type="checkbox" id="speak-system" bind:checked={$extentionState.yomiage.speachSystem} />
         <label for="speak-system">システムメッセージの読み上げ</label>
       </div>
 
@@ -241,20 +241,20 @@
 
         <div style="display: flex;">
           {#each Yomiage as yomi (yomi)}
-            {@const selected = store.yomiage.use === yomi}
+            {@const selected = $extentionState.yomiage.use === yomi}
             {@const disabled = yomi === "VOICEVOX"}
-            <input type="radio" id={yomi} name="contact" value={yomi} onclick={() => store.yomiage.use = yomi} checked={selected} {disabled}/>
+            <input type="radio" id={yomi} name="contact" value={yomi} onclick={() => $extentionState.yomiage.use = yomi} checked={selected} {disabled}/>
             <label class:disabled for={yomi}>{yomi}</label>
           {/each}
         </div>
       </div>
 
-      {#if store.yomiage.use === "棒読みちゃん"}
+      {#if $extentionState.yomiage.use === "棒読みちゃん"}
         <fieldset>
           <legend>棒読みちゃんPORT</legend>
           <input type="number" bind:value={BouyomiChan.port} />
         </fieldset>
-      {:else if store.yomiage.use === "VOICEVOX"}
+      {:else if $extentionState.yomiage.use === "VOICEVOX"}
         <div></div>
       {/if}
 

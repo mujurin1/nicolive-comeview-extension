@@ -1,6 +1,6 @@
 <script lang="ts">
   import { CommentFormat } from "../store/data";
-  import { store } from "../store/store.svelte";
+  import { extentionState } from "../store/store.svelte";
 
   let { format = $bindable() }: { format: CommentFormat } = $props();
 </script>
@@ -24,7 +24,7 @@
     <input type="color" bind:value={format.nameColor} />
     <input
       type="text"
-      placeholder={store.commentView.commentFormats.default.nameColor}
+      placeholder={$extentionState.commentView.commentFormats.default.nameColor}
       style="width: 100%;"
       bind:value={format.nameColor}
     />
@@ -37,7 +37,7 @@
     <input type="color" bind:value={format.contentColor} />
     <input
       type="text"
-      placeholder={store.commentView.commentFormats.default.contentColor}
+      placeholder={$extentionState.commentView.commentFormats.default.contentColor}
       style="width: 100%;"
       bind:value={format.contentColor}
     />
@@ -48,7 +48,7 @@
   <legend>フォント</legend>
   <input
     type="text"
-    placeholder={store.commentView.commentFormats.default.fontFamily}
+    placeholder={$extentionState.commentView.commentFormats.default.fontFamily}
     bind:value={format.fontFamily}
   />
 </fieldset>
@@ -57,7 +57,7 @@
   <legend>フォントサイズ</legend>
   <input
     type="number"
-    placeholder={store.commentView.commentFormats.default.fontSize as unknown as string}
+    placeholder={$extentionState.commentView.commentFormats.default.fontSize as unknown as string}
     bind:value={format.fontSize}
   />
 </fieldset>

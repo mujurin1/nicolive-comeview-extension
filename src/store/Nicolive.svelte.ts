@@ -4,7 +4,7 @@ import { parseIconUrl, timeString } from "../utils";
 import { BouyomiChan } from "./BouyomiChan.svelte";
 import { autoUpdateCommentCss } from "./CssStyle.svelte";
 import type { StoreUser_Nicolive } from "./data";
-import { onStoreReset, store } from "./store.svelte";
+import { extentionState, extentionStateHolder, onStoreReset } from "./store.svelte";
 
 export interface NicoliveMessage {
   type: "listener" | "owner" | "system";
@@ -73,7 +73,7 @@ class _Nicolive {
   public constructor() {
     onStoreReset.on(() => {
       for (const [userId, user] of Object.entries(this.users)) {
-        const storeUser = store.nicolive.users_primitable[userId];
+        const storeUser = extentionStateHolder.state.nicolive.users_primitable[userId];
         if (storeUser == null) {
           user.storeUser = {
             id: user.storeUser.id,
@@ -95,7 +95,7 @@ class _Nicolive {
     this.state = "connecting";
 
     try {
-      this.client = await NicoliveClient.create(this.url, "now", store.general.fetchConnectingBackward ? 1 : 0, false);
+      this.client = await NicoliveClient.create(this.url, "now", extentionStateHolder.state.general.fetchConnectingBackward ? 1 : 0, false);
     } catch (e) {
       this.state = "disconnected";
       if (!(e instanceof NicoliveWatchError)) throw e;
@@ -171,13 +171,13 @@ class _Nicolive {
 
     const user = this.upsertUser(message);
 
-    if (this._canSpeak && !(store.general.hideSharp && message.includeSharp)) {
+    if (this._canSpeak && !(extentionStateHolder.state.general.hideSharp && message.includeSharp)) {
       const storeUser = user?.storeUser;
       let name: string | null = null;
       if (storeUser != null) {
-        if (store.general.useYobina && storeUser.yobina != null) name = storeUser.yobina;
-        else if (store.general.useKotehan && storeUser.kotehan != null) name = storeUser.kotehan;
-        else if (store.general.nameToNo && user?.noName184 != null) name = user.noName184;
+        if (extentionStateHolder.state.general.useYobina && storeUser.yobina != null) name = storeUser.yobina;
+        else if (extentionStateHolder.state.general.useKotehan && storeUser.kotehan != null) name = storeUser.kotehan;
+        else if (extentionStateHolder.state.general.nameToNo && user?.noName184 != null) name = user.noName184;
         else name = storeUser.name;
       }
       void BouyomiChan.speak(message.content, name);
@@ -231,7 +231,8 @@ class _Nicolive {
       user.storeUser.format != null
     ) {
       if (message.name !== null) user.storeUser.name = message.name;
-      store.nicolive.users_primitable[user.id] = user.storeUser;
+      extentionStateHolder.state.nicolive.users_primitable[user.id] = user.storeUser;
+      extentionState.set(extentionStateHolder.state);
     }
 
     if (this.users[message.userId] == null) {
@@ -333,7 +334,7 @@ function parseMessage({ meta, payload }: ChunkedMessage, nicolive: _Nicolive): N
   } else
     return;
 
-  if (store.general.urlToLink && link == null) {
+  if (extentionStateHolder.state.general.urlToLink && link == null) {
     link = /.*(https?:\/\/\S*).*/.exec(content)?.[1];
   }
 
@@ -364,7 +365,7 @@ function createUser(message: NicoliveMessage): NicoliveUser | undefined {
     id: message.userId,
     firstNo: message.no,
     is184: message.is184,
-    storeUser: store.nicolive.users_primitable[message.userId] ?? {
+    storeUser: extentionStateHolder.state.nicolive.users_primitable[message.userId] ?? {
       id: message.userId,
       name: message.name,
       kotehan: undefined,
@@ -381,13 +382,13 @@ function createUser(message: NicoliveMessage): NicoliveUser | undefined {
  * @returns [コテハン, 呼び名]
  */
 function parseKotehanAndYobina(str: string): [string | 0 | undefined, string | 0 | undefined] {
-  if (!store.general.useKotehan && !store.general.useYobina) return [undefined, undefined];
+  if (!extentionStateHolder.state.general.useKotehan && !extentionStateHolder.state.general.useYobina) return [undefined, undefined];
 
   const reg = /[@＠](\s|[^\s@＠]+)?[^@＠]*(?:[@＠](\s|[^\s@＠]+))?/.exec(str);
   if (reg == null) return [undefined, undefined];
 
-  const kotehan = store.general.useKotehan ? reg[1] : undefined;
-  const yobina = store.general.useYobina ? reg[2] : undefined;
+  const kotehan = extentionStateHolder.state.general.useKotehan ? reg[1] : undefined;
+  const yobina = extentionStateHolder.state.general.useYobina ? reg[2] : undefined;
 
   return [
     /\s/.test(kotehan!) ? 0 : kotehan,

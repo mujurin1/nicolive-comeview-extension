@@ -1,7 +1,13 @@
 import { EventTrigger } from "@mujurin/nicolive-api-ts";
+import { createStateStore } from "../lib/CustomStore.svelte";
 import { defaultStore } from "./data";
 
-export const store = $state(structuredClone(defaultStore));
+export const {
+  store: extentionState,
+  stateHolder: extentionStateHolder,
+  onStoreSetted: onExtentionChanged,
+} = createStateStore(structuredClone(defaultStore));
+export type ExtentionState = typeof extentionStateHolder.state;
 
 /**
  * ストアの値が再読み込み・初期化されたら呼び出される
@@ -10,7 +16,7 @@ export const onStoreReset = new EventTrigger();
 
 export async function storeLoad() {
   const value = await chrome.storage.local.get(undefined);
-  overriteClone(store, value as typeof store);
+  overriteClone(extentionStateHolder.state, value as ExtentionState);
   onStoreReset.emit();
 }
 
@@ -18,53 +24,37 @@ export async function storeLoad() {
  * 拡張機能へ保存します\
  * `data`に`store`に対応するキーがない場合はそのキーは更新されません
  */
-export function storeSave(data: typeof store) {
-  overriteClone(store, data);
+export function storeSave(data: ExtentionState) {
+  overriteClone(extentionStateHolder.state, data);
 }
 
 export function storeClear() {
   for (const [key, value] of Object.entries(structuredClone(defaultStore))) {
-    (<any>store)[key] = value;
+    (<any>extentionStateHolder.state)[key] = value;
   }
   onStoreReset.emit();
 }
 
 void storeLoad()
   .then(() => {
-    let lastSavedChangeValue = store.savedChangeValue;
     let updateFromChromeListener = false;
 
     // store の値が更新されたら保存する
     // MEMO: $effect をコンポーネント外から呼び出す場合は $effect.root を使う必要がある
-    $effect.root(() => {
-      $effect(() => {
-        // eslint-disable-next-line no-unused-expressions
-        store;  // 保存されない場合でも必ず store を参照する必要がある
+    onExtentionChanged.on(() => {
+      if (updateFromChromeListener) {
+        updateFromChromeListener = false;
+        return;
+      }
 
-        if (updateFromChromeListener) {
-          updateFromChromeListener = false;
-          return;
-        }
-
-        if (lastSavedChangeValue !== store.savedChangeValue)
-          void chrome.storage.local.set($state.snapshot(store));
-      });
+      void chrome.storage.local.set($state.snapshot(extentionStateHolder.state));
     });
 
     chrome.storage.local.onChanged.addListener(changed => {
-      console.log("データの更新検知");
-
-      const savedChangeValue = changed.savedChangeValue;
-      if (!savedChangeValue || savedChangeValue === store.savedChangeValue) {
-        console.log("データの更新は不要でした");
-        return;
-      }
-      console.log("データを更新します");
-      updateFromChromeListener = true;
-      lastSavedChangeValue = savedChangeValue as typeof lastSavedChangeValue;
+      console.log("データの更新検知", changed);
 
       for (const [key, value] of Object.entries(changed)) {
-        (<any>store)[key] = value;
+        (<any>extentionStateHolder.state)[key] = value.newValue;
       }
     });
   });

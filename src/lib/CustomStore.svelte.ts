@@ -66,6 +66,9 @@ export function createStateStore<T>(
   function subscribe(run: Subscriber<T>, invalidate = noop): Unsubscriber {
     const subscriber: SubscribeInvalidateTuple<T> = [run, invalidate];
     subscribers.add(subscriber);
+
+    console.log("add subscribe ", subscribers.size);
+
     if (subscribers.size === 1) {
       const _stop = start?.(set, update);
       const creanUpEffect = $effect.root(() => {
@@ -86,6 +89,7 @@ export function createStateStore<T>(
 
     return () => {
       subscribers.delete(subscriber);
+      console.log("delete subscribe ", subscribers.size);
       if (subscribers.size === 0 && stop) {
         stop();
         stop = undefined;

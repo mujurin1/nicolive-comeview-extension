@@ -1,6 +1,7 @@
 import type { CommentFormat } from "./data";
 import { Nicolive, type NicoliveMessage, type NicoliveUser } from "./Nicolive.svelte";
-import { store } from "./store.svelte";
+import { extentionState, extentionStateHolder } from "./store.svelte";
+
 
 const cssClassIndexes = new Map<string, number>();
 const style = document.createElement("style");
@@ -29,8 +30,9 @@ export function autoUpdateCommentCss(user: NicoliveUser) {
         clearClass(className);
       } else {
         // セーブはここでやるべきではない
-        if (store.nicolive.users_primitable[userId] == null) {
-          store.nicolive.users_primitable[userId] = Nicolive.users[userId].storeUser;
+        if (extentionStateHolder.state.nicolive.users_primitable[userId] == null) {
+          extentionStateHolder.state.nicolive.users_primitable[userId] = Nicolive.users[userId].storeUser;
+          extentionState.set(extentionStateHolder.state);
         }
         const style = createCssRule(format)!;
         upsertClass(className, style);
@@ -82,19 +84,19 @@ function createCssRule(item: CommentFormat): string | undefined {
 
 $effect.root(() => {
   $effect(() => {
-    const style = createCssRule(store.commentView.commentFormats.default)!;
+    const style = createCssRule(extentionStateHolder.state.commentView.commentFormats.default)!;
     upsertClass("cm-default", style);
   });
   $effect(() => {
-    const style = createCssRule(store.commentView.commentFormats.system)!;
+    const style = createCssRule(extentionStateHolder.state.commentView.commentFormats.system)!;
     upsertClass("cm-system", style);
   });
   $effect(() => {
-    const style = createCssRule(store.commentView.commentFormats.firstComment)!;
+    const style = createCssRule(extentionStateHolder.state.commentView.commentFormats.firstComment)!;
     upsertClass("cm-firstComment", style);
   });
   $effect(() => {
-    const style = createCssRule(store.commentView.commentFormats.owner)!;
+    const style = createCssRule(extentionStateHolder.state.commentView.commentFormats.owner)!;
     upsertClass("cm-owner", style);
   });
 });
