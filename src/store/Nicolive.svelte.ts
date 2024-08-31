@@ -4,7 +4,7 @@ import { parseIconUrl, timeString } from "../utils";
 import { BouyomiChan } from "./BouyomiChan.svelte";
 import { autoUpdateCommentCss } from "./CssStyle.svelte";
 import type { StoreUser_Nicolive } from "./data";
-import { store } from "./store.svelte";
+import { onStoreReset, store } from "./store.svelte";
 
 export interface NicoliveMessage {
   type: "listener" | "owner" | "system";
@@ -69,6 +69,22 @@ class _Nicolive {
    * 過去コメントを取得中か
    */
   public isFetchingBackwardMessage = $state(false);
+
+  public constructor() {
+    onStoreReset.on(() => {
+      for (const [userId, user] of Object.entries(this.users)) {
+        const storeUser = store.nicolive.users_primitable[userId];
+        if (storeUser == null) {
+          user.storeUser = {
+            id: user.storeUser.id,
+            name: user.storeUser.name,
+          };
+        } else {
+          user.storeUser = storeUser;
+        }
+      }
+    });
+  }
 
   public async connect() {
     if (!this.url) return;

@@ -1,12 +1,17 @@
+import { EventTrigger } from "@mujurin/nicolive-api-ts";
 import { defaultStore } from "./data";
-
 
 export const store = $state(structuredClone(defaultStore));
 
+/**
+ * ストアの値が再読み込み・初期化されたら呼び出される
+ */
+export const onStoreReset = new EventTrigger();
 
 export async function storeLoad() {
   const value = await chrome.storage.local.get(undefined);
-  return overriteClone(store, value as typeof store);
+  overriteClone(store, value as typeof store);
+  onStoreReset.emit();
 }
 
 /**
@@ -21,15 +26,48 @@ export function storeClear() {
   for (const [key, value] of Object.entries(structuredClone(defaultStore))) {
     (<any>store)[key] = value;
   }
+  onStoreReset.emit();
 }
 
-void storeLoad();
+void storeLoad()
+  .then(() => {
+    let lastSavedChangeValue = store.savedChangeValue;
+    let updateFromChromeListener = false;
 
-// store の値が更新されたら保存する
-// MEMO: $effect をコンポーネント外から呼び出す場合は $effect.root を使う必要がある
-$effect.root(() => {
-  $effect(() => void chrome.storage.local.set($state.snapshot(store)));
-});
+    // store の値が更新されたら保存する
+    // MEMO: $effect をコンポーネント外から呼び出す場合は $effect.root を使う必要がある
+    $effect.root(() => {
+      $effect(() => {
+        // eslint-disable-next-line no-unused-expressions
+        store;  // 保存されない場合でも必ず store を参照する必要がある
+
+        if (updateFromChromeListener) {
+          updateFromChromeListener = false;
+          return;
+        }
+
+        if (lastSavedChangeValue !== store.savedChangeValue)
+          void chrome.storage.local.set($state.snapshot(store));
+      });
+    });
+
+    chrome.storage.local.onChanged.addListener(changed => {
+      console.log("データの更新検知");
+
+      const savedChangeValue = changed.savedChangeValue;
+      if (!savedChangeValue || savedChangeValue === store.savedChangeValue) {
+        console.log("データの更新は不要でした");
+        return;
+      }
+      console.log("データを更新します");
+      updateFromChromeListener = true;
+      lastSavedChangeValue = savedChangeValue as typeof lastSavedChangeValue;
+
+      for (const [key, value] of Object.entries(changed)) {
+        (<any>store)[key] = value;
+      }
+    });
+  });
 
 
 /**

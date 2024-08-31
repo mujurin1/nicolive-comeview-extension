@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { getNicoliveId } from "@mujurin/nicolive-api-ts";
+  import { getNicoliveId, sleep } from "@mujurin/nicolive-api-ts";
   import LegacyCommentList from "./components/LegacyCommentList.svelte";
+  import { createStateStore } from "./lib/CustomStore.svelte";
   import { Nicolive } from "./store/Nicolive.svelte";
   import { store } from "./store/store.svelte";
   import Header from "./view/Header.svelte";
@@ -44,11 +45,47 @@
     store.nicolive.pinnLives.push(newPinn);
     newPinn = { id: "", description: "" };
   }
+
+  let flg = false;
+  const {
+    stateHolder,
+    store: myState,
+    onStoreSetted,
+  } = createStateStore({ obj: { v1: 0, v2: "" }, num: 10 }, () => {
+    const updated = async () => {
+      if (flg) return;
+      flg = true;
+      await sleep(1);
+      flg = false;
+
+      const x = structuredClone($state.snapshot(stateHolder.state));
+      x.obj.v1 -= 1000;
+      stateHolder.state = x;
+    };
+
+    onStoreSetted.on(updated);
+
+    const intervalId = setInterval(() => {
+      const value = structuredClone($state.snapshot(stateHolder.state));
+      // value.obj.v1 += 100;
+      value.obj.v2 += ".";
+      stateHolder.state = value;
+    }, 1000);
+
+    return () => {
+      onStoreSetted.off(updated);
+      clearInterval(intervalId);
+    };
+  });
 </script>
 
 <main>
   <div class="view">
     <Header />
+
+    <input type="number" bind:value={$myState.obj.v1} />
+    <input type="text" bind:value={$myState.obj.v2} />
+    {JSON.stringify($myState)}
 
     <div class="content" tabindex="-1">
       {#if first}

@@ -12,6 +12,11 @@ import { store } from "./store.svelte";
  *   ただし`_primitable`なキーの内部は`undefined`でよい (内部を見ずに全体で上書きされるため)
  */
 export const defaultStore = {
+  /**
+   * 保存する時に変化する値\
+   * これを見てストアデータを更新するかチェックする
+   */
+  savedChangeValue: crypto.randomUUID(),
   general: {
     /** 接続時に過去コメントを取得するか */
     fetchConnectingBackward: true,
