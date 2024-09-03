@@ -1,4 +1,36 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+export const Talker = ["none", "bouyomiChan"] as const;
+export type Talker = typeof Talker[number];
+
+export const SpeakName = ["none", "mae", "ato"] as const;
+export type SpeakName = typeof SpeakName[number];
+
+export const Yomiage = ["棒読みちゃん", "VOICEVOX"] as const;
+export type Yomiage = typeof Yomiage[number];
+
+/**
+ * 読み上げる名前\
+ * `"呼び名"`は{@link store.general.useYobina}と同じ値になるのでここでは不要
+ */
+export const SpeachNameType = ["ユーザー名", "コメ番", "コテハン"] as const;
+export type SpeachNameType = typeof SpeachNameType[number];
+
+// MEMO: 空文字の値は CSSOM 側で無いものとして扱われるので null と "" は今は同じ挙動をしている
+export interface CommentFormat {
+  fontFamily?: string | null;
+  fontSize?: number | null;
+  isBold?: boolean | null;
+  isItally?: boolean | null;
+
+  backgroundColor?: string | null;
+  nameColor?: string | null;
+  contentColor?: string | null;
+}
+
+export const CommentFormat = {
+  new: (format?: CommentFormat) => format ?? {} as CommentFormat,
+} as const;
+
 
 /**
  * 拡張機能のセーブデータの初期値およびセーブデータ型
@@ -43,96 +75,31 @@ export const defaultStore = {
   },
   commentView: {
     commentFormats: {
-      default: {
+      default: CommentFormat.new({
         fontFamily: "auto",
         fontSize: 16,
         isBold: false,
         isItally: false,
-        backgroundColor: null,
         nameColor: "black",
         contentColor: "black",
-      } satisfies Required<CommentFormat>,
-      system: {
-        fontFamily: null,
-        fontSize: null,
-        isBold: null,
-        isItally: null,
-        backgroundColor: null,
+      }),
+      system: CommentFormat.new({
         nameColor: "red",
         contentColor: "red",
-      },
-      firstComment: {
-        fontFamily: null,
+      }),
+      firstComment: CommentFormat.new({
         fontSize: 12,
-        isBold: null,
-        isItally: null,
-        backgroundColor: null,
-        nameColor: null,
-        contentColor: null,
-      },
-      owner: {
-        fontFamily: null,
-        fontSize: null,
-        isBold: null,
-        isItally: null,
-        backgroundColor: null,
+      }),
+      owner: CommentFormat.new({
         nameColor: "red",
         contentColor: "red",
-      },
-    } satisfies Record<string, CommentFormat>,
+      }),
+    },
   },
   nicolive: {
-    /** 生IDのユーザーのみ */
-    users_primitable: {} as Record<string, StoreUser_Nicolive>,
+    // users_primitable: {
+    //   "25940530": { "id": 25940530, "name": "きくらげ" }
+    // } as Record<string, StoreUser>,
     pinnLives: [] as { id: string, description: string; }[],
   },
 };
-
-export const Talker = ["none", "bouyomiChan"] as const;
-export type Talker = typeof Talker[number];
-
-export const SpeakName = ["none", "mae", "ato"] as const;
-export type SpeakName = typeof SpeakName[number];
-
-export const Yomiage = ["棒読みちゃん", "VOICEVOX"] as const;
-export type Yomiage = typeof Yomiage[number];
-
-/**
- * 読み上げる名前\
- * `"呼び名"`は{@link store.general.useYobina}と同じ値になるのでここでは不要
- */
-export const SpeachNameType = ["ユーザー名", "コメ番", "コテハン"] as const;
-export type SpeachNameType = typeof SpeachNameType[number];
-
-export interface StoreUser_Nicolive {
-  id: number | string;
-  name: string | null;
-  kotehan?: string;
-  yobina?: string;
-  format?: CommentFormat;
-}
-
-// MEMO: 空文字の値は CSSOM 側で無いものとして扱われるので null と "" は今は同じ挙動をしている
-export interface CommentFormat {
-  fontFamily: string | null;
-  fontSize: number | null;
-  isBold: boolean | null;
-  isItally: boolean | null;
-
-  backgroundColor: string | null;
-  nameColor: string | null;
-  contentColor: string | null;
-}
-
-export const CommentFormat = {
-  create: (format?: Partial<CommentFormat>) => ({
-    fontFamily: null,
-    fontSize: null,
-    isBold: null,
-    isItally: null,
-    backgroundColor: null,
-    nameColor: null,
-    contentColor: null,
-    ...format,
-  } satisfies CommentFormat as CommentFormat)
-} as const;

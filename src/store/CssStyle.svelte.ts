@@ -1,6 +1,7 @@
 import type { CommentFormat } from "./data";
+import { userStore } from "./n_store.svelte";
 import { Nicolive, type NicoliveMessage, type NicoliveUser } from "./Nicolive.svelte";
-import { extentionState, extentionStateHolder } from "./store.svelte";
+import { extentionStateHolder } from "./store.svelte";
 
 
 const cssClassIndexes = new Map<string, number>();
@@ -25,15 +26,15 @@ export function autoUpdateCommentCss(user: NicoliveUser) {
   const className = getCssClassNameFromUserId(userId);
   return $effect.root(() => {
     $effect(() => {
+      // eslint-disable-next-line no-unused-expressions
+      // extentionStateHolder.state.nicolive.users_primitable[userId + ""]?.format;
+      // eslint-disable-next-line no-unused-expressions
+      userStore.users[userId].format;
       const format = Nicolive.users[userId + ""].storeUser.format;
+
       if (format == null) {
         clearClass(className);
       } else {
-        // セーブはここでやるべきではない
-        if (extentionStateHolder.state.nicolive.users_primitable[userId] == null) {
-          extentionStateHolder.state.nicolive.users_primitable[userId] = Nicolive.users[userId].storeUser;
-          extentionState.set(extentionStateHolder.state);
-        }
         const style = createCssRule(format)!;
         upsertClass(className, style);
       }

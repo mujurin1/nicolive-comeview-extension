@@ -1,10 +1,11 @@
 <script lang="ts">
-    import Tab from "../components/Tab.svelte";
-    import UserSetting from "../components/UserSetting.svelte";
-    import { BouyomiChan } from "../store/BouyomiChan.svelte";
-    import { SpeachNameType, type StoreUser_Nicolive, Yomiage } from "../store/data";
-    import { Nicolive } from "../store/Nicolive.svelte";
-    import { extentionState, storeClear, storeSave } from "../store/store.svelte";
+  import Tab from "../components/Tab.svelte";
+  import UserSetting from "../components/UserSetting.svelte";
+  import { BouyomiChan } from "../store/BouyomiChan.svelte";
+  import { SpeachNameType, Yomiage } from "../store/data";
+  import { userStore } from "../store/n_store.svelte";
+  import { Nicolive } from "../store/Nicolive.svelte";
+  import { extentionState, storeClear, storeSave } from "../store/store.svelte";
 
   const names = ["一般", "読み上げ", "コメント表示", "Advanced"] as const;
   let { show = $bindable() }: { show: boolean } = $props();
@@ -14,9 +15,24 @@
   let useAdvanced = $state(false);
   let savedata = $state("");
   let serchUserQuery = $state("");
-  let hitUsers = $state<Set<StoreUser_Nicolive>>(new Set());
-
   let initSerchUser = $state(false);
+
+  // let hitUsers = $state(new Set<number | string>());
+  let hitUsers = $derived.by(() => {
+    const users = [
+      ...Object.values(Nicolive.users).map(u => u.storeUser),
+      // ...Object.values($extentionState.nicolive.users_primitable),
+      ...Object.values(userStore.users),
+    ];
+    const set = new Set<number | string>();
+
+    for(const user of users) {
+      if(user.name?.includes(serchUserQuery))
+        set.add(user.id);
+    }
+
+    return set;
+  });
 
   function changeTabedInit() {
     bouyomiTest = "none";
@@ -47,17 +63,17 @@
   });
 
   function serchUser() {
-    hitUsers = new Set([
-      ...Object.values($extentionState.nicolive.users_primitable),
-      ...Object.values(Nicolive.users).map(u => u.storeUser),
-    ]);
+    // const users = [
+    //   ...Object.values(Nicolive.users).map(u => u.storeUser),
+    //   ...Object.values($extentionState.nicolive.users_primitable),
+    // ];
 
-    if (serchUserQuery) {
-      for(const user of hitUsers) {
-        if(!user.name?.includes(serchUserQuery))
-          hitUsers.delete(user);
-      }
-    }
+    // hitUsers.clear();
+
+    // for(const user of users) {
+    //   if(user.name?.includes(serchUserQuery))
+    //   hitUsers.add(user.id);
+    // }
   }
 
   $effect(() => {
@@ -82,7 +98,8 @@
     try {
       storeSave(JSON.parse(savedata));
       trySave = "ok";
-    } catch{
+    } catch (e) {
+      console.log(e);
       trySave = "miss";
     }
   }
@@ -279,8 +296,8 @@
       * 背景色 -->
 
       <div class="user-list">
-        {#each hitUsers as user (user.id)}
-          <UserSetting user={user} />
+        {#each hitUsers as userId (userId)}
+          <UserSetting {userId} />
         {/each}
       </div>
 

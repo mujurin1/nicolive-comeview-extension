@@ -1,13 +1,52 @@
 <script lang="ts">
-  import { CommentFormat, type StoreUser_Nicolive } from "../store/data";
+  import { untrack } from "svelte";
+  import { StoreUser } from "../store/StoreUser.svelte";
   import { onErrorImage, parseIconUrl } from "../utils";
   import FormatSetting from "./FormatSetting.svelte";
 
   let {
-    user = $bindable(),
+    userId, //
     opened = $bindable(false),
-  }: { user: StoreUser_Nicolive; opened?: boolean } = $props();
-  let format = $derived(user.format);
+  }: { userId: number | string; opened?: boolean } = $props();
+
+  let user = $derived(StoreUser.getById(userId)!);
+  let kotehan = $state(user.kotehan);
+  let yobina = $state(user.yobina);
+  let format = $state(user.format);
+
+  $effect(() => {
+    user;
+    isFirst = true;
+    untrack(() => {
+      kotehan = user.kotehan;
+      yobina = user.yobina;
+      format = user.format;
+    });
+  });
+
+  let isFirst = true;
+  $effect(() => {
+    kotehan;
+    yobina;
+    format;
+
+    format?.backgroundColor;
+    format?.nameColor;
+    format?.contentColor;
+    format?.fontFamily;
+    format?.fontSize;
+    format?.isBold;
+    format?.isItally;
+
+    if (isFirst) {
+      isFirst = false;
+      return;
+    }
+
+    untrack(() => {
+      StoreUser.upsert(user, kotehan, yobina, format);
+    });
+  });
 </script>
 
 <details class="item" bind:open={opened}>
@@ -17,11 +56,11 @@
     <div class="tab-title">
       <div>{user.name}</div>
       <div>{`ID ${user.id}`}</div>
-      {#if user.kotehan}
-        <div style="color: green;" title="コテハン">{`@${user.kotehan}`}</div>
+      {#if kotehan}
+        <div style="color: green;" title="コテハン">{`@${kotehan}`}</div>
       {/if}
-      {#if user.yobina}
-        <div style="color: blue;" title="呼び名">{`@${user.yobina}`}</div>
+      {#if yobina}
+        <div style="color: blue;" title="呼び名">{`@${yobina}`}</div>
       {/if}
     </div>
   </summary>
@@ -31,12 +70,12 @@
       <div class="content-kote-yobi">
         <fieldset>
           <legend>コテハン</legend>
-          <input type="text" placeholder="コテハン" bind:value={user.kotehan} />
+          <input type="text" placeholder="コテハン" bind:value={kotehan} />
         </fieldset>
 
         <fieldset>
           <legend>呼び名</legend>
-          <input type="text" placeholder="呼び名" bind:value={user.yobina} />
+          <input type="text" placeholder="呼び名" bind:value={yobina} />
         </fieldset>
       </div>
 
@@ -44,13 +83,11 @@
         <div class="title">コメントフォーマット</div>
 
         {#if format == null}
-          <button type="button" onclick={() => (user.format = CommentFormat.create())}>
-            コメントフォーマットの作成
-          </button>
+          <button type="button" onclick={() => (format = {})}> コメントフォーマットの作成 </button>
         {:else}
-          <FormatSetting {format} />
+          <FormatSetting bind:format />
           <br />
-          <button class="warning" type="button" onclick={() => (user.format = undefined)}>
+          <button class="warning" type="button" onclick={() => (format = undefined)}>
             コメントフォーマットの削除
           </button>
         {/if}

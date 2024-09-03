@@ -3,8 +3,9 @@ import type { ChunkedMessage } from "@mujurin/nicolive-api-ts/build/gen/dwango_p
 import { parseIconUrl, timeString } from "../utils";
 import { BouyomiChan } from "./BouyomiChan.svelte";
 import { autoUpdateCommentCss } from "./CssStyle.svelte";
-import type { StoreUser_Nicolive } from "./data";
-import { extentionState, extentionStateHolder, onStoreReset } from "./store.svelte";
+import type { StoreUser } from "./StoreUser.svelte";
+import { userStore } from "./n_store.svelte";
+import { extentionStateHolder } from "./store.svelte";
 
 export interface NicoliveMessage {
   type: "listener" | "owner" | "system";
@@ -15,7 +16,7 @@ export interface NicoliveMessage {
   userId: string | number | undefined;
   no: number | undefined;
   iconUrl: string | undefined;
-  name: string | null;
+  name: string | undefined;
   time: string;
   content: string;
   /** コメントに含まれるURL */
@@ -29,8 +30,7 @@ export interface NicoliveUser {
   id: string | number;
   firstNo?: number;
   is184: boolean;
-  /** 184でもこの値は存在するが、184の場合はストアに保存されない */
-  storeUser: StoreUser_Nicolive;
+  storeUser: StoreUser;
 
   /** 184のコメ番名. 184のみ値が入る */
   noName184?: string;
@@ -71,18 +71,21 @@ class _Nicolive {
   public isFetchingBackwardMessage = $state(false);
 
   public constructor() {
-    onStoreReset.on(() => {
-      for (const [userId, user] of Object.entries(this.users)) {
-        const storeUser = extentionStateHolder.state.nicolive.users_primitable[userId];
-        if (storeUser == null) {
-          user.storeUser = {
-            id: user.storeUser.id,
-            name: user.storeUser.name,
-          };
-        } else {
-          user.storeUser = storeUser;
+    $effect.root(() => {
+      $effect(() => {
+        for (const [userId, user] of Object.entries(this.users)) {
+          // const storeUser = extentionStateHolder.state.nicolive.users_primitable[userId];
+          const storeUser = userStore.users[userId];
+          if (storeUser == null) {
+            user.storeUser = {
+              id: user.storeUser.id,
+              name: user.storeUser.name,
+            };
+          } else {
+            user.storeUser = storeUser;
+          }
         }
-      }
+      });
     });
   }
 
@@ -173,7 +176,7 @@ class _Nicolive {
 
     if (this._canSpeak && !(extentionStateHolder.state.general.hideSharp && message.includeSharp)) {
       const storeUser = user?.storeUser;
-      let name: string | null = null;
+      let name: string | undefined;
       if (storeUser != null) {
         if (extentionStateHolder.state.general.useYobina && storeUser.yobina != null) name = storeUser.yobina;
         else if (extentionStateHolder.state.general.useKotehan && storeUser.kotehan != null) name = storeUser.kotehan;
@@ -230,9 +233,14 @@ class _Nicolive {
       user.storeUser.yobina != null ||
       user.storeUser.format != null
     ) {
+      console.log("save!", user);
+      console.log(user.storeUser.name);
+      console.log(message.name);
+
       if (message.name !== null) user.storeUser.name = message.name;
-      extentionStateHolder.state.nicolive.users_primitable[user.id] = user.storeUser;
-      extentionState.set(extentionStateHolder.state);
+      // extentionStateHolder.state.nicolive.users_primitable[user.id] = user.storeUser;
+      // extentionState.set(extentionStateHolder.state);
+      userStore.upsert(user.storeUser, true);
     }
 
     if (this.users[message.userId] == null) {
@@ -345,7 +353,7 @@ function parseMessage({ meta, payload }: ChunkedMessage, nicolive: _Nicolive): N
     no,
     iconUrl,
     is184,
-    name: name ?? null,
+    name,
     time: timeString(time),
     content,
     link,
@@ -365,9 +373,10 @@ function createUser(message: NicoliveMessage): NicoliveUser | undefined {
     id: message.userId,
     firstNo: message.no,
     is184: message.is184,
-    storeUser: extentionStateHolder.state.nicolive.users_primitable[message.userId] ?? {
+    // storeUser: extentionStateHolder.state.nicolive.users_primitable[message.userId] ?? {
+    storeUser: userStore.users[message.userId] ?? {
       id: message.userId,
-      name: message.name,
+      name: message.name ?? undefined,
       kotehan: undefined,
       yobina: undefined,
     },
