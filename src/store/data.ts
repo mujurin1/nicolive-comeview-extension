@@ -1,12 +1,13 @@
+import type { DeepReadonly } from "../lib/ExternalStore";
 
 export const Talker = ["none", "bouyomiChan"] as const;
 export type Talker = typeof Talker[number];
 
-export const SpeakName = ["none", "mae", "ato"] as const;
-export type SpeakName = typeof SpeakName[number];
+export const SpeachNames = ["none", "mae", "ato"] as const;
+export type SpeachNames = typeof SpeachNames[number];
 
-export const Yomiage = ["棒読みちゃん", "VOICEVOX"] as const;
-export type Yomiage = typeof Yomiage[number];
+export const YomiageTypes = ["棒読みちゃん", "VOICEVOX"] as const;
+export type YomiageTypes = typeof YomiageTypes[number];
 
 /**
  * 読み上げる名前\
@@ -17,18 +18,27 @@ export type SpeachNameType = typeof SpeachNameType[number];
 
 // MEMO: 空文字の値は CSSOM 側で無いものとして扱われるので null と "" は今は同じ挙動をしている
 export interface CommentFormat {
-  fontFamily?: string | null;
-  fontSize?: number | null;
-  isBold?: boolean | null;
-  isItally?: boolean | null;
+  fontFamily: string | null;
+  fontSize: number | null;
+  isBold: boolean | null;
+  isItally: boolean | null;
 
-  backgroundColor?: string | null;
-  nameColor?: string | null;
-  contentColor?: string | null;
+  backgroundColor: string | null;
+  nameColor: string | null;
+  contentColor: string | null;
 }
 
 export const CommentFormat = {
-  new: (format?: CommentFormat) => format ?? {} as CommentFormat,
+  new: (format?: Partial<CommentFormat>) => ({
+    fontFamily: null,
+    fontSize: null,
+    isBold: null,
+    isItally: null,
+    backgroundColor: null,
+    nameColor: null,
+    contentColor: null,
+    ...format,
+  }) as CommentFormat,
 } as const;
 
 
@@ -42,7 +52,7 @@ export const CommentFormat = {
  *   明示的に`存在しない`を表す必要のあるキーのタイプは`null`を使う\
  *   ただし`_primitable`なキーの内部は`undefined`でよい (内部を見ずに全体で上書きされるため)
  */
-export const defaultStore = {
+const _defaultStore = {
   general: {
     /** 接続時に過去コメントを取得するか */
     fetchConnectingBackward: true,
@@ -61,8 +71,8 @@ export const defaultStore = {
   },
   yomiage: {
     isSpeak: false,
-    use: "棒読みちゃん" as Yomiage,
-    speachName: "none" as SpeakName,
+    use: "棒読みちゃん" as YomiageTypes,
+    speachName: "none" as SpeachNames,
     speachNameTypes: {
       "ユーザー名": true as boolean,
       "コメ番": false as boolean,
@@ -97,9 +107,9 @@ export const defaultStore = {
     },
   },
   nicolive: {
-    // users_primitable: {
-    //   "25940530": { "id": 25940530, "name": "きくらげ" }
-    // } as Record<string, StoreUser>,
     pinnLives: [] as { id: string, description: string; }[],
   },
 };
+
+export type StoreType = typeof _defaultStore;
+export const defaultStore: DeepReadonly<StoreType> = _defaultStore;

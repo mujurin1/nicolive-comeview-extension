@@ -1,10 +1,9 @@
-<script lang="ts">
+<script lang="ts" generics="Name extends string">
   import type { Snippet } from "svelte";
-  type Name = $$Generic<string>;
 
-  let { names,  currentTab = $bindable(), content }: {
+  let { names,  currentTab = $bindable(names[0]), content }: {
     names: readonly Name[];
-    currentTab: Name;
+    currentTab?: Name;
     content: Snippet<[Name]>;
   } = $props();
 

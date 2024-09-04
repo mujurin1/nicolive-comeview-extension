@@ -1,7 +1,6 @@
 import type { CommentFormat } from "./data";
-import { userStore } from "./n_store.svelte";
-import { Nicolive, type NicoliveMessage, type NicoliveUser } from "./Nicolive.svelte";
-import { extentionStateHolder } from "./store.svelte";
+import { Nicolive, type NicoliveMessage } from "./Nicolive.svelte";
+import { store } from "./store.svelte";
 
 
 const cssClassIndexes = new Map<string, number>();
@@ -21,16 +20,13 @@ export function getCssClassNameFromUserId(userId: string | number): string {
   return `cm-id-${userId}`;
 }
 
-export function autoUpdateCommentCss(user: NicoliveUser) {
-  const userId = user.id;
+export function autoUpdateCommentCss(userId: number | string) {
   const className = getCssClassNameFromUserId(userId);
   return $effect.root(() => {
     $effect(() => {
-      // eslint-disable-next-line no-unused-expressions
-      // extentionStateHolder.state.nicolive.users_primitable[userId + ""]?.format;
-      // eslint-disable-next-line no-unused-expressions
-      userStore.users[userId].format;
-      const format = Nicolive.users[userId + ""].storeUser.format;
+      const format = Nicolive.users[userId + ""]?.storeUser?.format;
+
+      console.log("update css!!");
 
       if (format == null) {
         clearClass(className);
@@ -85,19 +81,19 @@ function createCssRule(item: CommentFormat): string | undefined {
 
 $effect.root(() => {
   $effect(() => {
-    const style = createCssRule(extentionStateHolder.state.commentView.commentFormats.default)!;
+    const style = createCssRule(store.state.commentView.commentFormats.default)!;
     upsertClass("cm-default", style);
   });
   $effect(() => {
-    const style = createCssRule(extentionStateHolder.state.commentView.commentFormats.system)!;
+    const style = createCssRule(store.state.commentView.commentFormats.system)!;
     upsertClass("cm-system", style);
   });
   $effect(() => {
-    const style = createCssRule(extentionStateHolder.state.commentView.commentFormats.firstComment)!;
+    const style = createCssRule(store.state.commentView.commentFormats.firstComment)!;
     upsertClass("cm-firstComment", style);
   });
   $effect(() => {
-    const style = createCssRule(extentionStateHolder.state.commentView.commentFormats.owner)!;
+    const style = createCssRule(store.state.commentView.commentFormats.owner)!;
     upsertClass("cm-owner", style);
   });
 });

@@ -1,120 +1,124 @@
-import { EventTrigger } from "@mujurin/nicolive-api-ts";
-import type { StartStopNotifier, Subscriber, Unsubscriber, Updater, Writable } from "svelte/store";
+import { untrack } from "svelte";
+import type { Subscriber } from "svelte/motion";
+import { writable } from "svelte/store";
 
-export interface SubscribeStore<T> {
-  /**
-   * View で使用するためのストア\
-   * この値が変化したら`subscribe`が呼び出される
-   */
-  store: Writable<T>;
-  /**
-   * View 以外でストアの状態を見る・変更するための値\
-   * この値が変化しても`subscribe`は呼び出されない
-   */
-  stateHolder: { state: T; };
-  /**
-   * `store.set` が呼ばれたら呼び出される
-   */
-  onStoreSetted: EventTrigger<[]>,
+export type NotifierStore<T> = ReturnType<typeof notifierStore<T>>;
+
+/**
+ * notifierStore の要件
+ * * Viewにより状態が更新された場合にのみ`changeBind`を実行する
+ * * その他の要因で`state`が更新された場合は`changeBind`は実行しない
+ * * その他の要因で`state`が更新された場合でもViewに反映される
+ * 
+ * https://www.tldraw.com/r/WeoVGXm-y-dy6lz44b6V3?d=v339.-18.1920.991.page
+ * 
+ * ReadOnly: https://www.tldraw.com/ro/XZedhoe4T0YISn96IoC9G?d=v519.-74.1140.1024.page
+ * @param value 初期値
+ * @param changeBind ビューにより状態が更新されたら呼ばれる関数
+ */
+export function notifierStore<T>(
+  value: T,
+  changeBind: () => void,
+) {
+  let updater = $state(true);
+  // 状態を更新する時は必ず state と w の両方更新する. `state = newState` `w.set(newState)`
+  let state = $state(value);
+  const w = writable(state, () => {
+    let isFirst = true;
+
+    const cleanUp = $effect.root(() => {
+      // set の中で直接実行すると１度のサイクルで複数回実行される可能性があるため $effect を使う
+      $effect(() => {
+        // eslint-disable-next-line no-unused-expressions
+        updater;
+        if (isFirst) {
+          isFirst = false;
+          return;
+        }
+        untrack(changeBind);
+      });
+    });
+
+    return cleanUp;
+  });
+
+  return {
+    subscribe(run: Subscriber<T>) {
+      return w.subscribe(run);
+    },
+    set(newState: T): void {
+      if (state !== newState) {
+        state = newState;
+        w.set(newState);
+      }
+      updater = !updater;
+    },
+    changeBind,
+
+    get state() { return state; },
+    set state(newState) {
+      state = newState;
+      w.set(newState);
+    },
+  };
 }
 
-export function createStateStore<T>(
-  defaultValue: T,
-  start?: StartStopNotifier<T>,
-): SubscribeStore<T> {
-  /** state が変化した時に呼ばれるサブスクライブ */
-  const subscribers = new Set<SubscribeInvalidateTuple<T>>();
-  let stop: Unsubscriber | void;
+/**
+ * `notifierStore`の`derived`で状態を更新する事が可能な版\
+ * `derived`は svelte で補足され、内部の参照が更新されたら状態が更新される
+ * @param derived 状態を更新する関数
+ * @param changeBind ビューにより状態が更新されたら呼ばれる関数
+ */
+export function derivedNotifierStore<T>(
+  derived: () => T,
+  changeBind: () => void,
+) {
+  let updater = $state(true);
+  let state = $state(derived());
+  const w = writable(state, () => {
+    let isFirst = true;
 
-  const onStoreSetted = new EventTrigger();
-  let state = $state(defaultValue);
-  const stateHolder = {
-    get state() { return state; },
-    set state(value: T) { state = value; },
-  };
+    const cleanUp = $effect.root(() => {
+      $effect(() => {
+        const newState = derived();
 
-  function notice() {
-    if (stop) {
-      // store is ready
-      const run_queue = subscriber_queue.length === 0;
-      for (const subscriber of subscribers) {
-        subscriber[1]();
-        subscriber_queue.push([subscriber, state]);
-      }
-      if (run_queue) {
-        for (const [subscriber, value] of subscriber_queue) {
-          subscriber[0](value);
-        }
-
-        subscriber_queue.length = 0;
-      }
-    }
-  }
-
-  function set(new_value: T): void {
-    if (safe_not_equal(state, new_value)) {
-      state = new_value;
-
-      onStoreSetted.emit();
-    }
-  }
-
-  function update(fn: Updater<T>): void {
-    set(fn(state));
-  }
-
-  function subscribe(run: Subscriber<T>, invalidate = noop): Unsubscriber {
-    const subscriber: SubscribeInvalidateTuple<T> = [run, invalidate];
-    subscribers.add(subscriber);
-
-    console.log("add subscribe ", subscribers.size);
-
-    if (subscribers.size === 1) {
-      const _stop = start?.(set, update);
-      const creanUpEffect = $effect.root(() => {
-        $effect(() => {
-          console.log("changed");
-          // eslint-disable-next-line no-unused-expressions
-          state;
-          notice();
+        untrack(() => {
+          state = newState;
+          w.set(newState);
         });
       });
 
-      stop = () => {
-        _stop?.();
-        creanUpEffect();
-      };
-    }
-    run(state);
+      $effect(() => {
+        // eslint-disable-next-line no-unused-expressions
+        updater;
+        if (isFirst) {
+          isFirst = false;
+          return;
+        }
+        untrack(changeBind);
+      });
+    });
 
-    return () => {
-      subscribers.delete(subscriber);
-      console.log("delete subscribe ", subscribers.size);
-      if (subscribers.size === 0 && stop) {
-        stop();
-        stop = undefined;
-      }
-    };
-  }
+    return cleanUp;
+  });
 
   return {
-    store: { set, update, subscribe },
-    stateHolder,
-    onStoreSetted,
+    subscribe(run: Subscriber<T>) {
+      return w.subscribe(run);
+    },
+    set(newState: T): void {
+      if (state !== newState) {
+        state = newState;
+        w.set(newState);
+      }
+      updater = !updater;
+    },
+    changeBind,
+
+    get state() { return state; },
+    set state(newState) {
+      state = newState;
+      w.set(newState);
+    },
   };
-}
-
-
-const subscriber_queue: [SubscribeInvalidateTuple<any>, any][] = [];
-
-type SubscribeInvalidateTuple<T> = [Subscriber<T>, () => void];
-
-const noop = () => { };
-
-function safe_not_equal(a: unknown, b: unknown) {
-  // eslint-disable-next-line eqeqeq
-  return a != a
-    // eslint-disable-next-line eqeqeq
-    ? b == b
-    : a !== b || (a !== null && typeof a === 'object') || typeof a === 'function';
 }

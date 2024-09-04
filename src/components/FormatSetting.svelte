@@ -1,73 +1,100 @@
 <script lang="ts">
+  import { notifierStore } from "../lib/CustomStore.svelte";
   import { CommentFormat } from "../store/data";
-  import { extentionState } from "../store/store.svelte";
+  import { store } from "../store/store.svelte";
 
   let { format = $bindable() }: { format: CommentFormat } = $props();
+
+  const formatS = notifierStore(format, () => {
+    format = formatS.state;
+  });
+
 </script>
 
-<fieldset>
-  <legend>背景色</legend>
-  <div style="display: flex;">
-    <input type="color" bind:value={format.backgroundColor} />
-    <input
-      type="text"
-      placeholder="透明"
-      style="width: 100%;"
-      bind:value={format.backgroundColor}
-    />
-  </div>
-</fieldset>
+{ `${Math.random()}`}
 
-<fieldset>
-  <legend>名前色</legend>
-  <div style="display: flex;">
-    <input type="color" bind:value={format.nameColor} />
-    <input
-      type="text"
-      placeholder={$extentionState.commentView.commentFormats.default.nameColor}
-      style="width: 100%;"
-      bind:value={format.nameColor}
-    />
-  </div>
-</fieldset>
+<div class="grid-row">
+  <fieldset>
+    <legend>背景色</legend>
+    <div style="display: flex;">
+      <input type="color" bind:value={$formatS.backgroundColor} />
+      <input
+        type="text"
+        placeholder={`デフォルト (${store.state.commentView.commentFormats.default.backgroundColor ?? "透明"})`}
+        style="width: 100%;"
+        bind:value={$formatS.backgroundColor}
+      />
+    </div>
+  </fieldset>
 
-<fieldset>
-  <legend>コメント色</legend>
-  <div style="display: flex;">
-    <input type="color" bind:value={format.contentColor} />
-    <input
-      type="text"
-      placeholder={$extentionState.commentView.commentFormats.default.contentColor}
-      style="width: 100%;"
-      bind:value={format.contentColor}
-    />
-  </div>
-</fieldset>
+  <fieldset>
+    <legend>名前色</legend>
+    <div style="display: flex;">
+      <input type="color" bind:value={$formatS.nameColor} />
+      <input
+        type="text"
+        placeholder={`デフォルト (${store.state.commentView.commentFormats.default.nameColor ?? "透明"})`}
+        style="width: 100%;"
+        bind:value={$formatS.nameColor}
+      />
+    </div>
+  </fieldset>
 
-<fieldset>
-  <legend>フォント</legend>
-  <input
-    type="text"
-    placeholder={$extentionState.commentView.commentFormats.default.fontFamily}
-    bind:value={format.fontFamily}
-  />
-</fieldset>
-
-<fieldset>
-  <legend>フォントサイズ</legend>
-  <input
-    type="number"
-    placeholder={$extentionState.commentView.commentFormats.default.fontSize as unknown as string}
-    bind:value={format.fontSize}
-  />
-</fieldset>
-
-<div class="line">
-  <input type="checkbox" id="isBold" bind:checked={format.isBold} />
-  <label for="isBold">太字</label>
+  <fieldset>
+    <legend>コメント色</legend>
+    <div style="display: flex;">
+      <input type="color" bind:value={$formatS.contentColor} />
+      <input
+        type="text"
+        placeholder={`デフォルト (${store.state.commentView.commentFormats.default.contentColor ?? "透明"})`}
+        style="width: 100%;"
+        bind:value={$formatS.contentColor}
+      />
+    </div>
+  </fieldset>
 </div>
 
-<div class="line">
-  <input type="checkbox" id="isItally" bind:checked={format.isItally} />
-  <label for="isItally">イタリック体</label>
+<div class="grid-row">
+  <fieldset>
+    <legend>フォント</legend>
+    <input
+      type="text"
+      placeholder={`デフォルト (${store.state.commentView.commentFormats.default.fontFamily})`}
+      bind:value={$formatS.fontFamily}
+    />
+  </fieldset>
+
+  <fieldset>
+    <legend>フォントサイズ</legend>
+    <input
+      type="number"
+      placeholder={`デフォルト (${store.state.commentView.commentFormats.default.fontSize as unknown as string})`}
+      bind:value={$formatS.fontSize}
+    />
+  </fieldset>
+</div>
+
+<div class="grid-row">
+  <fieldset>
+    <legend>太字</legend>
+    <select bind:value={$formatS.isBold}>
+      <!-- ３つ目の値が undefined だと初期値が設定されてしまうため null を使う -->
+      {#each [true, false, null] as value}
+      <option {value} selected={value ===$formatS.isBold}>
+        {value ?? `デフォルト (${store.state.commentView.commentFormats.default.isBold})`}
+      </option>
+      {/each}
+    </select>
+  </fieldset>
+
+  <fieldset>
+    <legend>イタリック体</legend>
+    <select bind:value={$formatS.isItally}>
+      {#each [true, false, null] as value}
+      <option {value}>
+        {value ?? `デフォルト (${store.state.commentView.commentFormats.default.isItally})`}
+      </option>
+      {/each}
+    </select>
+  </fieldset>
 </div>

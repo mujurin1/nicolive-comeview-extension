@@ -1,12 +1,23 @@
+<script lang="ts" context="module">
+  import { externalStoreInitialize } from "./lib/ExternalStore";
+  import { store } from "./store/store.svelte";
+  import { userStore } from "./store/UserStore.svelte";
+
+  store;
+  userStore;
+  externalStoreInitialize();
+</script>
+
 <script lang="ts">
   import { getNicoliveId } from "@mujurin/nicolive-api-ts";
   import LegacyCommentList from "./components/LegacyCommentList.svelte";
+  import { type StoreType } from "./store/data";
   import { Nicolive } from "./store/Nicolive.svelte";
-  import { extentionState, type ExtentionState } from "./store/store.svelte";
   import Header from "./view/Header.svelte";
+  import { settingStore } from "./view/Setting.svelte";
 
   let first = $state(true);
-  let newPinn = $state<ExtentionState["nicolive"]["pinnLives"][number]>({
+  let newPinn = $state<StoreType["nicolive"]["pinnLives"][number]>({
     id: "",
     description: "",
   });
@@ -32,24 +43,24 @@
   }
 
   function remove(id: string) {
-    const index = $extentionState.nicolive.pinnLives.findIndex(pinn => pinn.id === id);
+    const index = settingStore.state.nicolive.pinnLives.findIndex(pinn => pinn.id === id);
     if (index === -1) return;
-    $extentionState.nicolive.pinnLives.splice(index, 1);
+    settingStore.state.nicolive.pinnLives.splice(index, 1);
+    settingStore.changeBind();
   }
 
   function add() {
     if (
       getNicoliveId(newPinn.id) == null ||
-      $extentionState.nicolive.pinnLives.find(pinn => pinn.id === newPinn.id) != null
+      settingStore.state.nicolive.pinnLives.find(pinn => pinn.id === newPinn.id) != null
     )
       return;
 
-    $extentionState.nicolive.pinnLives.push(newPinn);
+    settingStore.state.nicolive.pinnLives.push(newPinn);
+    settingStore.changeBind();
     newPinn = { id: "", description: "" };
   }
 </script>
-
-<!-- <TestView /> -->
 
 <main>
   <div class="view">
@@ -61,7 +72,7 @@
           <div class="pinn-area">
             <div class="title">ピン留めした放送</div>
             <div class="pinns">
-              {#each $extentionState.nicolive.pinnLives as pinn (pinn)}
+              {#each $settingStore.nicolive.pinnLives as pinn (pinn)}
                 <button type="button" onclick={() => connect(pinn.id)}>接続</button>
                 <input type="text" bind:value={pinn.id} />
                 <input type="text" bind:value={pinn.description} size="10" />

@@ -1,6 +1,10 @@
 <script lang="ts">
-  import { untrack } from "svelte";
-  import { StoreUser } from "../store/StoreUser.svelte";
+  import { derivedNotifierStore } from "../lib/CustomStore.svelte";
+  import { CommentFormat } from "../store/data";
+  import { Nicolive } from "../store/Nicolive.svelte";
+  import { userStore } from "../store/UserStore.svelte";
+
+  import type { StoreUser } from "../store/UserStore.svelte";
   import { onErrorImage, parseIconUrl } from "../utils";
   import FormatSetting from "./FormatSetting.svelte";
 
@@ -9,86 +13,87 @@
     opened = $bindable(false),
   }: { userId: number | string; opened?: boolean } = $props();
 
-  let user = $derived(StoreUser.getById(userId)!);
-  let kotehan = $state(user.kotehan);
-  let yobina = $state(user.yobina);
-  let format = $state(user.format);
+  let isPersistence = $derived(userStore.users[userId] != null);
 
-  $effect(() => {
-    user;
-    isFirst = true;
-    untrack(() => {
-      kotehan = user.kotehan;
-      yobina = user.yobina;
-      format = user.format;
-    });
-  });
+  const userS = derivedNotifierStore<StoreUser>(
+    () => {
+      let a = userStore.users[userId];
+      let b = Nicolive.users[userId]?.storeUser;
+      return a ?? b;
+    },
+    () => userStore.upsert(userS.state),
+  );
+  // const userS = notifierStore<StoreUser>(
+  //   userStore.users[userId] ?? Nicolive.users[userId].storeUser,
+  //   () => userStore.upsert(userS.state),
+  // );
 
-  let isFirst = true;
-  $effect(() => {
-    kotehan;
-    yobina;
-    format;
+  // $effect(() => {
+  //   userStore.users[userId];
+  //   Nicolive.users[userId]?.storeUser;
 
-    format?.backgroundColor;
-    format?.nameColor;
-    format?.contentColor;
-    format?.fontFamily;
-    format?.fontSize;
-    format?.isBold;
-    format?.isItally;
+  //   untrack(() => {
+  //     userS.state = userStore.users[userId] ?? Nicolive.users[userId].storeUser;
+  //   });
+  // });
 
-    if (isFirst) {
-      isFirst = false;
-      return;
-    }
-
-    untrack(() => {
-      StoreUser.upsert(user, kotehan, yobina, format);
-    });
-  });
+  function removeUser() {
+    userStore.remove(userId);
+  }
 </script>
 
-<details class="item" bind:open={opened}>
+<details class="item" class:isPersistence bind:open={opened}>
   <summary class="tab">
     <!-- svelte-ignore a11y_missing_attribute -->
-    <img src={parseIconUrl(user.id)} onerror={onErrorImage} />
+    <img src={parseIconUrl($userS.id)} onerror={onErrorImage} />
     <div class="tab-title">
-      <div>{user.name}</div>
-      <div>{`ID ${user.id}`}</div>
-      {#if kotehan}
-        <div style="color: green;" title="コテハン">{`@${kotehan}`}</div>
+      <div>{$userS.name}</div>
+      <div>{`ID ${$userS.id}`}</div>
+      {#if $userS.kotehan}
+        <div style="color: green;" title="コテハン">{`@${$userS.kotehan}`}</div>
       {/if}
-      {#if yobina}
-        <div style="color: blue;" title="呼び名">{`@${yobina}`}</div>
+      {#if $userS.yobina}
+        <div style="color: blue;" title="呼び名">{`@${$userS.yobina}`}</div>
       {/if}
     </div>
   </summary>
 
   {#if opened}
     <div class="content">
-      <div class="content-kote-yobi">
+      <div class="grid-row">
         <fieldset>
           <legend>コテハン</legend>
-          <input type="text" placeholder="コテハン" bind:value={kotehan} />
+          <input type="text" placeholder="コテハン" bind:value={$userS.kotehan} />
         </fieldset>
 
         <fieldset>
           <legend>呼び名</legend>
-          <input type="text" placeholder="呼び名" bind:value={yobina} />
+          <input type="text" placeholder="呼び名" bind:value={$userS.yobina} />
         </fieldset>
       </div>
 
       <div class="content-format">
         <div class="title">コメントフォーマット</div>
 
-        {#if format == null}
-          <button type="button" onclick={() => (format = {})}> コメントフォーマットの作成 </button>
+        {#if $userS.format == null}
+          <button type="button" onclick={() => ($userS.format = CommentFormat.new())}>
+            コメントフォーマットの作成
+          </button>
         {:else}
-          <FormatSetting bind:format />
+          <FormatSetting bind:format={$userS.format} />
           <br />
-          <button class="warning" type="button" onclick={() => (format = undefined)}>
+          <button class="warning" type="button" onclick={() => ($userS.format = undefined)}>
             コメントフォーマットの削除
+          </button>
+        {/if}
+
+        {#if isPersistence}
+          <button
+            class="warning"
+            title="セーブデータからユーザーデータを削除します"
+            onclick={removeUser}
+          >
+            ユーザーデータの削除
           </button>
         {/if}
       </div>
@@ -101,6 +106,10 @@
     background-color: #e5e5da;
     box-sizing: border-box;
     border-radius: 7px;
+
+    &.isPersistence {
+      background-color: #dbdae5;
+    }
 
     & > summary::before {
       font-size: 0.8rem;
@@ -145,12 +154,6 @@
       margin-top: 20px;
       padding: 0 3px 3px 3px;
     }
-  }
-
-  .content-kote-yobi {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    column-gap: 5px;
   }
 
   .title {

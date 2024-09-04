@@ -2,7 +2,7 @@
   import { tick } from "svelte";
   import { getCssClassNameFromMessage } from "../store/CssStyle.svelte";
   import { Nicolive, type NicoliveUser } from "../store/Nicolive.svelte";
-  import { extentionState } from "../store/store.svelte";
+  import { store } from "../store/store.svelte";
   import { onErrorImage } from "../utils";
 
   let listView: HTMLDivElement;
@@ -24,8 +24,8 @@
 <div bind:this={listView} class="comment-list">
   {#each Nicolive.messages as message}
     {@const user: NicoliveUser | undefined = Nicolive.users[message.userId!]}
-    {@const bold = $extentionState.general.firstIsBold && message.no != null && user?.firstNo === message.no}
-    {@const hideSharp = $extentionState.general.hideSharp && message.type === "listener" && /[♯#＃]/.test(message.content)}
+    {@const bold = store.state.general.firstIsBold && message.no != null && user?.firstNo === message.no}
+    {@const hideSharp = store.state.general.hideSharp && message.type === "listener" && /[♯#＃]/.test(message.content)}
     <div class={`comment cm-default ${getCssClassNameFromMessage(message)}`} class:bold>
       <div class="child no">{message.no}</div>
       {#if hideSharp}
@@ -41,9 +41,9 @@
         {#if (message.name ?? message.userId) !== null}
           <div class="child name" title={message.name ?? (message.userId as string)}>
             {#if user != null}
-              {@const name = ($extentionState.general.useKotehan && user.storeUser.kotehan) ? user.storeUser.kotehan : user.storeUser.name}
+              {@const name = (store.state.general.useKotehan && user.storeUser.kotehan) ? user.storeUser.kotehan : user.storeUser.name}
               <!-- name が存在するのは生IDだけ -->
-              {name ?? (($extentionState.general.nameToNo && user.noName184) ? user.noName184 : user.id)}
+              {name ?? ((store.state.general.nameToNo && user.noName184) ? user.noName184 : user.id)}
             {/if}
           </div>
         {/if}
