@@ -50,13 +50,17 @@ function upsertClass(styleName: StyleNames, className: string, rule: string) {
   const style = styles[styleName];
 
   const cssRuleIndex = style.map.get(className);
-  if (cssRuleIndex == null) {
-    const index = style.element.sheet!.cssRules.length;
-    style.map.set(className, index);
-    style.element.sheet!.insertRule(`.${className} { ${rule} }`, index);
-  } else {
-    style.element.sheet!.deleteRule(cssRuleIndex);
-    style.element.sheet!.insertRule(`.${className} { ${rule} }`, cssRuleIndex);
+  try {
+    if (cssRuleIndex == null) {
+      const index = style.element.sheet!.cssRules.length;
+      style.element.sheet!.insertRule(`.${className} { ${rule} }`, index);
+      style.map.set(className, index);
+    } else {
+      style.element.sheet!.insertRule(`.${className} { ${rule} }`, cssRuleIndex);
+      style.element.sheet!.deleteRule(cssRuleIndex + 1);
+    }
+  } catch (e) {
+    console.error(e);
   }
 }
 
