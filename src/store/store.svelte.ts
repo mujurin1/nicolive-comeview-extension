@@ -52,27 +52,28 @@ export const store: IStore = (() => {
  *   * `現在の仕様では値が`null`なら`null`で上書きする
  *   * 値が`undefined`ならそのキーは変更しない
  */
-export function safeOverwrite<T>(target: T, Overwrite: T): void {
-  if (Overwrite == null) return;
+export function safeOverwrite<T>(target: T | null, overwrite: T | null): void {
+  if (overwrite == null) return;
 
   for (const key in target) {
     if (
       Object.prototype.hasOwnProperty.call(target, key) &&
-      Overwrite[key] !== undefined
+      overwrite[key] !== undefined
     ) {
       // CommentFormat で null を使うかつ残す必要がある
       // if (Overwrite[key] === null) {
       //   target[key] = undefined!;
       // } else 
       if (
+        target[key] === null ||
         typeof target[key] !== "object" ||
         Array.isArray(target[key])
       ) {
         // プリミティブ値または配列
-        target[key] = structuredClone(Overwrite[key]);
+        target[key] = structuredClone(overwrite[key]);
       } else if (typeof target[key] === "object") {
         // プロパティがオブジェクトの場合は再帰的に呼び出す
-        safeOverwrite(target[key], Overwrite[key]);
+        safeOverwrite(target[key], overwrite[key]);
       }
     }
   }

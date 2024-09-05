@@ -1,9 +1,9 @@
 <script lang="ts" generics="Name extends string">
   import type { Snippet } from "svelte";
 
-  let { names,  currentTab = $bindable(names[0]), content }: {
+  let { names,  currentTab = $bindable<Name>(names[0]), content }: {
     names: readonly Name[];
-    currentTab?: Name;
+    currentTab: Name;
     content: Snippet<[Name]>;
   } = $props();
 
@@ -30,7 +30,7 @@
   .tab-header {
     display: flex;
     flex-wrap: wrap;
-    padding: 5px 5px 0 5px;
+    padding: 5px 5px 5px 5px;
     height: 100%;
     box-sizing: border-box;
     margin-right: 70px;
@@ -44,7 +44,8 @@
     color: #3d3d3d;
     background-color: #e2e2e2;
 
-    margin-bottom: 3px;
+    padding: 1px 10px;
+    min-width: 60px;
     border: none;
     border-radius: 8px;
 

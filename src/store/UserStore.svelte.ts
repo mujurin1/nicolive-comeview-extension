@@ -79,7 +79,7 @@ export const userStore: IUserStore = (() => {
 
 /**
  * `UserStore`レコードのユーザーデータを安全に上書きする\
- * `newUser`が`undefined`なら削除する
+ * `newUser`が`undefined`ならそのユーザーデータを削除する
  * @param users 対象のレコード
  * @param userId 上書きするユーザーID
  * @param newUser 新しいユーザーデータ
@@ -92,11 +92,11 @@ export function safeOverwriteUser(users: Record<number | string, StoreUser>, use
   } else {
     users[userId] ??= {} as any;
     users[userId].id = newUser.id;
-    if (newUser.name == null) delete users[userId].name;
+    if (newUser.name == null || newUser.name === "") delete users[userId].name;
     else users[userId].name = newUser.name;
-    if (newUser.kotehan == null) delete users[userId].kotehan;
+    if (newUser.kotehan == null || newUser.kotehan === "") delete users[userId].kotehan;
     else users[userId].kotehan = newUser.kotehan;
-    if (newUser.yobina == null) delete users[userId].yobina;
+    if (newUser.yobina == null || newUser.yobina === "") delete users[userId].yobina;
     else users[userId].yobina = newUser.yobina;
     if (newUser.format == null) delete users[userId].format;
     else {

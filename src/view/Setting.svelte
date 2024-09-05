@@ -1,4 +1,4 @@
-<script context="module">
+<script module>
   import type { DeepMutable } from "../lib/ExternalStore";
   import type { StoreType } from "../store/data";
 
@@ -12,12 +12,14 @@
   import Tab from "../components/Tab.svelte";
   import { notifierStore } from "../lib/CustomStore.svelte";
   import { store } from "../store/store.svelte";
-  import Advanced from "./setting/Advanced.svelte";
-  import Comment from "./setting/Comment.svelte";
-  import General from "./setting/General.svelte";
-  import Yomiage from "./setting/Yomiage.svelte";
+  import AdvancedSetting from "./setting/AdvancedSetting.svelte";
+  import GeneralSetting from "./setting/GeneralSetting.svelte";
+  import ListenerSetting from "./setting/ListenerSetting.svelte";
+  import ViewSetting from "./setting/ViewSetting.svelte";
+  import YomiageSetting from "./setting/YomiageSetting.svelte";
 
-  const names = ["一般", "読み上げ", "コメント表示", "Advanced"] as const;
+  const names = ["一般", "読み上げ","リスナーリスト", "コメント表示", "Advanced"] as const;
+  let currentTab = $state<typeof names[number]>("一般");
   let show = $state(false);
 
   let dialog = $state<HTMLDialogElement>();
@@ -38,20 +40,22 @@
     <button class="close-btn" onclick={() => show = false}>閉じる</button>
 
     <div class="mordal-body">
-      <Tab {names} currentTab="一般">
+      <Tab {names} bind:currentTab>
         {#snippet content(tabId)}
           <div class="content" data-tabId={tabId}>
             {#if tabId === "一般"}
-              <General />
+              <GeneralSetting />
             {:else if tabId === "読み上げ"}
-              <Yomiage />
+              <YomiageSetting />
+            {:else if tabId === "リスナーリスト"}
+              <ListenerSetting />
             {:else if tabId === "コメント表示"}
-              <Comment />
+              <ViewSetting />
             {:else if tabId === "Advanced"}
-              <Advanced />
+              <AdvancedSetting />
             {/if}
           </div>
-        {/snippet}
+        {/snippet}  <!-- このエラーは svelte の不具合ぽいので無視する -->
       </Tab>
     </div>
   </dialog>

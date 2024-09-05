@@ -13,11 +13,11 @@
     opened = $bindable(false),
   }: { userId: number | string; opened?: boolean } = $props();
 
-  let isPersistence = $derived(userStore.users[userId] != null);
-
   const userS = notifierStore<StoreUser>(
     userStore.users[userId] ?? Nicolive.users[userId]?.storeUser,
     () => userStore.upsert(userS.state),
+    // この derived が必要な理由は、このオブジェクトはセーブデータ上で `undefiend` になる(存在しない)時があるため
+    // 普通の設定項目はセーブデータ上で必ず存在するため、普通はこの derived は不要である
     () => {
       let a = userStore.users[userId];
       let b = Nicolive.users[userId]?.storeUser;
@@ -25,12 +25,15 @@
     },
   );
 
+  let hasStored = $derived(userStore.users[userId] != null);
+  let hasFormat = $derived(userS.state.format != null);
+
   function removeUser() {
     userStore.remove(userId);
   }
 </script>
 
-<details class="item" class:isPersistence bind:open={opened}>
+<details class="item" class:hasStored bind:open={opened}>
   <summary class="tab">
     <!-- svelte-ignore a11y_missing_attribute -->
     <img src={parseIconUrl($userS.id)} onerror={onErrorImage} />
@@ -42,6 +45,9 @@
       {/if}
       {#if $userS.yobina}
         <div style="color: blue;" title="呼び名">{`@${$userS.yobina}`}</div>
+      {/if}
+      {#if hasFormat}
+        <div style="color: orange;" title="固有のフォーマットが設定されています">★</div>
       {/if}
     </div>
   </summary>
@@ -75,7 +81,7 @@
           </button>
         {/if}
 
-        {#if isPersistence}
+        {#if hasStored}
           <button
             class="warning"
             title="セーブデータからユーザーデータを削除します"
@@ -91,12 +97,12 @@
 
 <style>
   .item {
-    background-color: #e5e5da;
+    background-color: #ebebad97;
     box-sizing: border-box;
     border-radius: 7px;
 
-    &.isPersistence {
-      background-color: #dbdae5;
+    &.hasStored {
+      background-color: #dfe7dc97;
     }
 
     & > summary::before {
@@ -140,7 +146,7 @@
 
     & > .content-format {
       margin-top: 20px;
-      padding: 0 3px 3px 3px;
+      padding: 0 0 3px 0;
     }
   }
 

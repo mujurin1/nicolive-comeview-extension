@@ -2,10 +2,19 @@ import type { CommentFormat } from "./data";
 import { Nicolive, type NicoliveMessage } from "./Nicolive.svelte";
 import { store } from "./store.svelte";
 
+function createStyleElement() {
+  const map = new Map<string, number>();
+  const element = document.createElement("style");
+  document.head.appendChild(element);
+  return { map, element } as const;
+}
 
-const cssClassIndexes = new Map<string, number>();
-const style = document.createElement("style");
-document.head.appendChild(style);
+const styles = {
+  "cm-user": createStyleElement(),
+  "cm-system": createStyleElement(),
+} as const;
+
+export type StyleNames = keyof typeof styles;
 
 export function getCssClassNameFromMessage(message: NicoliveMessage): string {
   if (message.type === "system") return "cm-system";
@@ -29,38 +38,43 @@ export function autoUpdateCommentCss(userId: number | string) {
       console.log("update css!!");
 
       if (format == null) {
-        clearClass(className);
+        clearClass("cm-user", className);
       } else {
         const style = createCssRule(format)!;
-        upsertClass(className, style);
+        upsertClass("cm-user", className, style);
       }
     });
   });
 }
 
-function upsertClass(className: string, rule: string) {
-  const cssRuleIndex = cssClassIndexes.get(className);
+function upsertClass(styleName: StyleNames, className: string, rule: string) {
+  const style = styles[styleName];
+
+  const cssRuleIndex = style.map.get(className);
   if (cssRuleIndex == null) {
-    const index = style.sheet!.cssRules.length;
-    cssClassIndexes.set(className, index);
-    style.sheet!.insertRule(`.${className} { ${rule} }`, index);
+    const index = style.element.sheet!.cssRules.length;
+    style.map.set(className, index);
+    style.element.sheet!.insertRule(`.${className} { ${rule} }`, index);
   } else {
-    style.sheet!.deleteRule(cssRuleIndex);
-    style.sheet!.insertRule(`.${className} { ${rule} }`, cssRuleIndex);
+    style.element.sheet!.deleteRule(cssRuleIndex);
+    style.element.sheet!.insertRule(`.${className} { ${rule} }`, cssRuleIndex);
   }
 }
 
-function clearClass(className: string) {
-  const cssRuleIndex = cssClassIndexes.get(className);
+function clearClass(styleName: StyleNames, className: string) {
+  const style = styles[styleName];
+
+  const cssRuleIndex = style.map.get(className);
   if (cssRuleIndex == null) return;
 
-  style.sheet!.deleteRule(cssRuleIndex);
-  style.sheet!.insertRule(`.${className} {}`, cssRuleIndex);
+  style.element.sheet!.deleteRule(cssRuleIndex);
+  style.element.sheet!.insertRule(`.${className} {}`, cssRuleIndex);
 }
 
-function deleteClass(className: string) {
-  const cssRuleIndex = cssClassIndexes.get(className);
-  if (cssRuleIndex != null) style.sheet!.deleteRule(cssRuleIndex);
+function deleteClass(styleName: StyleNames, className: string) {
+  const style = styles[styleName];
+  const cssRuleIndex = style.map.get(className);
+  if (cssRuleIndex != null) style.element.sheet!.deleteRule(cssRuleIndex);
 }
 
 function createCssRule(item: CommentFormat): string | undefined {
@@ -82,18 +96,19 @@ function createCssRule(item: CommentFormat): string | undefined {
 $effect.root(() => {
   $effect(() => {
     const style = createCssRule(store.state.commentView.commentFormats.default)!;
-    upsertClass("cm-default", style);
+    // デフォルトのCSSはユーザーよりも優先されないべき
+    upsertClass("cm-user", "cm-default", style);
   });
   $effect(() => {
     const style = createCssRule(store.state.commentView.commentFormats.system)!;
-    upsertClass("cm-system", style);
+    upsertClass("cm-system", "cm-system", style);
   });
   $effect(() => {
-    const style = createCssRule(store.state.commentView.commentFormats.firstComment)!;
-    upsertClass("cm-firstComment", style);
+    const style = createCssRule(store.state.commentView.commentFormats.first)!;
+    upsertClass("cm-system", "cm-first", style);
   });
   $effect(() => {
     const style = createCssRule(store.state.commentView.commentFormats.owner)!;
-    upsertClass("cm-owner", style);
+    upsertClass("cm-system", "cm-owner", style);
   });
 });

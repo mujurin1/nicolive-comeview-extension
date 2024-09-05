@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   import { externalStoreInitialize } from "./lib/ExternalStore";
   import { store } from "./store/store.svelte";
   import { userStore } from "./store/UserStore.svelte";

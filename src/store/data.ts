@@ -38,7 +38,20 @@ export const CommentFormat = {
     nameColor: null,
     contentColor: null,
     ...format,
-  }) as CommentFormat,
+  }) satisfies CommentFormat as CommentFormat,
+  /**
+   * データを修正する (空文字を`null`にする)
+   * @param format 
+   */
+  fix: (format: CommentFormat) => {
+    if (format.fontFamily === "") format.fontFamily = null;
+    // if (format.fontSize === "") format.fontSize = null;
+    // if (format.isBold === "") format.isBold = null;
+    // if (format.isItally === "") format.isItally = null;
+    if (format.backgroundColor === "") format.backgroundColor = null;
+    if (format.nameColor === "") format.nameColor = null;
+    if (format.contentColor === "") format.contentColor = null;
+  }
 } as const;
 
 
@@ -62,8 +75,6 @@ const _defaultStore = {
     useYobina: false,
     /** URLを含むコメントをリンクにする */
     urlToLink: true,
-    /** 最初のコメントを強調する */
-    firstIsBold: true,
     /** 184の表示名を最初のコメ版にするか */
     nameToNo: true,
     /** シャープコメントを隠す */
@@ -97,7 +108,7 @@ const _defaultStore = {
         nameColor: "red",
         contentColor: "red",
       }),
-      firstComment: CommentFormat.new({
+      first: CommentFormat.new({
         fontSize: 12,
       }),
       owner: CommentFormat.new({

@@ -24,9 +24,11 @@
 <div bind:this={listView} class="comment-list">
   {#each Nicolive.messages as message}
     {@const user: NicoliveUser | undefined = Nicolive.users[message.userId!]}
-    {@const bold = store.state.general.firstIsBold && message.no != null && user?.firstNo === message.no}
+    {@const isFirst = message.no != null && user?.firstNo === message.no}
     {@const hideSharp = store.state.general.hideSharp && message.type === "listener" && /[♯#＃]/.test(message.content)}
-    <div class={`comment cm-default ${getCssClassNameFromMessage(message)}`} class:bold>
+    <!--  -->
+    <!-- <div class={`comment cm-default ${isFirst ? "cm-first" : ""} ${getCssClassNameFromMessage(message)}`}> -->
+    <div class={`comment cm-default ${getCssClassNameFromMessage(message)}`} class:cm-first={isFirst}>
       <div class="child no">{message.no}</div>
       {#if hideSharp}
         <div class="child icon"></div>
@@ -107,9 +109,5 @@
     & > .content {
       flex: 1 0 10px;
     }
-  }
-
-  .bold {
-    font-weight: bold;
   }
 </style>

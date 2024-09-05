@@ -52,11 +52,6 @@
 </div>
 
 <div class="line">
-  <input type="checkbox" id="first-is-bold" bind:checked={$settingStore.general.firstIsBold} />
-  <label class="explanation" for="first-is-bold">最初のコメントを太字にする</label>
-</div>
-
-<div class="line">
   <input type="checkbox" id="hide-sharp" bind:checked={$settingStore.general.hideSharp} />
   <div>
     <label class="explanation" for="hide-sharp">

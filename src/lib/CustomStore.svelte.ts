@@ -27,7 +27,6 @@ export function notifierStore<T>(
   // 状態を更新する時は必ず state と w の両方更新する. `state = newState` `w.set(newState)`
   let state = $state(value);
   const w = writable(state, () => {
-
     const cleanUp = $effect.root(() => {
       if (derived != null) {
         let isFirst = true;
