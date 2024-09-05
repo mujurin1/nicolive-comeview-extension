@@ -1,8 +1,13 @@
 <script lang="ts">
   import { Nicolive } from "../store/Nicolive.svelte";
-  import Setting, { settingStore } from "./Setting.svelte";
+  import Setting, { setSettingPage, settingStore } from "./Setting.svelte";
 
   let setting = $state<Setting>();
+
+  $effect(() => {
+    if (setting == null) return;
+    setSettingPage(setting);
+  });
 
   let dbgCommentId = 1;
   let dbgComment = $state("@こて@よび");

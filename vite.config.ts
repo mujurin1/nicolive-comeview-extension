@@ -62,7 +62,7 @@ export default defineConfig({
 
   // 拡張機能でホットリロードを使うにはポートの指定が必要
   server: {
-    // hmr: { port: 5174 }, 
+    // hmr: { port: 5174 },
     port: 5173
   }
 });

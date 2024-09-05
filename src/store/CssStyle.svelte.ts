@@ -18,7 +18,6 @@ export type StyleNames = keyof typeof styles;
 
 export function getCssClassNameFromMessage(message: NicoliveMessage): string {
   if (message.type === "system") return "cm-system";
-  if (message.type === "owner") return "cm-owner";
   return getCssClassNameFromUserId(message.userId!);
 }
 
@@ -101,6 +100,8 @@ $effect.root(() => {
   });
   $effect(() => {
     const style = createCssRule(store.state.commentView.commentFormats.system)!;
+    console.log("update css system");
+
     upsertClass("cm-system", "cm-system", style);
   });
   $effect(() => {

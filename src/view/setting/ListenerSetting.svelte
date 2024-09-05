@@ -1,34 +1,64 @@
 <script lang="ts">
   import UserSetting from "../../components/UserSetting.svelte";
   import { Nicolive } from "../../store/Nicolive.svelte";
-  import { userStore } from "../../store/UserStore.svelte";
+  import { userStore, type StoreUser } from "../../store/UserStore.svelte";
 
-  let serchUserQuery = $state("");
+  let { serchQuery = $bindable("") }: {
+    serchQuery?: string;
+  } = $props();
+
   let hitUsers = $derived.by(() => {
-    const users = new Map(
-      [
+    const users = new Map([
         ...Object.values(userStore.users).map(u => [u, false] as const),
         ...Object.values(Nicolive.users).map(u => [u.storeUser, true] as const),
-      ].map((obj) => [obj[0].id, obj]),
+      ]
+        .map(obj => [obj[0].id, obj])
     );
 
-    for (const [key, [user, showLive]] of users) {
-      console.log({showLive});
-      
+    let query = serchQuery.trim();
+    const serchFromName = query !== "";
+    let serchIsId = false
+    if(serchFromName && query.startsWith("id:")) {
+      serchIsId = true;
+      query = query.slice(3).trimStart();
+    }
+
+    const array: [StoreUser, boolean][] = [];
+
+    for (const [, obj] of users) {
+      const [user, showLive] = obj;
+
       if (
-        (user.name != null && !user.name.includes(serchUserQuery)) ||
-        (serchOptions.showLiveOnly.checked && !showLive) ||
-        (serchOptions["184Only"].checked && user.name != null) ||
-        (serchOptions.rawUserOnly.checked && user.name == null) ||
-        (serchOptions.hasFormat.checked && user.format == null) ||
-        (serchOptions.hasKotehan.checked && user.kotehan == null) ||
-        (serchOptions.hasYobina.checked && user.yobina == null)
+        (
+          !serchFromName || (
+            serchIsId
+              ? (user.id+"").startsWith(query)
+              : user.name != null && user.name.includes(query)
+          )
+        ) &&
+        (!serchOptions.showLiveOnly.checked || showLive) &&
+        (!serchOptions["184Only"].checked || user.name == null) &&
+        (!serchOptions.rawUserOnly.checked || user.name != null) &&
+        (!serchOptions.hasFormat.checked || user.format != null) &&
+        (!serchOptions.hasKotehan.checked || user.kotehan != null) &&
+        (!serchOptions.hasYobina.checked || user.yobina != null)
       ) {
-        users.delete(key);
+        array.push(obj as [StoreUser, boolean]);
       }
     }
 
-    return Array.from(users.keys());
+    return array
+      .sort(([aUser, aIsShowLive], [bUser, bIsShowLive]) => {
+        // if(aIsShowLive != bIsShowLive)
+        //   return aIsShowLive ? -1 : 1;
+
+        if(typeof aUser.id !== typeof bUser.id ) {
+          return typeof aUser.id === "number" ? -1: 1;
+        }
+
+        return aUser.id < bUser.id ? -1 : 1;
+      })
+      .map(([user]) => user.id)
   });
 
   let serchOptions = $state({
@@ -39,18 +69,28 @@
     hasYobina: { name: "呼び名", checked: false },
     hasFormat: { name: "フォーマット", checked: false },
   });
+
+  export function setSerchQuery(query: string) {
+    serchQuery = query;
+  }
 </script>
 
-<h2 style="margin: 0 0 10px 0; text-align: center;">リスナー設定</h2>
+<div style="margin-bottom: 10px;">
+  <h2 style="margin: 0 0 5px 0; text-align: center;">リスナー設定</h2>
+  <div class="hint">・コメビュでユーザー名をクリックしてもこのページに飛べます</div>
+</div>
 
 <div class="serch" style="margin-bottom: 30px;">
-  <input
-    type="text"
-    style="width: 100%; box-sizing: border-box;"
-    placeholder="検索ユーザー名"
-    bind:value={serchUserQuery}
-  />
-  
+  <div class="line">
+    <button onclick={() => serchQuery = ""}>クリア</button>
+    <input
+      type="text"
+      style="width: 100%; box-sizing: border-box;"
+      placeholder="検索ユーザー名　id:数字/184文字列"
+      bind:value={serchQuery}
+    />
+  </div>
+
   <div>
     {#each Object.keys(serchOptions) as key (key)}
       {@const option = serchOptions[key as keyof typeof serchOptions]}
@@ -67,7 +107,7 @@
 
 <div class="user-list">
   {#each hitUsers as userId (userId)}
-    <UserSetting {userId} />
+    <UserSetting {userId} opened={hitUsers.length === 1} />
   {/each}
 </div>
 
@@ -83,7 +123,7 @@
       margin-bottom: 10px;
     }
   }
-  
+
   .select-btn {
     border-radius: 0;
     border: 2px solid black;

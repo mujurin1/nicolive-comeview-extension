@@ -6,15 +6,15 @@
   let { format = $bindable()}: { format: CommentFormat } = $props();
 
   const isDefault = format === store.state.commentView.commentFormats.default;
-  const trueFalseNull = isDefault ? [false, true] : [null, false, true]
+  const trueFalseNull = isDefault ? [true, false] : [null, true, false]
 
   const formatS = notifierStore(
     format,
     () => {
-      CommentFormat.fix(formatS.state);      
+      CommentFormat.fix(formatS.state);
       format = formatS.state;
     },
-  );  
+  );
 
 </script>
 <div class="grid-row">
@@ -71,7 +71,7 @@
   </fieldset>
 
   <fieldset>
-    <legend>フォントサイズ</legend>
+    <legend>フォントサイズ（px）</legend>
     <input
       class="item"
       class:setted={!isDefault && format.fontSize != null}

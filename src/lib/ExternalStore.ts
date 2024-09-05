@@ -197,7 +197,6 @@ function onChanged(changed: Record<string, chrome.storage.StorageChange>) {
 
 /**
  * `{ストア名}#{アイテム名}` => ["ストア名", "アイテム名"] | undefined
- * @param key 
  */
 function parseStoreItemName(key: string): undefined | [string, string] {
   const value = /^([^#]+)#(.*)/.exec(key);

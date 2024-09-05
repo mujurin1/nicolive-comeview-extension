@@ -33,13 +33,19 @@
   }
 </script>
 
-<details class="item" class:hasStored bind:open={opened}>
+<details class="item" bind:open={opened}>
   <summary class="tab">
     <!-- svelte-ignore a11y_missing_attribute -->
     <img src={parseIconUrl($userS.id)} onerror={onErrorImage} />
     <div class="tab-title">
-      <div>{$userS.name}</div>
-      <div>{`ID ${$userS.id}`}</div>
+      {#if typeof $userS.id === "number"}
+        <div class="user-raw-id">{`${$userS.id}`}</div>
+      {:else}
+        <div class="user-184-id">{`${$userS.id}`}</div>
+      {/if}
+      {#if $userS.name}
+        <div class="user-name">{$userS.name}</div>
+      {/if}
       {#if $userS.kotehan}
         <div style="color: green;" title="コテハン">{`@${$userS.kotehan}`}</div>
       {/if}
@@ -47,7 +53,7 @@
         <div style="color: blue;" title="呼び名">{`@${$userS.yobina}`}</div>
       {/if}
       {#if hasFormat}
-        <div style="color: orange;" title="固有のフォーマットが設定されています">★</div>
+        <div style="color: orange;" title="フォーマットが設定されています">★</div>
       {/if}
     </div>
   </summary>
@@ -70,7 +76,11 @@
         <div class="title">コメントフォーマット</div>
 
         {#if $userS.format == null}
-          <button type="button" onclick={() => ($userS.format = CommentFormat.new())}>
+          <button
+            type="button"
+            style="color: royalblue;"
+            onclick={() => ($userS.format = CommentFormat.new())}
+          >
             コメントフォーマットの作成
           </button>
         {:else}
@@ -83,8 +93,8 @@
 
         {#if hasStored}
           <button
-            class="warning"
-            title="セーブデータからユーザーデータを削除します"
+            class="warning delete-user"
+            title="ユーザーデータを削除します"
             onclick={removeUser}
           >
             ユーザーデータの削除
@@ -97,13 +107,9 @@
 
 <style>
   .item {
-    background-color: #ebebad97;
+    background-color: #dfe7dc97;
     box-sizing: border-box;
     border-radius: 7px;
-
-    &.hasStored {
-      background-color: #dfe7dc97;
-    }
 
     & > summary::before {
       font-size: 0.8rem;
@@ -141,12 +147,28 @@
     }
   }
 
+  .user-raw-id {
+    min-width: 80px;
+  }
+  .user-184-id {
+    min-width: 160px;
+  }
+  .user-name {
+    min-width: 250px;
+  }
+
   .content {
     padding: 0 7px 3px 7px;
 
     & > .content-format {
       margin-top: 20px;
       padding: 0 0 3px 0;
+
+      & > .delete-user {
+        float: right;
+        font-weight: bold;
+        margin-right: 20px;
+      }
     }
   }
 

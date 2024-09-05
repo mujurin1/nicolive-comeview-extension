@@ -23,8 +23,8 @@
   <label class="explanation from-next" for="user-yobina">呼び名機能を使う　(@@呼び名)</label>
   <details class="hint">
     <summary>見た目の名前と読み上げられる名前を変えるための機能です</summary>
-    <div>@@の直後が空白文字なら、呼び名が削除されます</div>
     <div>「@コテハン@呼び名」で表示名とは別に呼び名を設定できます</div>
+    <div>@@の直後が空白文字なら、呼び名が削除されます</div>
     <div>（正確には２つめの「@文字列」が呼び名になります）</div>
     <div>※実験的機能です。次のバージョンから無くなるかもしれません</div>
   </details>

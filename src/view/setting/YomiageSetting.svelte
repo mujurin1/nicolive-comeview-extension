@@ -56,16 +56,17 @@
   </fieldset>
   {#if $settingStore.yomiage.speachNames["コメ番"] && !$settingStore.general.nameToNo}
     <div class="hint warning">
-      コメ番は名前として使用されません「一般 > 184の表示名をコメ番にする」も有効にする必要があります
+      ※コメ番は名前として使用されません「一般 >
+      184の表示名をコメ番にする」も有効にする必要があります
     </div>
   {/if}
   {#if $settingStore.yomiage.speachNames["コテハン"] && !$settingStore.general.useKotehan}
     <div class="hint warning">
-      コテハンは名前として使用されません「一般 > コテハンを使用する」も有効にする必要があります
+      ※コテハンは名前として使用されません「一般 > コテハンを使用する」も有効にする必要があります
     </div>
   {/if}
   <div class="hint">呼び名は「一般 > 呼び名機能を使う」設定で切り替えられます</div>
-  <div class="hint">呼び名があるときだけそれを名前として読み上げたい時のための項目です</div>
+  <div class="hint">コメントの名前として使われる項目を選択します</div>
 </div>
 
 <div class="line">

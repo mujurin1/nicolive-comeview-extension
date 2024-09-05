@@ -1,16 +1,17 @@
 <script lang="ts">
-  import { tick } from "svelte";
-  import { getCssClassNameFromMessage } from "../store/CssStyle.svelte";
-  import { Nicolive, type NicoliveUser } from "../store/Nicolive.svelte";
-  import { store } from "../store/store.svelte";
-  import { onErrorImage } from "../utils";
+    import { tick } from "svelte";
+    import { getCssClassNameFromMessage } from "../store/CssStyle.svelte";
+    import { Nicolive, type NicoliveUser } from "../store/Nicolive.svelte";
+    import { store } from "../store/store.svelte";
+    import { onErrorImage } from "../utils";
+    import { settingPage } from "../view/Setting.svelte";
 
   let listView: HTMLDivElement;
 
   $effect.pre(() => {
     Nicolive.messages.length;
 
-    const autoscroll = 
+    const autoscroll =
       listView && listView.offsetHeight + listView.scrollTop > listView.scrollHeight - 50;
 
     if (autoscroll) {
@@ -21,14 +22,18 @@
   });
 </script>
 
-<div bind:this={listView} class="comment-list">
+<div bind:this={listView} class="comment-list" tabindex="-1">
   {#each Nicolive.messages as message}
     {@const user: NicoliveUser | undefined = Nicolive.users[message.userId!]}
     {@const isFirst = message.no != null && user?.firstNo === message.no}
     {@const hideSharp = store.state.general.hideSharp && message.type === "listener" && /[♯#＃]/.test(message.content)}
     <!--  -->
     <!-- <div class={`comment cm-default ${isFirst ? "cm-first" : ""} ${getCssClassNameFromMessage(message)}`}> -->
-    <div class={`comment cm-default ${getCssClassNameFromMessage(message)}`} class:cm-first={isFirst}>
+    <div
+      class={`comment cm-default ${getCssClassNameFromMessage(message)}`}
+      class:cm-owner={message.type === "owner"}
+      class:cm-first={isFirst}
+    >
       <div class="child no">{message.no}</div>
       {#if hideSharp}
         <div class="child icon"></div>
@@ -41,13 +46,24 @@
           {/if}
         </div>
         {#if (message.name ?? message.userId) !== null}
-          <div class="child name" title={message.name ?? (message.userId as string)}>
-            {#if user != null}
-              {@const name = (store.state.general.useKotehan && user.storeUser.kotehan) ? user.storeUser.kotehan : user.storeUser.name}
-              <!-- name が存在するのは生IDだけ -->
-              {name ?? ((store.state.general.nameToNo && user.noName184) ? user.noName184 : user.id)}
-            {/if}
-          </div>
+          {#if user == null}
+            <div class="child name"></div>
+          {:else}
+            {@const name = (store.state.general.useKotehan && user.storeUser.kotehan) ? user.storeUser.kotehan : user.storeUser.name}
+            <!-- svelte-ignore a11y_click_events_have_key_events -->
+            <div
+              class="child name"
+              title={message.name ?? (message.userId as string)}
+              role="button"
+              tabindex="-1"
+              onclick={() => {
+                settingPage.openListener(`id:${user.id}`);
+              }}
+            >
+                <!-- name が存在するのは生IDだけ -->
+                {name ?? ((store.state.general.nameToNo && user.noName184) ? user.noName184 : user.id)}
+            </div>
+          {/if}
         {/if}
       {/if}
       <div class="child time">{message.time}</div>
@@ -69,6 +85,10 @@
     height: 100%;
     overflow: hidden;
     overflow-y: auto;
+
+    &:focus {
+      outline: none;
+    }
   }
 
   .comment {
@@ -85,9 +105,9 @@
     }
 
     & > .no {
+      flex: 0 0 40px;
       display: flex;
       justify-content: flex-end;
-      flex: 0 0 40px;
       padding-right: 5px;
     }
     & > .icon {
@@ -98,13 +118,16 @@
       }
     }
     & > .name {
-      cursor: pointer;
       flex: 0 0 100px;
       overflow: hidden;
       white-space: nowrap;
+
+      &[role="button"] {
+        cursor: pointer;
+      }
     }
     & > .time {
-      flex: 0 0 50px;
+      flex: 0 1 auto;
     }
     & > .content {
       flex: 1 0 10px;

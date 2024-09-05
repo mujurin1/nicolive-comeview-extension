@@ -41,7 +41,6 @@ export const CommentFormat = {
   }) satisfies CommentFormat as CommentFormat,
   /**
    * データを修正する (空文字を`null`にする)
-   * @param format 
    */
   fix: (format: CommentFormat) => {
     if (format.fontFamily === "") format.fontFamily = null;
@@ -105,11 +104,10 @@ const _defaultStore = {
         contentColor: "black",
       }),
       system: CommentFormat.new({
-        nameColor: "red",
         contentColor: "red",
       }),
       first: CommentFormat.new({
-        fontSize: 12,
+        isBold: true,
       }),
       owner: CommentFormat.new({
         nameColor: "red",

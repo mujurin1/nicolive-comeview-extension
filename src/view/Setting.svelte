@@ -1,10 +1,16 @@
 <script module>
   import type { DeepMutable } from "../lib/ExternalStore";
   import type { StoreType } from "../store/data";
+  import type Setting from "./Setting.svelte";
 
   export const settingStore = notifierStore(store.state as DeepMutable<StoreType>, () => {
     store.save();
   });
+
+  export let settingPage: Setting;
+  export function setSettingPage(page: Setting) {
+    settingPage = page;
+  }
 </script>
 
 <script lang="ts">
@@ -23,6 +29,8 @@
   let show = $state(false);
 
   let dialog = $state<HTMLDialogElement>();
+  let listenerSetting = $state<ListenerSetting>();
+  let serchQuery = $state("");
 
   export async function openSetting(_show: boolean) {
     show = _show;
@@ -32,6 +40,14 @@
     } else {
       dialog?.close();
     }
+  }
+
+  export async function openListener(serchQuery: string) {
+    openSetting(true);
+    currentTab = "リスナーリスト";
+
+    await tick();
+    listenerSetting?.setSerchQuery(serchQuery);
   }
 </script>
 
@@ -48,7 +64,7 @@
             {:else if tabId === "読み上げ"}
               <YomiageSetting />
             {:else if tabId === "リスナーリスト"}
-              <ListenerSetting />
+              <ListenerSetting bind:this={listenerSetting} bind:serchQuery />
             {:else if tabId === "コメント表示"}
               <ViewSetting />
             {:else if tabId === "Advanced"}
@@ -93,7 +109,7 @@
 
     width: 80%;
     height: 80%;
-    
+
     padding: 0;
     border: 2px solid black;
 
@@ -168,7 +184,7 @@
       font-size: 0.7rem;
       margin-left: -5px;
     }
-    
+
      :global(&.from-next::before) {
       color: indianred;
     }

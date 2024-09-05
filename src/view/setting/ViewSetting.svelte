@@ -3,51 +3,56 @@
   import { settingStore } from "../Setting.svelte";
 
   let tabOpened = $state({
-    デフォルト: true,
-    生主: false,
-    システムメッセージ: false,
-    初コメ: false,
+    default: true,
+    owner: false,
+    system: false,
+    first: false,
   });
 </script>
 
-<h2 style="margin: 0 0 10px 0; text-align: center;">コメントビュー設定</h2>
+<h2 style="font-size: 1.3rem; margin: 0 0 10px 0; text-align: center;">コメントフォーマット設定</h2>
 
 <div class="content">
-  <details class="item" bind:open={tabOpened.デフォルト}>
-    <summary class="tab">デフォルト （全ての項目の初期値）</summary>
-    {#if tabOpened.デフォルト}
+  <details class="item" bind:open={tabOpened.default}>
+    <summary class="tab">デフォルト （全てのコメントフォーマットの初期値）</summary>
+    {#if tabOpened.default}
       <div class="format">
         <FormatSetting bind:format={$settingStore.commentView.commentFormats.default} />
       </div>
     {/if}
   </details>
 
-  <details class="item" bind:open={tabOpened.生主}>
+  <details class="item" bind:open={tabOpened.owner}>
     <summary class="tab">生主</summary>
-    {#if tabOpened.生主}
+    {#if tabOpened.owner}
       <div class="format">
         <FormatSetting bind:format={$settingStore.commentView.commentFormats.owner} />
       </div>
     {/if}
   </details>
 
-  <details class="item" bind:open={tabOpened.初コメ}>
+  <details class="item" bind:open={tabOpened.first}>
     <summary class="tab">初コメ</summary>
-    {#if tabOpened.初コメ}
+    {#if tabOpened.first}
       <div class="format">
         <FormatSetting bind:format={$settingStore.commentView.commentFormats.first} />
       </div>
     {/if}
   </details>
 
-  <details class="item" bind:open={tabOpened.システムメッセージ}>
+  <details class="item" bind:open={tabOpened.system}>
     <summary class="tab">システムメッセージ</summary>
-    {#if tabOpened.システムメッセージ}
+    {#if tabOpened.system}
       <div class="format">
         <FormatSetting bind:format={$settingStore.commentView.commentFormats.system} />
       </div>
     {/if}
   </details>
+</div>
+
+<div style="font-size: 10px; color: #999">
+  ※コメントビューの詳細な見た目の設定は対応予定
+  （アイコンや名前の並び替えと非表示。枠線の色の変更など）
 </div>
 
 <style>
