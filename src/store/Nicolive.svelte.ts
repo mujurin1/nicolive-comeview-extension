@@ -256,7 +256,6 @@ class _Nicolive {
 }
 
 export const Nicolive = new _Nicolive();
-window.Nicolive = Nicolive;
 
 function parseMessage({ meta, payload }: ChunkedMessage, nicolive: _Nicolive): NicoliveMessage | undefined {
   if (meta == null) return;

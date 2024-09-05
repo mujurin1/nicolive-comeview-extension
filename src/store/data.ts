@@ -13,8 +13,8 @@ export type YomiageTypes = typeof YomiageTypes[number];
  * 読み上げる名前\
  * `"呼び名"`は{@link store.general.useYobina}と同じ値になるのでここでは不要
  */
-export const SpeachNameType = ["ユーザー名", "コメ番", "コテハン"] as const;
-export type SpeachNameType = typeof SpeachNameType[number];
+export const SpeachNameTypes = ["ユーザー名", "コメ番", "コテハン"] as const;
+export type SpeachNameTypes = typeof SpeachNameTypes[number];
 
 // MEMO: 空文字の値は CSSOM 側で無いものとして扱われるので null と "" は今は同じ挙動をしている
 export interface CommentFormat {
@@ -71,13 +71,13 @@ const _defaultStore = {
   },
   yomiage: {
     isSpeak: false,
-    use: "棒読みちゃん" as YomiageTypes,
-    speachName: "none" as SpeachNames,
-    speachNameTypes: {
+    useYomiage: "棒読みちゃん" as YomiageTypes,
+    isSpeachName: "none" as SpeachNames,
+    speachNames: {
       "ユーザー名": true as boolean,
       "コメ番": false as boolean,
       "コテハン": true as boolean,
-    } satisfies { [K in SpeachNameType]: boolean; },
+    } satisfies { [K in SpeachNameTypes]: boolean; },
     speachSystem: true,
   },
   bouyomiChan: {

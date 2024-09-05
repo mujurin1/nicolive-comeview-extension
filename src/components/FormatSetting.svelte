@@ -11,8 +11,6 @@
 
 </script>
 
-{ `${Math.random()}`}
-
 <div class="grid-row">
   <fieldset>
     <legend>背景色</legend>
@@ -80,7 +78,7 @@
     <select bind:value={$formatS.isBold}>
       <!-- ３つ目の値が undefined だと初期値が設定されてしまうため null を使う -->
       {#each [true, false, null] as value}
-      <option {value} selected={value ===$formatS.isBold}>
+      <option {value} selected={value === $formatS.isBold}>
         {value ?? `デフォルト (${store.state.commentView.commentFormats.default.isBold})`}
       </option>
       {/each}

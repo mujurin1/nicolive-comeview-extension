@@ -1,7 +1,6 @@
 <script lang="ts">
   import { BouyomiChan } from "../../store/BouyomiChan.svelte";
-  import { SpeachNameType, YomiageTypes } from "../../store/data";
-  import { store } from "../../store/store.svelte";
+  import { SpeachNameTypes, YomiageTypes } from "../../store/data";
   import { settingStore } from "../Setting.svelte";
 
   let bouyomiTest = $state<"none" | "try" | "miss" | "ok">("none");
@@ -21,7 +20,7 @@
 
 <fieldset>
   <legend>名前の読み上げ位置</legend>
-  <select bind:value={$settingStore.yomiage.speachName}>
+  <select bind:value={$settingStore.yomiage.isSpeachName}>
     <option value="none">読み上げない</option>
     <option value="mae">コメントの前</option>
     <option value="ato">コメントの後</option>
@@ -33,15 +32,15 @@
     <legend>読み上げる名前のタイプ (右側の項目を優先します)</legend>
 
     <div style="display: flex;">
-      {#each SpeachNameType as speachName (speachName)}
-        {@const selected = $settingStore.yomiage.speachNameTypes[speachName]}
+      {#each SpeachNameTypes as speachNameType (speachNameType)}
+        {@const selected = $settingStore.yomiage.speachNames[speachNameType]}
         <button
           class="select-btn"
           data-selected={selected}
           type="button"
-          onclick={() => store.switchSpeachName(speachName)}
+          onclick={() => ($settingStore.yomiage.speachNames[speachNameType] = !selected)}
         >
-          {speachName}
+          {speachNameType}
         </button>
       {/each}
       <button
@@ -55,12 +54,12 @@
       </button>
     </div>
   </fieldset>
-  {#if $settingStore.yomiage.speachNameTypes["コメ番"] && !$settingStore.general.nameToNo}
+  {#if $settingStore.yomiage.speachNames["コメ番"] && !$settingStore.general.nameToNo}
     <div class="hint warning">
       コメ番は名前として使用されません「一般 > 184の表示名をコメ番にする」も有効にする必要があります
     </div>
   {/if}
-  {#if $settingStore.yomiage.speachNameTypes["コテハン"] && !$settingStore.general.useKotehan}
+  {#if $settingStore.yomiage.speachNames["コテハン"] && !$settingStore.general.useKotehan}
     <div class="hint warning">
       コテハンは名前として使用されません「一般 > コテハンを使用する」も有効にする必要があります
     </div>
@@ -93,14 +92,14 @@
 
   <div style="display: flex;">
     {#each YomiageTypes as yomi (yomi)}
-      {@const selected = $settingStore.yomiage.use === yomi}
+      {@const selected = $settingStore.yomiage.useYomiage === yomi}
       {@const disabled = yomi === "VOICEVOX"}
       <input
         type="radio"
         id={yomi}
         name="contact"
         value={yomi}
-        onclick={() => store.setUseYomiage(yomi)}
+        onclick={() => ($settingStore.yomiage.useYomiage = yomi)}
         checked={selected}
         {disabled}
       />
@@ -109,12 +108,12 @@
   </div>
 </div>
 
-{#if $settingStore.yomiage.use === "棒読みちゃん"}
+{#if $settingStore.yomiage.useYomiage === "棒読みちゃん"}
   <fieldset>
     <legend>棒読みちゃんPORT</legend>
     <input type="number" bind:value={$settingStore.bouyomiChan.port} />
   </fieldset>
-{:else if $settingStore.yomiage.use === "VOICEVOX"}
+{:else if $settingStore.yomiage.useYomiage === "VOICEVOX"}
   <div></div>
 {/if}
 

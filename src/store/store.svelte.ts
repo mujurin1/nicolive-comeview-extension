@@ -1,5 +1,5 @@
 import { connectExtenralStore, type DeepReadonly } from "../lib/ExternalStore";
-import { defaultStore, type SpeachNameType, type StoreType, type YomiageTypes } from "./data";
+import { defaultStore, type StoreType } from "./data";
 
 /** StoreUserStore */
 export interface IStore {
@@ -8,9 +8,6 @@ export interface IStore {
   save(): Promise<void>;
   saveFromJson(json: string): Promise<void>;
   resetAllData(): Promise<void>;
-
-  switchSpeachName(name: SpeachNameType): void;
-  setUseYomiage(yomiage: YomiageTypes): void;
 }
 
 export const store: IStore = (() => {
@@ -44,15 +41,6 @@ export const store: IStore = (() => {
       safeOverwrite(state, defaultStore);
       await store.save();
     },
-
-    switchSpeachName(name) {
-      state.yomiage.speachNameTypes[name] = !state.yomiage.speachNameTypes[name];
-      void store.save();
-    },
-    setUseYomiage(yomiage) {
-      state.yomiage.use = yomiage;
-      void store.save();
-    }
   };
 
   return store;

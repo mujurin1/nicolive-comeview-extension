@@ -5,8 +5,8 @@ export class BouyomiChan {
     if (!forceSpeak && !store.state.yomiage.isSpeak) return;
 
     if (name != null) {
-      if (store.state.yomiage.speachName === "mae") content = name + "。" + content;
-      else if (store.state.yomiage.speachName === "ato") content = content + "。" + name;
+      if (store.state.yomiage.isSpeachName === "mae") content = name + "。" + content;
+      else if (store.state.yomiage.isSpeachName === "ato") content = content + "。" + name;
     }
 
     content = encodeURIComponent(content);

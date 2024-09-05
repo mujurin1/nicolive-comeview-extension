@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { derivedNotifierStore } from "../lib/CustomStore.svelte";
+  import { notifierStore } from "../lib/CustomStore.svelte";
   import { CommentFormat } from "../store/data";
   import { Nicolive } from "../store/Nicolive.svelte";
   import { userStore } from "../store/UserStore.svelte";
@@ -15,27 +15,15 @@
 
   let isPersistence = $derived(userStore.users[userId] != null);
 
-  const userS = derivedNotifierStore<StoreUser>(
+  const userS = notifierStore<StoreUser>(
+    userStore.users[userId] ?? Nicolive.users[userId]?.storeUser,
+    () => userStore.upsert(userS.state),
     () => {
       let a = userStore.users[userId];
       let b = Nicolive.users[userId]?.storeUser;
       return a ?? b;
     },
-    () => userStore.upsert(userS.state),
   );
-  // const userS = notifierStore<StoreUser>(
-  //   userStore.users[userId] ?? Nicolive.users[userId].storeUser,
-  //   () => userStore.upsert(userS.state),
-  // );
-
-  // $effect(() => {
-  //   userStore.users[userId];
-  //   Nicolive.users[userId]?.storeUser;
-
-  //   untrack(() => {
-  //     userS.state = userStore.users[userId] ?? Nicolive.users[userId].storeUser;
-  //   });
-  // });
 
   function removeUser() {
     userStore.remove(userId);
