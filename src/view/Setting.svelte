@@ -1,16 +1,10 @@
 <script module>
   import type { DeepMutable } from "../lib/ExternalStore";
   import type { StoreType } from "../store/data";
-  import type Setting from "./Setting.svelte";
 
   export const settingStore = notifierStore(store.state as DeepMutable<StoreType>, () => {
     store.save();
   });
-
-  export let settingPage: Setting;
-  export function setSettingPage(page: Setting) {
-    settingPage = page;
-  }
 </script>
 
 <script lang="ts">
@@ -24,7 +18,7 @@
   import ViewSetting from "./setting/ViewSetting.svelte";
   import YomiageSetting from "./setting/YomiageSetting.svelte";
 
-  const names = ["一般", "読み上げ","リスナーリスト", "コメント表示", "Advanced"] as const;
+  const names = ["一般", "読み上げ","リスナー", "コメント表示", "Advanced"] as const;
   let currentTab = $state<typeof names[number]>("一般");
   let show = $state(false);
 
@@ -44,7 +38,7 @@
 
   export async function openListener(serchQuery: string) {
     openSetting(true);
-    currentTab = "リスナーリスト";
+    currentTab = "リスナー";
 
     await tick();
     listenerSetting?.setSerchQuery(serchQuery);
@@ -63,7 +57,7 @@
               <GeneralSetting />
             {:else if tabId === "読み上げ"}
               <YomiageSetting />
-            {:else if tabId === "リスナーリスト"}
+            {:else if tabId === "リスナー"}
               <ListenerSetting bind:this={listenerSetting} bind:serchQuery />
             {:else if tabId === "コメント表示"}
               <ViewSetting />
@@ -147,46 +141,9 @@
     }
   }
 
-  :global(.line) {
-    display: grid;
-    grid-template:
-            "a b" auto
-            ". c" auto / auto 1fr;
-
-    align-items: center;
-
-    :global(& > *:nth-child(1)) {
-      grid-area: a;
-      margin-right: 15px;
-    }
-    :global(& > *:nth-child(2)) {
-      grid-area: b;
-    }
-    :global(& > *:nth-child(3)) {
-      grid-area: c;
-    }
-  }
-
-  :global(.grid-row) {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    column-gap: 10px;
-  }
 
   :global(.hint) {
     margin-top: -3px;
   }
 
-  :global(.explanation) {
-     :global(&::before) {
-      color: transparent;
-      content: "◆ ";
-      font-size: 0.7rem;
-      margin-left: -5px;
-    }
-
-     :global(&.from-next::before) {
-      color: indianred;
-    }
-  }
 </style>

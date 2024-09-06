@@ -70,6 +70,10 @@
     hasFormat: { name: "フォーマット", checked: false },
   });
 
+  function clearSerchOption() {
+    serchQuery = "";
+  }
+
   export function setSerchQuery(query: string) {
     serchQuery = query;
   }
@@ -77,16 +81,16 @@
 
 <div style="margin-bottom: 10px;">
   <h2 style="margin: 0 0 5px 0; text-align: center;">リスナー設定</h2>
-  <div class="hint">・コメビュでユーザー名をクリックしてもこのページに飛べます</div>
+  <div class="hint">コメビュでユーザー名をクリックするとリスナー設定を開けます</div>
 </div>
 
-<div class="serch" style="margin-bottom: 30px;">
-  <div class="line">
-    <button onclick={() => serchQuery = ""}>クリア</button>
+<div class="serch" style="margin-bottom: 10px;">
+  <div class="line" style="margin-bottom: 5px;">
+    <button onclick={clearSerchOption}>クリア</button>
     <input
       type="text"
-      style="width: 100%; box-sizing: border-box;"
-      placeholder="検索ユーザー名　id:数字/184文字列"
+      class="serch-query"
+      placeholder="検索　ユーザー名　id:ユーザーID（または184ID）"
       bind:value={serchQuery}
     />
   </div>
@@ -107,7 +111,7 @@
 
 <div class="user-list">
   {#each hitUsers as userId (userId)}
-    <UserSetting {userId} opened={hitUsers.length === 1} />
+    <UserSetting {userId} noAccordion={hitUsers.length === 1} />
   {/each}
 </div>
 
@@ -115,12 +119,6 @@
   .user-list {
     :global(& > *:not(:last-child)) {
       margin-bottom: 5px;
-    }
-  }
-
-  .serch {
-    & > *:not(:last-child) {
-      margin-bottom: 10px;
     }
   }
 
@@ -146,5 +144,11 @@
     /* &[disabled] {
       filter: contrast(70%);
     } */
+  }
+
+  .serch-query:focus {
+    width: 100%;
+    box-sizing: border-box;
+    outline: none;
   }
 </style>

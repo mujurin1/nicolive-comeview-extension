@@ -1,10 +1,10 @@
 <script lang="ts">
-    import { tick } from "svelte";
-    import { getCssClassNameFromMessage } from "../store/CssStyle.svelte";
-    import { Nicolive, type NicoliveUser } from "../store/Nicolive.svelte";
-    import { store } from "../store/store.svelte";
-    import { onErrorImage } from "../utils";
-    import { settingPage } from "../view/Setting.svelte";
+  import { tick } from "svelte";
+  import { getCssClassNameFromMessage } from "../store/CssStyle.svelte";
+  import { Nicolive, type NicoliveUser } from "../store/Nicolive.svelte";
+  import { store } from "../store/store.svelte";
+  import { onErrorImage } from "../utils";
+  import { main } from "../view/view";
 
   let listView: HTMLDivElement;
 
@@ -16,10 +16,14 @@
 
     if (autoscroll) {
       tick().then(() => {
-        listView!.scrollTo(0, listView!.scrollHeight);
+        listView.scrollTo(0, listView!.scrollHeight);
       });
     }
   });
+
+  function openUserSetting(userId: number | string) {
+    main.page.openListenerSetting(userId);
+  }
 </script>
 
 <div bind:this={listView} class="comment-list" tabindex="-1">
@@ -56,9 +60,7 @@
               title={message.name ?? (message.userId as string)}
               role="button"
               tabindex="-1"
-              onclick={() => {
-                settingPage.openListener(`id:${user.id}`);
-              }}
+              onclick={() => openUserSetting(user.id)}
             >
                 <!-- name が存在するのは生IDだけ -->
                 {name ?? ((store.state.general.nameToNo && user.noName184) ? user.noName184 : user.id)}
@@ -95,16 +97,17 @@
     display: flex;
     min-height: 30px;
 
-    /* font-size: 1rem; */
     border-top: 1px solid black;
 
+
     & > .child {
-      margin-right: 6px;
+      margin-right: 3px;
       display: flex;
       align-items: center;
     }
 
     & > .no {
+      font-weight: normal;
       flex: 0 0 40px;
       display: flex;
       justify-content: flex-end;
@@ -127,6 +130,7 @@
       }
     }
     & > .time {
+      font-weight: normal;
       flex: 0 1 auto;
     }
     & > .content {

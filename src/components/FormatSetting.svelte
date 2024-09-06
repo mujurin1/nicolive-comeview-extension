@@ -58,18 +58,18 @@
   </fieldset>
 </div>
 
-<div class="grid-row">
-  <fieldset>
-    <legend>フォント</legend>
-    <input
-      class="item"
-      class:setted={!isDefault && format.fontFamily != null}
-      type="text"
-      placeholder={isDefault ? "" :`デフォルト (${store.state.commentView.commentFormats.default.fontFamily})`}
-      bind:value={$formatS.fontFamily}
-    />
-  </fieldset>
+<fieldset>
+  <legend>フォント</legend>
+  <input
+    class="item"
+    class:setted={!isDefault && format.fontFamily != null}
+    type="text"
+    placeholder={isDefault ? "" :`デフォルト (${store.state.commentView.commentFormats.default.fontFamily})`}
+    bind:value={$formatS.fontFamily}
+  />
+</fieldset>
 
+<div class="grid-row">
   <fieldset>
     <legend>フォントサイズ（px）</legend>
     <input
@@ -80,9 +80,7 @@
       bind:value={$formatS.fontSize}
     />
   </fieldset>
-</div>
 
-<div class="grid-row">
   <fieldset>
     <legend>太字</legend>
     <select class="item" class:setted={!isDefault && format.isBold != null} bind:value={$formatS.isBold}>

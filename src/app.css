@@ -85,3 +85,45 @@ fieldset {
 .warning {
   color: crimson;
 }
+
+
+.line {
+  display: grid;
+  grid-template:
+    "a b" auto
+    ". c" auto / auto 1fr;
+
+  align-items: center;
+
+  &>*:nth-child(1) {
+    grid-area: a;
+    margin-right: 15px;
+  }
+
+  &>*:nth-child(2) {
+    grid-area: b;
+  }
+
+  &>*:nth-child(3) {
+    grid-area: c;
+  }
+}
+
+.grid-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  column-gap: 10px;
+}
+
+.explanation {
+  &::before {
+    color: transparent;
+    content: "◆ ";
+    font-size: 0.7rem;
+    margin-left: -5px;
+  }
+
+  &.from-next::before {
+    color: indianred;
+  }
+}

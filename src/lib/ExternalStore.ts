@@ -113,8 +113,6 @@ async function setAndRemove() {
     return;
   }
 
-  console.log("save", saveBookingData);
-
   saveLock = true;
 
   await navigator.locks.request("save_extention_storage", async () => {
@@ -156,13 +154,9 @@ async function setAndRemove() {
 function onChanged(changed: Record<string, chrome.storage.StorageChange>) {
   // このウィンドウでのセーブなので更新は不要
   if (saveFromSelfChecker != null) {
-    console.log("no save");
-
     saveFromSelfChecker();
     return;
   }
-
-  console.log("CHANGED!", changed);
 
   // changed: { [{ストア名}#{アイテム名}]: { new?: Item, old?: Item } }
   const stores: Record<string, { updated: Record<string, any>, removed: string[]; }> = {};

@@ -1,12 +1,12 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import { Nicolive } from "../store/Nicolive.svelte";
-  import Setting, { setSettingPage, settingStore } from "./Setting.svelte";
+  import Setting, { settingStore } from "./Setting.svelte";
+  import { setting } from "./view";
 
-  let setting = $state<Setting>();
-
-  $effect(() => {
-    if (setting == null) return;
-    setSettingPage(setting);
+  let settingPage = $state<Setting>();
+  onMount(() => {
+    setting.page = settingPage!;
   });
 
   let dbgCommentId = 1;
@@ -109,12 +109,12 @@ ws:${Nicolive.connectWs ? "ON" : "off"} co:${Nicolive.connectComment ? "ON" : "o
     </div>
   </div>
 
-  <button class="setting-btn" type="button" onclick={() => setting?.openSetting(true)}>
+  <button class="setting-btn" type="button" onclick={() => settingPage?.openSetting(true)}>
     設定
   </button>
 </div>
 
-<Setting bind:this={setting} />
+<Setting bind:this={settingPage} />
 
 <style>
   .header {

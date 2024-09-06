@@ -77,9 +77,6 @@ class _Nicolive {
         id: this.users[userId].storeUser.id,
         name: this.users[userId].storeUser.name
       };
-      // delete this.users[userId].storeUser.yobina;
-      // delete this.users[userId].storeUser.kotehan;
-      // delete this.users[userId].storeUser.format;
     });
     userStore.updated.on("new", (user) => {
       if (this.users[user.id] == null) return;

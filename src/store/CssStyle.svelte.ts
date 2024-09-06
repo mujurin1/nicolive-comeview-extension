@@ -34,8 +34,6 @@ export function autoUpdateCommentCss(userId: number | string) {
     $effect(() => {
       const format = Nicolive.users[userId + ""]?.storeUser?.format;
 
-      console.log("update css!!");
-
       if (format == null) {
         clearClass("cm-user", className);
       } else {
@@ -104,8 +102,6 @@ $effect.root(() => {
   });
   $effect(() => {
     const style = createCssRule(store.state.commentView.commentFormats.system)!;
-    console.log("update css system");
-
     upsertClass("cm-system", "cm-system", style);
   });
   $effect(() => {
