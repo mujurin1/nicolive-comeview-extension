@@ -99,7 +99,6 @@
 
     border-top: 1px solid black;
 
-
     & > .child {
       margin-right: 3px;
       display: flex;
@@ -117,7 +116,9 @@
       flex: 0 0 30px;
 
       & > img {
-        height: 30px;
+        width: 100%;
+        height: 100%;
+        object-fit: contain; 
       }
     }
     & > .name {
