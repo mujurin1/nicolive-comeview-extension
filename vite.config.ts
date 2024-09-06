@@ -7,10 +7,11 @@ import zipPack from "vite-plugin-zip-pack";
 const manifest = defineManifest({
   manifest_version: 3,
   name: "ニコ生コメビュ",
-  version: "0.1.3",
+  version: "0.2.0",
   icons: {
     128: "assets/128x128.png",
   },
+  description: "2024/8/6 以降のニコニコ生放送に対応したコメントビューアーです",
   permissions: ["storage", "declarativeNetRequestWithHostAccess"],
   action: {
     // default_popup: "index.html",
