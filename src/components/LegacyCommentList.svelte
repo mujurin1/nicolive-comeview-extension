@@ -136,6 +136,14 @@
     }
     & > .content {
       flex: 1 0 10px;
+      white-space-collapse: preserve;
+
+      /* 改行出来ない文字の場合にスクロールバーが出る (アスキーアートなど) */
+      overflow-x: auto;
+      
+      /* 自動改行しない & スクロールバーを非表示 */
+      /* text-wrap: nowrap; */
+      /* scrollbar-width: none; */
     }
   }
 </style>
