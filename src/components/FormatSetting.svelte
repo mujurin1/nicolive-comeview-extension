@@ -64,7 +64,7 @@
     class="item"
     class:setted={!isDefault && format.fontFamily != null}
     type="text"
-    placeholder={isDefault ? "" :`デフォルト (${store.state.commentView.commentFormats.default.fontFamily})`}
+    placeholder={isDefault ? "既定値" :`デフォルト (${store.state.commentView.commentFormats.default.fontFamily ?? "既定値"})`}
     bind:value={$formatS.fontFamily}
   />
 </fieldset>

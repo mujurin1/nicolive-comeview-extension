@@ -23,6 +23,11 @@ export const store: IStore = (() => {
       }
     },
     updated(data) {
+      // TODO: 間違えた初期値を消すための一時的な対応策。１週間くらいしたらこの記述を消す
+      if (data.commentView?.commentFormats?.default?.fontFamily === "auto") {
+        data.commentView.commentFormats.default.fontFamily = null;
+      }
+
       safeOverwrite(state, data);
     },
   });

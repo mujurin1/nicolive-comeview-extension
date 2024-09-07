@@ -93,57 +93,60 @@
     }
   }
 
-  .comment {
-    display: flex;
-    min-height: 30px;
-
-    border-top: 1px solid black;
-
-    & > .child {
-      margin-right: 3px;
+  @layer {
+    .comment {
       display: flex;
-      align-items: center;
-    }
+      min-height: 30px;
 
-    & > .no {
-      font-weight: normal;
-      flex: 0 0 40px;
-      display: flex;
-      justify-content: flex-end;
-      padding-right: 5px;
-    }
-    & > .icon {
-      flex: 0 0 30px;
+      border-top: 1px solid black;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", Meiryo UI, sans-serif;
 
-      & > img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain; 
+      & > .child {
+        margin-right: 3px;
+        display: flex;
+        align-items: center;
       }
-    }
-    & > .name {
-      flex: 0 0 100px;
-      overflow: hidden;
-      white-space: nowrap;
 
-      &[role="button"] {
-        cursor: pointer;
+      & > .no {
+        font-weight: normal;
+        flex: 0 0 40px;
+        display: flex;
+        justify-content: flex-end;
+        padding-right: 5px;
       }
-    }
-    & > .time {
-      font-weight: normal;
-      flex: 0 1 auto;
-    }
-    & > .content {
-      flex: 1 0 10px;
-      white-space-collapse: preserve;
+      & > .icon {
+        flex: 0 0 30px;
 
-      /* 改行出来ない文字の場合にスクロールバーが出る (アスキーアートなど) */
-      overflow-x: auto;
-      
-      /* 自動改行しない & スクロールバーを非表示 */
-      /* text-wrap: nowrap; */
-      /* scrollbar-width: none; */
+        & > img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain; 
+        }
+      }
+      & > .name {
+        flex: 0 0 100px;
+        overflow: hidden;
+        white-space: nowrap;
+
+        &[role="button"] {
+          cursor: pointer;
+        }
+      }
+      & > .time {
+        font-weight: normal;
+        flex: 0 1 auto;
+      }
+      & > .content {
+        flex: 1 0 10px;
+        white-space-collapse: preserve;
+
+        /* 改行出来ない文字の場合にスクロールバーが出る (アスキーアートなど) */
+        overflow-x: auto;
+        
+        /* 自動改行しない & スクロールバーを非表示 */
+        /* text-wrap: nowrap; */
+        /* scrollbar-width: none; */
+      }
     }
   }
 </style>

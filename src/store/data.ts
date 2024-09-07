@@ -96,7 +96,6 @@ const _defaultStore = {
   commentView: {
     commentFormats: {
       default: CommentFormat.new({
-        fontFamily: "auto",
         fontSize: 16,
         isBold: false,
         isItally: false,
