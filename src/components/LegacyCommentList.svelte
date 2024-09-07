@@ -140,6 +140,7 @@
         flex: 1 0 10px;
         white-space-collapse: preserve;
 
+        overflow-y: hidden;
         /* 改行出来ない文字の場合にスクロールバーが出る (アスキーアートなど) */
         overflow-x: auto;
         
