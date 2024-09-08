@@ -109,10 +109,10 @@
 
       & > .no {
         font-weight: normal;
-        flex: 0 0 40px;
+        flex: 0 0 30px;
         display: flex;
         justify-content: flex-end;
-        padding-right: 5px;
+        font-size: 0.8em;
       }
       & > .icon {
         flex: 0 0 30px;
@@ -124,7 +124,7 @@
         }
       }
       & > .name {
-        flex: 0 0 100px;
+        flex: 0 0 80px;
         overflow: hidden;
         white-space: nowrap;
 
@@ -135,6 +135,8 @@
       & > .time {
         font-weight: normal;
         flex: 0 1 auto;
+        padding-right: 2px;
+        font-size: 0.8em;
       }
       & > .content {
         flex: 1 0 10px;

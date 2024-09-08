@@ -184,17 +184,17 @@ class _Nicolive {
     this.messages.push(message);
   };
 
-  private readonly onMessageOld = (chunkedMessage: ChunkedMessage[]) => {
-    const message = chunkedMessage
-      .map(message => {
-        const comment = parseMessage(message, this);
-        if (comment == null) return;
-        this.upsertUser(comment);
-        return comment;
-      })
-      .filter(comment => comment != null);
+  private readonly onMessageOld = (chunkedMessages: ChunkedMessage[]) => {
+    const messages: NicoliveMessage[] = [];
+    for (const chunkedMessage of chunkedMessages) {
+      const message = parseMessage(chunkedMessage, this);
+      if (message == null) continue;
 
-    this.messages.unshift(...message);
+      messages.push(message);
+      this.upsertUser(message);
+    }
+
+    this.messages.unshift(...messages);
   };
 
   /**
