@@ -174,9 +174,9 @@ class _Nicolive {
       let name: string | undefined;
       if (storeUser != null) {
         if (store.state.general.useYobina && storeUser.yobina != null) name = storeUser.yobina;
-        else if (store.state.general.useKotehan && storeUser.kotehan != null) name = storeUser.kotehan;
-        else if (store.state.general.nameToNo && user?.noName184 != null) name = user.noName184;
-        else name = storeUser.name;
+        else if (store.state.yomiage.speachNames.コテハン && store.state.general.useKotehan && storeUser.kotehan != null) name = storeUser.kotehan;
+        else if (store.state.yomiage.speachNames.コメ番 && store.state.general.nameToNo && user?.noName184 != null) name = user.noName184;
+        else if (store.state.yomiage.speachNames.ユーザー名 && storeUser.name != null) name = storeUser.name;
       }
       void BouyomiChan.speak(message.content, name);
     }
