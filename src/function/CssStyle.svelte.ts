@@ -1,6 +1,5 @@
-import type { CommentFormat } from "./data";
+import { SettingStore, type CommentFormat } from "../store/SettingStore.svelte";
 import { Nicolive, type NicoliveMessage } from "./Nicolive.svelte";
-import { store } from "./store.svelte";
 
 function createStyleElement() {
   const map = new Map<string, number>();
@@ -96,20 +95,20 @@ function createCssRule(item: CommentFormat): string | undefined {
 
 $effect.root(() => {
   $effect(() => {
-    const style = createCssRule(store.state.commentView.commentFormats.default)!;
+    const style = createCssRule(SettingStore.state.commentView.commentFormats.default)!;
     // デフォルトのCSSはユーザーよりも優先されないべき
     upsertClass("cm-user", "cm-default", style);
   });
   $effect(() => {
-    const style = createCssRule(store.state.commentView.commentFormats.system)!;
+    const style = createCssRule(SettingStore.state.commentView.commentFormats.system)!;
     upsertClass("cm-system", "cm-system", style);
   });
   $effect(() => {
-    const style = createCssRule(store.state.commentView.commentFormats.first)!;
+    const style = createCssRule(SettingStore.state.commentView.commentFormats.first)!;
     upsertClass("cm-system", "cm-first", style);
   });
   $effect(() => {
-    const style = createCssRule(store.state.commentView.commentFormats.owner)!;
+    const style = createCssRule(SettingStore.state.commentView.commentFormats.owner)!;
     upsertClass("cm-system", "cm-owner", style);
   });
 });

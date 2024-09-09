@@ -1,10 +1,10 @@
 import { NicoliveClient, NicoliveWatchError, timestampToMs, type NicoliveClientState } from "@mujurin/nicolive-api-ts";
 import type { ChunkedMessage } from "@mujurin/nicolive-api-ts/build/gen/dwango_pb";
+import { SettingStore } from "../store/SettingStore.svelte";
+import { UserStore, type StoreUser } from "../store/UserStore.svelte";
 import { parseIconUrl, timeString } from "../utils";
 import { BouyomiChan } from "./BouyomiChan.svelte";
 import { autoUpdateCommentCss } from "./CssStyle.svelte";
-import { userStore, type StoreUser } from "./UserStore.svelte";
-import { store } from "./store.svelte";
 
 export interface NicoliveMessage {
   type: "listener" | "owner" | "system";
@@ -70,7 +70,7 @@ class _Nicolive {
   public isFetchingBackwardMessage = $state(false);
 
   constructor() {
-    userStore.updated.on("remove", userId => {
+    UserStore.updated.on("remove", userId => {
       if (this.users[userId] == null) return;
 
       this.users[userId].storeUser = {
@@ -78,7 +78,7 @@ class _Nicolive {
         name: this.users[userId].storeUser.name
       };
     });
-    userStore.updated.on("new", (user) => {
+    UserStore.updated.on("new", (user) => {
       if (this.users[user.id] == null) return;
       this.users[user.id].storeUser = user;
     });
@@ -93,7 +93,7 @@ class _Nicolive {
     this.state = "connecting";
 
     try {
-      this.client = await NicoliveClient.create(this.url, "now", store.state.general.fetchConnectingBackward ? 1 : 0, false);
+      this.client = await NicoliveClient.create(this.url, "now", SettingStore.state.general.fetchConnectingBackward ? 1 : 0, false);
     } catch (e) {
       this.state = "disconnected";
       if (!(e instanceof NicoliveWatchError)) throw e;
@@ -170,14 +170,14 @@ class _Nicolive {
 
     const user = this.upsertUser(message);
 
-    if (this._canSpeak && !(store.state.general.hideSharp && message.includeSharp)) {
+    if (this._canSpeak && !(SettingStore.state.general.hideSharp && message.includeSharp)) {
       const storeUser = user?.storeUser;
       let name: string | undefined;
       if (storeUser != null) {
-        if (store.state.general.useYobina && storeUser.yobina != null) name = storeUser.yobina;
-        else if (store.state.yomiage.speachNames.コテハン && store.state.general.useKotehan && storeUser.kotehan != null) name = storeUser.kotehan;
-        else if (store.state.yomiage.speachNames.コメ番 && store.state.general.nameToNo && user?.noName184 != null) name = user.noName184;
-        else if (store.state.yomiage.speachNames.ユーザー名 && storeUser.name != null) name = storeUser.name;
+        if (SettingStore.state.general.useYobina && storeUser.yobina != null) name = storeUser.yobina;
+        else if (SettingStore.state.yomiage.speachNames.コテハン && SettingStore.state.general.useKotehan && storeUser.kotehan != null) name = storeUser.kotehan;
+        else if (SettingStore.state.yomiage.speachNames.コメ番 && SettingStore.state.general.nameToNo && user?.noName184 != null) name = user.noName184;
+        else if (SettingStore.state.yomiage.speachNames.ユーザー名 && storeUser.name != null) name = storeUser.name;
       }
       void BouyomiChan.speak(message.content, name);
     }
@@ -219,7 +219,7 @@ class _Nicolive {
     if (kotehan != null || yobina != null) {
       if (kotehan != null) user.storeUser.kotehan = kotehan === 0 ? undefined : kotehan;
       if (yobina != null) user.storeUser.yobina = yobina === 0 ? undefined : yobina;
-      userStore.upsert(user.storeUser);
+      UserStore.upsert(user.storeUser);
     }
 
     if (this.users[message.userId] == null) {
@@ -320,7 +320,7 @@ function parseMessage({ meta, payload }: ChunkedMessage, nicolive: _Nicolive): N
   } else
     return;
 
-  if (store.state.general.urlToLink && link == null) {
+  if (SettingStore.state.general.urlToLink && link == null) {
     link = /.*(https?:\/\/\S*).*/.exec(content)?.[1];
   }
 
@@ -352,7 +352,7 @@ function createUser(message: NicoliveMessage): NicoliveUser | undefined {
     firstNo: message.no,
     is184: message.is184,
     // storeUser: store.state.nicolive.users_primitable[message.userId] ?? {
-    storeUser: userStore.users[message.userId] ?? {
+    storeUser: UserStore.users[message.userId] ?? {
       id: message.userId,
       name: message.name ?? undefined,
       kotehan: undefined,
@@ -369,13 +369,13 @@ function createUser(message: NicoliveMessage): NicoliveUser | undefined {
  * @returns [コテハン, 呼び名]
  */
 function parseKotehanAndYobina(str: string): [string | 0 | undefined, string | 0 | undefined] {
-  if (!store.state.general.useKotehan && !store.state.general.useYobina) return [undefined, undefined];
+  if (!SettingStore.state.general.useKotehan && !SettingStore.state.general.useYobina) return [undefined, undefined];
 
   const reg = /[@＠](\s|[^\s@＠]+)?[^@＠]*(?:[@＠](\s|[^\s@＠]+))?/.exec(str);
   if (reg == null) return [undefined, undefined];
 
-  const kotehan = store.state.general.useKotehan ? reg[1] : undefined;
-  const yobina = store.state.general.useYobina ? reg[2] : undefined;
+  const kotehan = SettingStore.state.general.useKotehan ? reg[1] : undefined;
+  const yobina = SettingStore.state.general.useYobina ? reg[2] : undefined;
 
   return [
     /\s/.test(kotehan!) ? 0 : kotehan,

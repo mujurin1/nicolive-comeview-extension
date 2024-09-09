@@ -1,68 +1,34 @@
 import { sleep } from "@mujurin/nicolive-api-ts";
+import type { IStorage, StorageController, StorageUser } from "./Storage";
 
-// MEMO: 今の要件では値はプリミティブしか扱わないためこれで良い
-export type DeepReadonly<T> = { readonly [K in keyof T]: DeepReadonly<T[K]> };
-export type DeepMutable<T> = { -readonly [K in keyof T]: DeepMutable<T[K]> };
+export const chromeExtentionStorage: IStorage = {
+  async init() {
+    await load();
+    chrome.storage.local.onChanged.addListener(onChanged);
+  },
+  addUse<
+    StoreName extends string,
+    Items extends { [ItemKey in string]: any },
+  >(storeName: StoreName, user: StorageUser<Items>): StorageController<Items> {
+    if (storeName.includes("#"))
+      throw new Error(`ストア名は "#" を含まない１文字以上の文字です. ${storeName}`);
 
-type KeysOf<T> = T extends Record<infer K, any> ? K : never;
-type ExternalKeyName = `${string}#${string}`;
+    storageUsers[storeName] = user;
 
-const manageStores: Record<string, StoreData<string, any>> = {};
+    return {
+      update: items => update(storeName, items),
+      remove: itemKeys => remove(storeName, itemKeys),
+    };
+  }
+} as const;
 
-export interface StoreData<
-  StoreName extends string,
-  Items extends Record<string, any>,
-> {
-  storeName: StoreName;
-  /** データが更新された */
-  updated: (items: Partial<Items>) => void;
-  /** データが削除された */
-  removed: (itemName: (KeysOf<Items>)[]) => void;
-}
 
-export interface ExternalStoreController<
-  StoreName extends string,
-  Items extends Record<string, any>,
-> {
-  /** データを保存する */
-  save: (items: Partial<Items>) => Promise<void>;
-  /** データを削除する */
-  remove: (itemNames: (KeysOf<Items>)[]) => Promise<void>;
-}
-
-/**
- * 外部ストアと接続するための関数
- * @param storeName `"#"` を含まない文字
- * @param set データが更新されたら呼ばれる
- */
-export function connectExtenralStore<
-  StoreName extends string,
-  Items extends Record<string, any>,
->(
-  storeData: StoreData<StoreName, Items>
-): ExternalStoreController<StoreName, Items> {
-  if (
-    !storeData.storeName &&
-    storeData.storeName.includes("#")
-  ) throw new Error(`ストア名は "#" を含まない１文字以上の文字です. ${storeData.storeName}`);
-
-  manageStores[storeData.storeName] = storeData;
-
-  return {
-    save: (items) => save(storeData.storeName, items),
-    remove: (itemNames) => remove(storeData.storeName, itemNames),
-  };
-}
-
-export async function externalStoreInitialize() {
-  await load();
-  chrome.storage.local.onChanged.addListener(onChanged);
-}
+const storageUsers: Record<string, StorageUser<any>> = {};
 
 /** 値が存在すればこのウィンドウでセーブ中 */
 let saveFromSelfChecker: undefined | (() => void);
 /** 保存する必要のあるデータ */
-let saveBookingData: Record<ExternalKeyName, any> = {};
+let saveBookingData: Record<`${string}#${string}`, any> = {};
 let saveLock = false;
 
 async function load() {
@@ -73,10 +39,10 @@ async function load() {
   for (const key in data) {
     const item = data[key];
 
-    // TODO: null なアイテムを持つことは許さないで良いのか?
+    // MEMO: 現在は {"ストア名#アイテム名": null } は許可しない
     if (item == null) return;
 
-    const parsed = parseStoreItemName(key);
+    const parsed = parseStoreItemKey(key);
     if (parsed == null) continue;
     const storeName: string = parsed[0];
     const itemName: string = parsed[1];
@@ -86,11 +52,13 @@ async function load() {
   }
 
   for (const storeName in stores) {
-    manageStores[storeName].updated(stores[storeName]);
+    const store = storageUsers[storeName];
+    if (store == null) continue;
+    store.onUpdated(stores[storeName]);
   }
 }
 
-async function save(storeName: string, items: Partial<Record<string, any>>) {
+async function update(storeName: string, items: Partial<Record<string, any>>) {
   for (const itemName in items) {
     saveBookingData[`${storeName}#${itemName}`] = items[itemName];
   }
@@ -106,7 +74,7 @@ async function remove(storeName: string, itemNames: readonly string[]) {
   await setAndRemove();
 }
 
-async function setAndRemove() {
+async function setAndRemove(): Promise<void> {
   if (saveLock) {
     // すでにこのウィンドウでセーブを実行中なので後回し
     return;
@@ -161,7 +129,7 @@ function onChanged(changed: Record<string, chrome.storage.StorageChange>) {
   const stores: Record<string, { updated: Record<string, any>, removed: string[]; }> = {};
 
   for (const key in changed) {
-    const parsed = parseStoreItemName(key);
+    const parsed = parseStoreItemKey(key);
     if (parsed == null) continue;
     const storeName: string = parsed[0];
     const itemName: string = parsed[1];
@@ -179,20 +147,20 @@ function onChanged(changed: Record<string, chrome.storage.StorageChange>) {
   }
 
   for (const storeName in stores) {
-    const store = manageStores[storeName];
+    const store = storageUsers[storeName];
     if (store == null) continue;
     if (Object.keys(stores[storeName].updated).length > 0)
-      store.updated(stores[storeName].updated);
+      store.onUpdated(stores[storeName].updated);
     if (stores[storeName].removed.length > 0)
-      store.removed(stores[storeName].removed);
+      store.onRemoved(stores[storeName].removed);
   }
 }
 
 /**
  * `{ストア名}#{アイテム名}` => ["ストア名", "アイテム名"] | undefined
  */
-function parseStoreItemName(key: string): undefined | [string, string] {
-  const value = /^([^#]+)#(.*)/.exec(key);
+function parseStoreItemKey(str: string): undefined | [string, string] {
+  const value = /^([^#]+)#(.*)/.exec(str);
   if (value == null) return undefined;
   return [value[1], value[2]];
 }

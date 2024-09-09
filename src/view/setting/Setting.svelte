@@ -1,17 +1,20 @@
 <script module>
-  import type { DeepMutable } from "../../lib/ExternalStore";
-  import type { StoreType } from "../../store/data";
+  import { notifierStore } from "../../lib/CustomStore.svelte";
+  import type { SettingState } from "../../store/SettingStore.svelte";
+  import { SettingStore } from "../../store/SettingStore.svelte";
+  import type { DeepMutable } from "../../utils";
 
-  export const settingStore = notifierStore(store.state as DeepMutable<StoreType>, () => {
-    store.save();
-  });
+  export const settingStore = notifierStore(
+    SettingStore.state as DeepMutable<SettingState>,
+    () => {
+      SettingStore.save();
+    }
+  );
 </script>
 
 <script lang="ts">
   import { tick } from "svelte";
   import Tab from "../../components/Tab.svelte";
-  import { notifierStore } from "../../lib/CustomStore.svelte";
-  import { store } from "../../store/store.svelte";
   import AdvancedSetting from "./AdvancedSetting.svelte";
   import GeneralSetting from "./GeneralSetting.svelte";
   import ListenerSetting from "./ListenerSetting.svelte";

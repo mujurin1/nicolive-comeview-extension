@@ -1,8 +1,8 @@
 <script lang="ts">
   import { tick } from "svelte";
-  import { getCssClassNameFromMessage } from "../store/CssStyle.svelte";
-  import { Nicolive, type NicoliveUser } from "../store/Nicolive.svelte";
-  import { store } from "../store/store.svelte";
+  import { getCssClassNameFromMessage } from "../function/CssStyle.svelte";
+  import { Nicolive, type NicoliveUser } from "../function/Nicolive.svelte";
+  import { SettingStore } from "../store/SettingStore.svelte";
   import { onErrorImage } from "../utils";
   import { additional } from "../view/view";
 
@@ -30,7 +30,7 @@
   {#each Nicolive.messages as message}
     {@const user: NicoliveUser | undefined = Nicolive.users[message.userId!]}
     {@const isFirst = message.no != null && user?.firstNo === message.no}
-    {@const hideSharp = store.state.general.hideSharp && message.type === "listener" && /[♯#＃]/.test(message.content)}
+    {@const hideSharp = SettingStore.state.general.hideSharp && message.type === "listener" && /[♯#＃]/.test(message.content)}
     <!--  -->
     <!-- <div class={`comment cm-default ${isFirst ? "cm-first" : ""} ${getCssClassNameFromMessage(message)}`}> -->
     <div
@@ -53,7 +53,7 @@
           {#if user == null}
             <div class="child name"></div>
           {:else}
-            {@const name = (store.state.general.useKotehan && user.storeUser.kotehan) ? user.storeUser.kotehan : user.storeUser.name}
+            {@const name = (SettingStore.state.general.useKotehan && user.storeUser.kotehan) ? user.storeUser.kotehan : user.storeUser.name}
             <!-- svelte-ignore a11y_click_events_have_key_events -->
             <div
               class="child name"
@@ -63,7 +63,7 @@
               onclick={() => openUserSetting(user.id)}
             >
                 <!-- name が存在するのは生IDだけ -->
-                {name ?? ((store.state.general.nameToNo && user.noName184) ? user.noName184 : user.id)}
+                {name ?? ((SettingStore.state.general.nameToNo && user.noName184) ? user.noName184 : user.id)}
             </div>
           {/if}
         {/if}

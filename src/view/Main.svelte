@@ -1,18 +1,13 @@
 <script module>
-  import { externalStoreInitialize } from "../lib/ExternalStore";
-  import { store } from "../store/store.svelte";
-  import { userStore } from "../store/UserStore.svelte";
+  import { storageInit } from "../lib/Storage";
 
-  // first set stores
-  store;
-  userStore;
-  externalStoreInitialize();
+  storageInit();
 </script>
 
 <script lang="ts">
   import { onMount } from "svelte";
   import LegacyCommentList from "../components/LegacyCommentList.svelte";
-  import { Nicolive } from "../store/Nicolive.svelte";
+  import { Nicolive } from "../function/Nicolive.svelte";
   import Additional from "./Additional.svelte";
   import Header from "./Header.svelte";
   import Startup from "./Startup.svelte";

@@ -1,11 +1,10 @@
 <script lang="ts">
   import { notifierStore } from "../lib/CustomStore.svelte";
-  import { CommentFormat } from "../store/data";
-  import { store } from "../store/store.svelte";
+  import { CommentFormat, SettingStore } from "../store/SettingStore.svelte";
 
   let { format = $bindable()}: { format: CommentFormat } = $props();
 
-  const isDefault = format === store.state.commentView.commentFormats.default;
+  const isDefault = format === SettingStore.state.commentView.commentFormats.default;
   const trueFalseNull = isDefault ? [true, false] : [null, true, false]
 
   const formatS = notifierStore(
@@ -24,7 +23,7 @@
       <input type="color" bind:value={$formatS.backgroundColor} />
       <input
         type="text"
-        placeholder={isDefault ? "透明" :`デフォルト (${store.state.commentView.commentFormats.default.backgroundColor ?? "透明"})`}
+        placeholder={isDefault ? "透明" :`デフォルト (${SettingStore.state.commentView.commentFormats.default.backgroundColor ?? "透明"})`}
         style="width: 100%;"
         bind:value={$formatS.backgroundColor}
       />
@@ -37,7 +36,7 @@
       <input type="color" bind:value={$formatS.nameColor} />
       <input
         type="text"
-        placeholder={isDefault ? "black" :`デフォルト (${store.state.commentView.commentFormats.default.nameColor ?? "black"})`}
+        placeholder={isDefault ? "black" :`デフォルト (${SettingStore.state.commentView.commentFormats.default.nameColor ?? "black"})`}
         style="width: 100%;"
         bind:value={$formatS.nameColor}
       />
@@ -51,7 +50,7 @@
       <input
         type="text"
         style="width: 100%;"
-        placeholder={isDefault ? "black" :`デフォルト (${store.state.commentView.commentFormats.default.contentColor ?? "black"})`}
+        placeholder={isDefault ? "black" :`デフォルト (${SettingStore.state.commentView.commentFormats.default.contentColor ?? "black"})`}
         bind:value={$formatS.contentColor}
       />
     </div>
@@ -64,7 +63,7 @@
     class="item"
     class:setted={!isDefault && format.fontFamily != null}
     type="text"
-    placeholder={isDefault ? "既定値" :`デフォルト (${store.state.commentView.commentFormats.default.fontFamily ?? "既定値"})`}
+    placeholder={isDefault ? "既定値" :`デフォルト (${SettingStore.state.commentView.commentFormats.default.fontFamily ?? "既定値"})`}
     bind:value={$formatS.fontFamily}
   />
 </fieldset>
@@ -76,7 +75,7 @@
       class="item"
       class:setted={!isDefault && format.fontSize != null}
       type="number"
-      placeholder={isDefault ? "" :`デフォルト (${store.state.commentView.commentFormats.default.fontSize as unknown as string})`}
+      placeholder={isDefault ? "" :`デフォルト (${SettingStore.state.commentView.commentFormats.default.fontSize as unknown as string})`}
       bind:value={$formatS.fontSize}
     />
   </fieldset>
@@ -87,7 +86,7 @@
       <!-- ３つ目の値が undefined だと初期値が設定されてしまうため null を使う -->
       {#each trueFalseNull as value}
       <option {value} selected={value === $formatS.isBold}>
-        {value ?? `デフォルト (${store.state.commentView.commentFormats.default.isBold})`}
+        {value ?? `デフォルト (${SettingStore.state.commentView.commentFormats.default.isBold})`}
       </option>
       {/each}
     </select>
@@ -98,7 +97,7 @@
     <select class="item" class:setted={!isDefault && format.isItally != null} bind:value={$formatS.isItally}>
       {#each trueFalseNull as value}
       <option {value}>
-        {value ?? `デフォルト (${store.state.commentView.commentFormats.default.isItally})`}
+        {value ?? `デフォルト (${SettingStore.state.commentView.commentFormats.default.isItally})`}
       </option>
       {/each}
     </select>

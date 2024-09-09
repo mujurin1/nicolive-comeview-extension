@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { SpeachNameItems, YomiageTypes } from "../../store/data";
+  import { SpeachNameItems, YomiageTypes } from "../../store/SettingStore.svelte";
   import { settingStore } from "./Setting.svelte";
 </script>
 

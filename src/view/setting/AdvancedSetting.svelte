@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { store } from "../../store/store.svelte";
+  import { SettingStore } from "../../store/SettingStore.svelte";
   import { settingStore } from "./Setting.svelte";
 
   let useAdvancedFlg = $state(false);
@@ -9,7 +9,7 @@
 
   async function save() {
     try {
-      await store.saveFromJson(savedata);
+      await SettingStore.saveFromJson(savedata);
       trySave = "ok";
     } catch (e) {
       console.error(e);
@@ -21,7 +21,7 @@
   async function clear() {
     try {
       if (checkedClearOk) {
-        await store.resetAllData();
+        await SettingStore.resetAllData();
         checkedClearOk = false;
       } else {
         checkedClearOk = true;

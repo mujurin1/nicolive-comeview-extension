@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { Nicolive } from "../store/Nicolive.svelte";
+  import { Nicolive } from "../function/Nicolive.svelte";
   import Setting, { settingStore } from "./setting/Setting.svelte";
   import { setting } from "./view";
 

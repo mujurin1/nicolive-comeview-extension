@@ -1,7 +1,7 @@
 <script lang="ts">
   import UserSetting from "../../components/UserSetting.svelte";
-  import { Nicolive } from "../../store/Nicolive.svelte";
-  import { userStore, type StoreUser } from "../../store/UserStore.svelte";
+  import { Nicolive } from "../../function/Nicolive.svelte";
+  import { UserStore, type StoreUser } from "../../store/UserStore.svelte";
 
   let { serchQuery = $bindable("") }: {
     serchQuery?: string;
@@ -9,7 +9,7 @@
 
   let hitUsers = $derived.by(() => {
     const users = new Map([
-        ...Object.values(userStore.users).map(u => [u, false] as const),
+        ...Object.values(UserStore.users).map(u => [u, false] as const),
         ...Object.values(Nicolive.users).map(u => [u.storeUser, true] as const),
       ]
     );

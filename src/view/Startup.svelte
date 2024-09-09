@@ -1,10 +1,10 @@
 <script lang="ts">
   import { getNicoliveId } from "@mujurin/nicolive-api-ts";
-  import type { StoreType } from "../store/data";
-  import { Nicolive } from "../store/Nicolive.svelte";
+  import { Nicolive } from "../function/Nicolive.svelte";
+  import type { SettingState } from "../store/SettingStore.svelte";
   import { settingStore } from "./setting/Setting.svelte";
 
-  let newPinn = $state<StoreType["nicolive"]["pinnLives"][number]>({
+  let newPinn = $state<SettingState["nicolive"]["pinnLives"][number]>({
     id: "",
     description: "",
   });
