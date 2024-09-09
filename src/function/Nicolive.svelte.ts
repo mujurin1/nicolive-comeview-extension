@@ -1,5 +1,5 @@
 import { NicoliveClient, NicoliveWatchError, timestampToMs, type NicoliveClientState } from "@mujurin/nicolive-api-ts";
-import type { ChunkedMessage } from "@mujurin/nicolive-api-ts/build/gen/dwango_pb";
+import type * as dwango from "@mujurin/nicolive-api-ts/build/gen/dwango_pb";
 import { SettingStore } from "../store/SettingStore.svelte";
 import { UserStore, type StoreUser } from "../store/UserStore.svelte";
 import { parseIconUrl, timeString } from "../utils";
@@ -52,7 +52,6 @@ class _Nicolive {
   public messages = $state<NicoliveMessage[]>([]);
 
 
-  public vposBaseTimeMs?: number;
   /**
    * 接続している放送単位でのユーザーの情報を管理する\
    * システムメッセージのコメントのユーザーは管理しない
@@ -102,7 +101,7 @@ class _Nicolive {
       return;
     }
 
-    this.url = this.client.liveId;
+    this.url = this.client.info.liveId;
 
     this.client.onState.on(event => this.state = event);
     this.client.onLog.on("info", message => {
@@ -123,9 +122,7 @@ class _Nicolive {
     });
     this.client.onMessageState.on(event => {
       this.connectComment = event === "opened";
-    }
-    );
-    this.client.onWsMessage.on("messageServer", data => { this.vposBaseTimeMs = new Date(data.vposBaseTime).getTime(); });
+    });
 
     this.client.onMessageEntry.on(message => {
       if (message === "segment") {
@@ -137,7 +134,7 @@ class _Nicolive {
     this.client.onMessage.on(this.onMessage);
     this.client.onMessageOld.on(this.onMessageOld);
 
-    document.title = `${this.client.title} - ${this.client.liveId}`;
+    document.title = `${this.client.info.title} - ${this.client.info.liveId}`;
 
     // // デバッグ用
     // setDebug(this.client);
@@ -164,7 +161,7 @@ class _Nicolive {
     }
   }
 
-  private readonly onMessage = (chunkedMessage: ChunkedMessage) => {
+  private readonly onMessage = (chunkedMessage: dwango.ChunkedMessage) => {
     const message = parseMessage(chunkedMessage, this);
     if (message == null) return;
 
@@ -185,7 +182,7 @@ class _Nicolive {
     this.messages.push(message);
   };
 
-  private readonly onMessageOld = (chunkedMessages: ChunkedMessage[]) => {
+  private readonly onMessageOld = (chunkedMessages: dwango.ChunkedMessage[]) => {
     const messages: NicoliveMessage[] = [];
     for (const chunkedMessage of chunkedMessages) {
       const message = parseMessage(chunkedMessage, this);
@@ -255,7 +252,29 @@ class _Nicolive {
 
 export const Nicolive = new _Nicolive();
 
-function parseMessage({ meta, payload }: ChunkedMessage, nicolive: _Nicolive): NicoliveMessage | undefined {
+function createUser(message: NicoliveMessage): NicoliveUser | undefined {
+  if (message.type === "system" || message.userId == null) return;
+
+  let noName184: string | undefined;
+  if (message.is184 && message.no != null) {
+    noName184 = `${message.no}コメ`;
+  }
+
+  return {
+    id: message.userId,
+    firstNo: message.no,
+    is184: message.is184,
+    storeUser: UserStore.users[message.userId] ?? {
+      id: message.userId,
+      name: message.name ?? undefined,
+      kotehan: undefined,
+      yobina: undefined,
+    },
+    noName184,
+  };
+}
+
+function parseMessage({ meta, payload }: dwango.ChunkedMessage, nicolive: _Nicolive): NicoliveMessage | undefined {
   if (meta == null) return;
 
   const commentId = meta.id;
@@ -265,7 +284,7 @@ function parseMessage({ meta, payload }: ChunkedMessage, nicolive: _Nicolive): N
   let iconUrl: string | undefined;
   let is184: boolean;
   let name: string | undefined;
-  let time = timestampToMs(meta.at!) - nicolive.client!.beginTime.getTime();
+  const time = timestampToMs(meta.at!) - nicolive.client!.beginTime.getTime();
   let content: string;
   let link: string | undefined;
 
@@ -279,7 +298,6 @@ function parseMessage({ meta, payload }: ChunkedMessage, nicolive: _Nicolive): N
       no = data.value.no;
       iconUrl = parseIconUrl(userId);
       if (!is184) name = data.value.name;
-      time = data.value.vpos * 10 - (nicolive.client!.beginTime.getTime() - nicolive.vposBaseTimeMs!);
       content = data.value.content;
     } else if (data.case === "nicoad") {
       type = "system";
@@ -312,9 +330,9 @@ function parseMessage({ meta, payload }: ChunkedMessage, nicolive: _Nicolive): N
     is184 = false;
     const operatorComment = payload.value.marquee?.display?.operatorComment;
     if (operatorComment == null) return;
-    userId = nicolive.client!.ownerId;
+    userId = nicolive.client!.info.owner.id;
     iconUrl = parseIconUrl(userId);
-    name = nicolive.client!.ownerName;
+    name = nicolive.client!.info.owner.name;
     content = operatorComment.content!;
     link = operatorComment.link;
   } else
@@ -336,29 +354,6 @@ function parseMessage({ meta, payload }: ChunkedMessage, nicolive: _Nicolive): N
     content,
     link,
     includeSharp: /[♯#＃]/.test(content),
-  };
-}
-
-function createUser(message: NicoliveMessage): NicoliveUser | undefined {
-  if (message.type === "system" || message.userId == null) return;
-
-  let noName184: string | undefined;
-  if (message.is184 && message.no != null) {
-    noName184 = `${message.no}コメ`;
-  }
-
-  return {
-    id: message.userId,
-    firstNo: message.no,
-    is184: message.is184,
-    // storeUser: store.state.nicolive.users_primitable[message.userId] ?? {
-    storeUser: UserStore.users[message.userId] ?? {
-      id: message.userId,
-      name: message.name ?? undefined,
-      kotehan: undefined,
-      yobina: undefined,
-    },
-    noName184,
   };
 }
 
@@ -394,7 +389,7 @@ function setDebug(client: NicoliveClient) {
 
   client.onLog._debugAllOn(event => { console.log("state: ", event.data[0]); });
 
-  function x(...messages: ChunkedMessage[]) {
+  function x(...messages: dwango.ChunkedMessage[]) {
     for (const { meta: _meta, payload: { value, case: _case } } of messages) {
       const meta =
         _meta == null
