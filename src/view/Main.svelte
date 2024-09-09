@@ -6,27 +6,31 @@
   // first set stores
   store;
   userStore;
-  const promise = externalStoreInitialize();
+  externalStoreInitialize();
 </script>
 
 <script lang="ts">
+  import { onMount } from "svelte";
   import LegacyCommentList from "../components/LegacyCommentList.svelte";
-  import UserSetting from "../components/UserSetting.svelte";
   import { Nicolive } from "../store/Nicolive.svelte";
+  import Additional from "./Additional.svelte";
   import Header from "./Header.svelte";
   import Startup from "./Startup.svelte";
+  import { additional } from "./view";
 
+  let additionalPage = $state<Additional>();
+
+  onMount(() => {
+    if(additionalPage == null) return;
+    additional.page = additionalPage;
+  });
+    
   let startup = $state(true);
 
   $effect(() => {
     if (startup && Nicolive.state === "opened") startup = false;
   });
 
-  let userId = $state<number | string>();
-
-  export function openListenerSetting(_userId: number | string) {
-    userId = _userId;
-  }
 </script>
 
 <main>
@@ -42,14 +46,7 @@
         {/if}
       </div>
       <div class="content-sub">
-        {#if userId != null}
-          <div style="position: sticky;">
-            <button class="close-btn" type="button" onclick={() => userId = undefined}>
-              閉じる
-            </button>
-            <UserSetting {userId} noAccordion={true} />
-          </div>
-        {/if}
+        <Additional bind:this={additionalPage} />
       </div>
     </div>
   </div>
@@ -85,11 +82,5 @@
       grid-area: sub;
       height: fit-content;
     }
-  }
-
-  .close-btn {
-    position: absolute;
-    top: 5px;
-    right: 10px;
   }
 </style>

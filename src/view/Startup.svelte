@@ -2,7 +2,7 @@
   import { getNicoliveId } from "@mujurin/nicolive-api-ts";
   import type { StoreType } from "../store/data";
   import { Nicolive } from "../store/Nicolive.svelte";
-  import { settingStore } from "./Setting.svelte";
+  import { settingStore } from "./setting/Setting.svelte";
 
   let newPinn = $state<StoreType["nicolive"]["pinnLives"][number]>({
     id: "",

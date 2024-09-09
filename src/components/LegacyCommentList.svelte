@@ -4,7 +4,7 @@
   import { Nicolive, type NicoliveUser } from "../store/Nicolive.svelte";
   import { store } from "../store/store.svelte";
   import { onErrorImage } from "../utils";
-  import { main } from "../view/view";
+  import { additional } from "../view/view";
 
   let listView: HTMLDivElement;
 
@@ -22,7 +22,7 @@
   });
 
   function openUserSetting(userId: number | string) {
-    main.page.openListenerSetting(userId);
+    additional.page.openListenerSetting(userId);
   }
 </script>
 

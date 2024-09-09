@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { settingStore } from "../Setting.svelte";
+  import { settingStore } from "./Setting.svelte";
 </script>
 
 <div class="line">
@@ -14,7 +14,7 @@
   <details class="hint">
     <summary>「@コテハン」でコテハンを設定できます</summary>
     <div>@の直後が空白文字なら、コテハンが削除されます</div>
-    <div>（正確には最初の「@文字列」が呼び名になります）</div>
+    <div>（正確には１つめの「@文字列」がコテハンになります）</div>
   </details>
 </div>
 
@@ -23,7 +23,7 @@
   <label class="explanation from-next" for="user-yobina">呼び名機能を使う　(@@呼び名)</label>
   <details class="hint">
     <summary>見た目の名前と読み上げられる名前を変えるための機能です</summary>
-    <div>「@コテハン@呼び名」で表示名とは別に呼び名を設定できます</div>
+    <div>「@@呼び名」で表示名とは別に呼び名を設定できます</div>
     <div>@@の直後が空白文字なら、呼び名が削除されます</div>
     <div>（正確には２つめの「@文字列」が呼び名になります）</div>
     <div>※実験的機能です。次のバージョンから無くなるかもしれません</div>

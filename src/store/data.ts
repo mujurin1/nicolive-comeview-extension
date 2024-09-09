@@ -10,11 +10,11 @@ export const YomiageTypes = ["棒読みちゃん", "VOICEVOX"] as const;
 export type YomiageTypes = typeof YomiageTypes[number];
 
 /**
- * 読み上げる名前\
+ * 読み上げる名前の項目\
  * `"呼び名"`は{@link store.general.useYobina}と同じ値になるのでここでは不要
  */
-export const SpeachNameTypes = ["ユーザー名", "コメ番", "コテハン"] as const;
-export type SpeachNameTypes = typeof SpeachNameTypes[number];
+export const SpeachNameItems = ["ユーザー名", "コメ番", "コテハン"] as const;
+export type SpeachNameItems = typeof SpeachNameItems[number];
 
 // MEMO: 空文字の値は CSSOM 側で無いものとして扱われるので null と "" は今は同じ挙動をしている
 export interface CommentFormat {
@@ -44,9 +44,9 @@ export const CommentFormat = {
    */
   fix: (format: CommentFormat) => {
     if (format.fontFamily === "") format.fontFamily = null;
-    // if (format.fontSize === "") format.fontSize = null;
-    // if (format.isBold === "") format.isBold = null;
-    // if (format.isItally === "") format.isItally = null;
+    // format.fontSize
+    // format.isBold
+    // format.isItally
     if (format.backgroundColor === "") format.backgroundColor = null;
     if (format.nameColor === "") format.nameColor = null;
     if (format.contentColor === "") format.contentColor = null;
@@ -87,7 +87,7 @@ const _defaultStore = {
       "ユーザー名": true as boolean,
       "コメ番": false as boolean,
       "コテハン": true as boolean,
-    } satisfies { [K in SpeachNameTypes]: boolean; },
+    } satisfies { [K in SpeachNameItems]: boolean; },
     speachSystem: true,
   },
   bouyomiChan: {

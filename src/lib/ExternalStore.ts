@@ -103,7 +103,6 @@ async function remove(storeName: string, itemNames: readonly string[]) {
     saveBookingData[`${storeName}#${itemName}`] = undefined;
   }
 
-  // await chrome.storage.local.remove(data);
   await setAndRemove();
 }
 
@@ -197,4 +196,3 @@ function parseStoreItemName(key: string): undefined | [string, string] {
   if (value == null) return undefined;
   return [value[1], value[2]];
 }
-

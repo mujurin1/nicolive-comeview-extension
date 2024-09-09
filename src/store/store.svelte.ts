@@ -62,7 +62,7 @@ export function safeOverwrite<T>(target: T | null, overwrite: T | null): void {
 
   for (const key in target) {
     if (
-      Object.prototype.hasOwnProperty.call(target, key) &&
+      Object.hasOwn(target, key) &&
       overwrite[key] !== undefined
     ) {
       // CommentFormat で null を使うかつ残す必要がある

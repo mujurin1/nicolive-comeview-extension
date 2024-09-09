@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { Nicolive } from "../store/Nicolive.svelte";
-  import Setting, { settingStore } from "./Setting.svelte";
+  import Setting, { settingStore } from "./setting/Setting.svelte";
   import { setting } from "./view";
 
   let settingPage = $state<Setting>();
@@ -76,9 +76,7 @@ ws:${Nicolive.connectWs ? "ON" : "off"} co:${Nicolive.connectComment ? "ON" : "o
 
     {#if Nicolive.canFetchBackwaardMessage}
       <div class="head-item">
-        {#if Nicolive.client == null}
-          <div>過去コメント －－</div>
-        {:else if Nicolive.isFetchingBackwardMessage}
+        {#if Nicolive.isFetchingBackwardMessage}
           <div title="１セグメント毎の待機時間は１秒">過去コメント取得中‥</div>
           <button type="button" onclick={() => Nicolive.client?.stopFetchBackwardMessages()}>
             中断

@@ -1,6 +1,6 @@
 <script lang="ts">
   import FormatSetting from "../../components/FormatSetting.svelte";
-  import { settingStore } from "../Setting.svelte";
+  import { settingStore } from "./Setting.svelte";
 
   let tabOpened = $state({
     default: true,

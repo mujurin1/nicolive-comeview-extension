@@ -12,7 +12,6 @@
         ...Object.values(userStore.users).map(u => [u, false] as const),
         ...Object.values(Nicolive.users).map(u => [u.storeUser, true] as const),
       ]
-        .map(obj => [obj[0].id, obj])
     );
 
     let query = serchQuery.trim();
@@ -23,11 +22,9 @@
       query = query.slice(3).trimStart();
     }
 
-    const array: [StoreUser, boolean][] = [];
+    const array: StoreUser[] = [];
 
-    for (const [, obj] of users) {
-      const [user, showLive] = obj;
-
+    for (const [user, showLive] of users) {
       if (
         (
           !serchFromName || (
@@ -43,27 +40,23 @@
         (!serchOptions.hasKotehan.checked || user.kotehan != null) &&
         (!serchOptions.hasYobina.checked || user.yobina != null)
       ) {
-        array.push(obj as [StoreUser, boolean]);
+        array.push(user);
       }
     }
 
     return array
-      .sort(([aUser, aIsShowLive], [bUser, bIsShowLive]) => {
-        // if(aIsShowLive != bIsShowLive)
-        //   return aIsShowLive ? -1 : 1;
-
-        if(typeof aUser.id !== typeof bUser.id ) {
+      .sort((aUser, bUser) => {
+        if(typeof aUser.id !== typeof bUser.id)
           return typeof aUser.id === "number" ? -1: 1;
-        }
 
         return aUser.id < bUser.id ? -1 : 1;
       })
-      .map(([user]) => user.id)
+      .map(user => user.id);
   });
 
   let serchOptions = $state({
     showLiveOnly: { name: "視聴中の放送", checked: Nicolive.state !== "none" },
-    "184Only": {name: "184のみ", checked: false },
+    "184Only": { name: "184のみ", checked: false },
     rawUserOnly: { name: "生IDのみ", checked: false },
     hasKotehan: { name: "コテハン", checked: false },
     hasYobina: { name: "呼び名", checked: false },

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { store } from "../../store/store.svelte";
-  import { settingStore } from "../Setting.svelte";
+  import { settingStore } from "./Setting.svelte";
 
   let useAdvancedFlg = $state(false);
   let checkedClearOk = $state(false);

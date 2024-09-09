@@ -1,11 +1,11 @@
-import type Main from "./Main.svelte";
-import type Setting from "./Setting.svelte";
+import type Additional from "./Additional.svelte";
+import type Setting from "./setting/Setting.svelte";
 
 
-let mainPage: Main;
-export const main = {
-  set page(page: Main) { mainPage = page; },
-  get page() { return mainPage; },
+let additionalPage: Additional;
+export const additional = {
+  set page(page: Additional) { additionalPage = page; },
+  get page() { return additionalPage; },
 } as const;
 
 let settingPage: Setting;

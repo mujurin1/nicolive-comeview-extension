@@ -1,6 +1,6 @@
 <script module>
-  import type { DeepMutable } from "../lib/ExternalStore";
-  import type { StoreType } from "../store/data";
+  import type { DeepMutable } from "../../lib/ExternalStore";
+  import type { StoreType } from "../../store/data";
 
   export const settingStore = notifierStore(store.state as DeepMutable<StoreType>, () => {
     store.save();
@@ -9,14 +9,14 @@
 
 <script lang="ts">
   import { tick } from "svelte";
-  import Tab from "../components/Tab.svelte";
-  import { notifierStore } from "../lib/CustomStore.svelte";
-  import { store } from "../store/store.svelte";
-  import AdvancedSetting from "./setting/AdvancedSetting.svelte";
-  import GeneralSetting from "./setting/GeneralSetting.svelte";
-  import ListenerSetting from "./setting/ListenerSetting.svelte";
-  import ViewSetting from "./setting/ViewSetting.svelte";
-  import YomiageSetting from "./setting/YomiageSetting.svelte";
+  import Tab from "../../components/Tab.svelte";
+  import { notifierStore } from "../../lib/CustomStore.svelte";
+  import { store } from "../../store/store.svelte";
+  import AdvancedSetting from "./AdvancedSetting.svelte";
+  import GeneralSetting from "./GeneralSetting.svelte";
+  import ListenerSetting from "./ListenerSetting.svelte";
+  import ViewSetting from "./ViewSetting.svelte";
+  import YomiageSetting from "./YomiageSetting.svelte";
 
   const names = ["一般", "読み上げ","リスナー", "コメント表示", "Advanced"] as const;
   let currentTab = $state<typeof names[number]>("一般");

@@ -1,16 +1,6 @@
 <script lang="ts">
-  import { BouyomiChan } from "../../store/BouyomiChan.svelte";
-  import { SpeachNameTypes, YomiageTypes } from "../../store/data";
-  import { settingStore } from "../Setting.svelte";
-
-  let bouyomiTest = $state<"none" | "try" | "miss" | "ok">("none");
-
-  function testSpeak() {
-    bouyomiTest = "try";
-    BouyomiChan.speak("テストです", "ユーザー名", true)
-      .then(() => (bouyomiTest = "ok"))
-      .catch(() => (bouyomiTest = "miss"));
-  }
+  import { SpeachNameItems, YomiageTypes } from "../../store/data";
+  import { settingStore } from "./Setting.svelte";
 </script>
 
 <div class="line" style="margin-bottom: 30px;">
@@ -32,7 +22,7 @@
     <legend>読み上げる名前のタイプ (右側の項目を優先します)</legend>
 
     <div style="display: flex;">
-      {#each SpeachNameTypes as speachNameType (speachNameType)}
+      {#each SpeachNameItems as speachNameType (speachNameType)}
         {@const selected = $settingStore.yomiage.speachNames[speachNameType]}
         <button
           class="select-btn"
@@ -73,17 +63,6 @@
   <input type="checkbox" id="speak-system" bind:checked={$settingStore.yomiage.speachSystem} />
   <label for="speak-system">システムメッセージの読み上げ</label>
 </div>
-
-<!-- <div class="line">
-  <button type="button" onclick={testSpeak}>読み上げテスト</button>
-  {#if bouyomiTest === "try"}
-    <span>棒読みちゃんに接続中...</span>
-  {:else if bouyomiTest === "ok"}
-    <span>棒読みちゃん読み上げ成功 😊</span>
-  {:else if bouyomiTest === "miss"}
-    <span>棒読みちゃん読み上げ失敗 😭</span>
-  {/if}
-</div> -->
 
 <div class="line">
   <div>

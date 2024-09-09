@@ -63,7 +63,7 @@ class _Nicolive {
   /**
    * 過去メッセージを取得可能か (全て取得しているか)
    */
-  public canFetchBackwaardMessage = $state(true);
+  public canFetchBackwaardMessage = $state(false);
   /**
    * 過去コメントを取得中か
    */
@@ -130,6 +130,7 @@ class _Nicolive {
     this.client.onMessageEntry.on(message => {
       if (message === "segment") {
         this._canSpeak = true;
+        this.canFetchBackwaardMessage = this.client!.canFetchBackwardMessage();
       }
     });
 
@@ -257,7 +258,7 @@ export const Nicolive = new _Nicolive();
 function parseMessage({ meta, payload }: ChunkedMessage, nicolive: _Nicolive): NicoliveMessage | undefined {
   if (meta == null) return;
 
-  const commentId = meta.id!;
+  const commentId = meta.id;
   let userId: string | number | undefined;
   let type: NicoliveMessage["type"];
   let no: number | undefined;
@@ -273,7 +274,7 @@ function parseMessage({ meta, payload }: ChunkedMessage, nicolive: _Nicolive): N
     const data = payload.value.data;
     if (data.case === "chat") {
       type = "listener";
-      userId = data.value.hashedUserId ?? Number(data.value.rawUserId)!;
+      userId = data.value.hashedUserId ?? Number(data.value.rawUserId);
       is184 = data.value.rawUserId == null;
       no = data.value.no;
       iconUrl = parseIconUrl(userId);
@@ -287,7 +288,7 @@ function parseMessage({ meta, payload }: ChunkedMessage, nicolive: _Nicolive): N
         const { latest, ranking } = data.value.versions.value;
         const i = latest?.message == null ? "" : `「${latest?.message}」`;
         content = ranking == null ? "" : `【広告貢献${ranking}位】`;
-        content = `提供：${latest?.advertiser}さん${i}（${latest?.point}pt）`;
+        content += `提供：${latest?.advertiser}さん${i}（${latest?.point}pt）`;
       } else if (data.value.versions.case === "v1") {
         content = data.value.versions.value.message;
       } else {
