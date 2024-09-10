@@ -1,12 +1,11 @@
 <script lang="ts" generics="Name extends string">
   import type { Snippet } from "svelte";
 
-  let { names,  currentTab = $bindable<Name>(names[0]), content }: {
+  let { names, currentTab = $bindable(), content }: {
     names: readonly Name[];
     currentTab: Name;
     content: Snippet<[Name]>;
   } = $props();
-
 </script>
 
 <div class="tab">
@@ -27,39 +26,37 @@
     height: 100%;
   }
 
-  .tab-header {
-    display: flex;
-    flex-wrap: wrap;
-    padding: 5px 5px 5px 5px;
-    height: 100%;
-    box-sizing: border-box;
-    margin-right: 70px;
-  }
+  @layer {
+    .tab-header {
+      display: flex;
+      align-items: stretch;
+      flex-wrap: wrap;
+      gap: 3px;
+      padding: 5px 5px 5px 5px;
+      height: 100%;
+      box-sizing: border-box;
 
-  .tab-name {
-    display: block;
-    cursor: pointer;
+      & > .tab-name {
+        height: 26px;
+      
+        font-size: 16px;
+        color: #3d3d3d;
+        background-color: #e2e2e2;
 
-    font-size: 16px;
-    color: #3d3d3d;
-    background-color: #e2e2e2;
+        padding: 1px 10px;
+        min-width: 60px;
+        border: none;
+        border-radius: 8px;
 
-    padding: 1px 10px;
-    min-width: 60px;
-    border: none;
-    border-radius: 8px;
+        &:not(.selected):hover {
+          opacity: .85;
+        }
 
-    &:not(:last-child) {
-      margin-right: 3px;
-    }
-
-    &:hover {
-      opacity: .8;
-    }
-
-    &.selected {
-      color: black;
-      background-color: #ffeec3;
+        &.selected {
+          color: black;
+          background-color: ghostwhite;
+        }
+      }
     }
   }
 </style>

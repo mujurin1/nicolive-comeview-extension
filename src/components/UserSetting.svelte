@@ -104,14 +104,14 @@
 {/snippet}
 
 {#if noAccordion}
-  <div class="item">
+  <div class="user-content">
     <div class="header">
       {@render header()}
     </div>
     {@render content()}
   </div>
 {:else}
-  <details class="item" bind:open={opened}>
+  <details class="user-content" bind:open={opened}>
     <summary class="header">
       {@render header()}
     </summary>
@@ -123,10 +123,11 @@
 {/if}
 
 <style>
-  .item {
+  .user-content {
     background-color: #dfe7dc97;
     box-sizing: border-box;
     border-radius: 7px;
+    min-height: 100%;
 
     & > summary::before {
       font-size: 0.8rem;

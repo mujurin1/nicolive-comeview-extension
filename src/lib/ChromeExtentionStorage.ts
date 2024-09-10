@@ -10,8 +10,8 @@ export const chromeExtentionStorage: IStorage = {
     StoreName extends string,
     Items extends { [ItemKey in string]: any },
   >(storeName: StoreName, user: StorageUser<Items>): StorageController<Items> {
-    if (storeName.includes("#"))
-      throw new Error(`ストア名は "#" を含まない１文字以上の文字です. ${storeName}`);
+    if (!storeName || storeName.includes("#"))
+      throw new Error(`ストア名は "#" を含まない１文字以上の文字です. StoreName:${storeName}`);
 
     storageUsers[storeName] = user;
 
@@ -28,12 +28,12 @@ const storageUsers: Record<string, StorageUser<any>> = {};
 /** 値が存在すればこのウィンドウでセーブ中 */
 let saveFromSelfChecker: undefined | (() => void);
 /** 保存する必要のあるデータ */
-let saveBookingData: Record<`${string}#${string}`, any> = {};
+let saveBookingData: Record<string, any> = {};
 let saveLock = false;
 
 async function load() {
-  const data = await chrome.storage.local.get(undefined);
   // data: { [{ストア名}#{アイテム名}]: Item }
+  const data = await chrome.storage.local.get(undefined);
   const stores: Record<string, Record<string, any>> = {};
 
   for (const key in data) {
@@ -86,12 +86,12 @@ async function setAndRemove(): Promise<void> {
     if (Object.keys(saveBookingData).length === 0) return;
 
     const saveChecker = new Promise<void>(r => saveFromSelfChecker = r);
-    const setData: Record<`${string}#${string}`, any> = {};
-    const removeData: `${string}#${string}`[] = [];
+    const setData: Record<string, any> = {};
+    const removeData: string[] = [];
 
     for (const key in saveBookingData) {
-      if (saveBookingData[key as any] == null) removeData.push(key as any);
-      else setData[key as any] = saveBookingData[key as any];
+      if (saveBookingData[key] == null) removeData.push(key);
+      else setData[key] = saveBookingData[key];
     }
     saveBookingData = {};
 
@@ -119,24 +119,23 @@ async function setAndRemove(): Promise<void> {
 }
 
 function onChanged(changed: Record<string, chrome.storage.StorageChange>) {
-  // このウィンドウでのセーブなので更新は不要
   if (saveFromSelfChecker != null) {
+    // このウィンドウでのセーブなので更新は不要
     saveFromSelfChecker();
     return;
   }
 
-  // changed: { [{ストア名}#{アイテム名}]: { new?: Item, old?: Item } }
   const stores: Record<string, { updated: Record<string, any>, removed: string[]; }> = {};
 
   for (const key in changed) {
     const parsed = parseStoreItemKey(key);
     if (parsed == null) continue;
-    const storeName: string = parsed[0];
-    const itemName: string = parsed[1];
+    const storeName = parsed[0];
+    const itemName = parsed[1];
 
     if (key in saveBookingData) {
       // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-      delete saveBookingData[key as any];
+      delete saveBookingData[key];
     }
 
     stores[storeName] ??= { updated: {}, removed: [] };

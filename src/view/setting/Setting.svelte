@@ -115,6 +115,20 @@
     }
   }
 
+  * {
+    :global(.tab-header) {
+      margin-right: 70px;
+
+      :global(& > .tab-name) {
+        background-color: #e2e2e2;
+
+        :global(&.selected) {
+          background-color: #ffeec3;
+        }
+      }
+    }
+  }
+
   .close-btn {
     position: absolute;
     right: 10px;

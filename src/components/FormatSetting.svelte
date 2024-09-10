@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { notifierStore } from "../lib/CustomStore.svelte";
-  import { CommentFormat, SettingStore } from "../store/SettingStore.svelte";
+    import { notifierStore } from "../lib/CustomStore.svelte";
+    import { CommentFormat, SettingStore } from "../store/SettingStore.svelte";
 
   let { format = $bindable()}: { format: CommentFormat } = $props();
 
@@ -15,8 +15,8 @@
     },
     () => format,
   );
-
 </script>
+
 <div class="grid-row">
   <fieldset>
     <legend>背景色</legend>
