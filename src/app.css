@@ -32,6 +32,23 @@ input[type=number]::-webkit-inner-spin-button {
   appearance: none;
 }
 
+button.link-button {
+  border: none;
+  background-color: #0073ff11;
+  color: #4040dd;
+  font-size: 1em;
+  padding: 0 5px;
+  border-radius: 5px;
+
+  &:hover {
+    background-color: #0073ff1f;
+  }
+
+  &:active {
+    background-color: #0073ff17;
+  }
+}
+
 .disabled {
   cursor: not-allowed !important;
 

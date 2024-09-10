@@ -142,11 +142,11 @@
 
   .header {
     padding: 5px;
-    display: grid;
-    grid-auto-flow: column;
+    display: flex;
     column-gap: 10px;
     justify-content: flex-start;
     align-items: center;
+    box-sizing: border-box;
   }
 
   .header-icon {
@@ -154,13 +154,13 @@
     width: 25px;
   }
   .header-title {
-    display: grid;
-    grid-auto-flow: column;
+    display: flex;
     /* grid-template-columns: repeat(auto-fit, min-content); */
     column-gap: 5px;
     justify-content: flex-start;
     white-space: nowrap;
     font-size: 0.88rem;
+    overflow: hidden;
 
     & > .user-raw-id {
       min-width: 80px;
@@ -169,7 +169,7 @@
       min-width: 160px;
     }
     & > .user-name {
-      min-width: 250px;
+      min-width: 150px;
     }
   }
 

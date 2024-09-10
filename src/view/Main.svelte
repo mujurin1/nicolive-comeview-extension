@@ -10,7 +10,7 @@
   import { Nicolive } from "../function/Nicolive.svelte";
   import Additional from "./Additional.svelte";
   import Header from "./Header.svelte";
-  import Startup from "./Startup.svelte";
+  import Startup from "./startup/Startup.svelte";
   import { additional } from "./view";
 
   let additionalPage = $state<Additional>();

@@ -29,9 +29,11 @@
   let listenerSetting = $state<ListenerSetting>();
   let serchQuery = $state("");
 
-  export async function openSetting(_show: boolean) {
+  export async function openSetting(_show: boolean, tab?:typeof names[number]) {
     show = _show;
     await tick();
+
+    if(tab != null) currentTab = tab;
     if (show) {
       dialog?.showModal();
     } else {
