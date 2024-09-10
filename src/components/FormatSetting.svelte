@@ -13,6 +13,7 @@
       CommentFormat.fix(formatS.state);
       format = formatS.state;
     },
+    () => format,
   );
 
 </script>
