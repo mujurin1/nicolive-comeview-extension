@@ -8,16 +8,6 @@
    * * 変更
    * * その他
    */
-
-  function openSettinListener() {
-    setting.page.openSetting(true, "リスナー");
-  }
-  function openSettinGeneral() {
-    setting.page.openSetting(true, "一般");
-  }
-  function openSettinYomiage() {
-    setting.page.openSetting(true, "読み上げ");
-  }
 </script>
 
 <div class="content-box">
@@ -38,9 +28,13 @@
       <div class="section-content">
         <div>
           リスナー毎のコメントの見た目を
-          <button class="link-button" type="button" onclick={openSettinListener}
-            >リスナー設定</button
+          <button
+            class="link-button"
+            type="button"
+            onclick={() => setting.page.openHilight("リスナー")}
           >
+            リスナー設定
+          </button>
           から変更出来ます
         </div>
         <div>コメビュでユーザー名をクリックでも開きます</div>
@@ -53,7 +47,13 @@
         <div>＠を含むコメントでコテハンや呼び名を設定できます</div>
         <div>
           ※
-          <button class="link-button" type="button" onclick={openSettinGeneral}>一般設定</button>
+          <button
+            class="link-button"
+            type="button"
+            onclick={() => setting.page.openHilight("一般", "general-kotehan", "general-yobina")}
+          >
+            一般設定
+          </button>
           からコテハン・呼び名を有効化する必要があります
         </div>
       </div>
@@ -63,7 +63,11 @@
       <div class="section-title">呼び名</div>
       <div class="section-content">
         <div>
-          <button class="link-button" type="button" onclick={openSettinYomiage}>
+          <button
+            class="link-button"
+            type="button"
+            onclick={() => setting.page.openHilight("読み上げ", "yomiage-type")}
+          >
             読み上げる名前のタイプ
           </button>
           を 呼び名 のみ有効化すると呼び名が設定されたユーザーのみ名前を読み上げます

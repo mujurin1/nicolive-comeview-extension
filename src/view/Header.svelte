@@ -107,7 +107,7 @@ ws:${Nicolive.connectWs ? "ON" : "off"} co:${Nicolive.connectComment ? "ON" : "o
     </div>
   </div>
 
-  <button class="setting-btn" type="button" onclick={() => settingPage?.openSetting(true)}>
+  <button class="setting-btn" type="button" onclick={() => settingPage?.switchOpen(true)}>
     設定
   </button>
 </div>

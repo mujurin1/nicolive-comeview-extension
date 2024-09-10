@@ -1,14 +1,20 @@
 <script lang="ts">
   import { SpeachNameItems, YomiageTypes } from "../../store/SettingStore.svelte";
   import { settingStore } from "./Setting.svelte";
+
+  let { highlightItems = $bindable() }: { highlightItems: string[] } = $props();
 </script>
 
-<div class="line" style="margin-bottom: 30px;">
-  <input type="checkbox" id="is-speak" bind:checked={$settingStore.yomiage.isSpeak} />
-  <label for="is-speak">コメントを読み上げる</label>
+<div
+  class="line"
+  class:highlight={highlightItems.includes("yomiage-speach")}
+  style="margin-bottom: 30px;"
+>
+  <input type="checkbox" id="is-speach" bind:checked={$settingStore.yomiage.isSpeak} />
+  <label for="is-speach">コメントを読み上げる</label>
 </div>
 
-<fieldset>
+<fieldset class:highlight={highlightItems.includes("yomiage-name")}>
   <legend>名前の読み上げ位置</legend>
   <select bind:value={$settingStore.yomiage.isSpeachName}>
     <option value="none">読み上げない</option>
@@ -18,7 +24,7 @@
 </fieldset>
 
 <div>
-  <fieldset>
+  <fieldset class:highlight={highlightItems.includes("yomiage-type")}>
     <legend>読み上げる名前のタイプ (右側の項目を優先します)</legend>
 
     <div style="display: flex;">
@@ -59,7 +65,7 @@
   <div class="hint">コメントの名前として使われる項目を選択します</div>
 </div>
 
-<div class="line">
+<div class="line" class:highlight={highlightItems.includes("yomiage-system")}>
   <input type="checkbox" id="speak-system" bind:checked={$settingStore.yomiage.speachSystem} />
   <label for="speak-system">システムメッセージの読み上げ</label>
 </div>
@@ -70,7 +76,7 @@
     <div class="hint">VOICEVOX は対応予定。現在は利用不可です</div>
   </div>
 
-  <div style="display: flex;">
+  <div style="display: flex;" class:highlight={highlightItems.includes("yomiage-use")}>
     {#each YomiageTypes as yomi (yomi)}
       {@const selected = $settingStore.yomiage.useYomiage === yomi}
       {@const disabled = yomi === "VOICEVOX"}

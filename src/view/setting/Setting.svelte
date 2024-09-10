@@ -26,10 +26,11 @@
   let show = $state(false);
 
   let dialog = $state<HTMLDialogElement>();
-  let listenerSetting = $state<ListenerSetting>();
+  let highlightItems = $state<string[]>([]);
+    
   let serchQuery = $state("");
 
-  export async function openSetting(_show: boolean, tab?:typeof names[number]) {
+  export async function switchOpen(_show: boolean, tab?: typeof names[number]) {
     show = _show;
     await tick();
 
@@ -41,12 +42,9 @@
     }
   }
 
-  export async function openListener(serchQuery: string) {
-    openSetting(true);
-    currentTab = "リスナー";
-
-    await tick();
-    listenerSetting?.setSerchQuery(serchQuery);
+  export async function openHilight(tab: typeof names[number], ...items: string[]) {
+    await switchOpen(true, tab);
+    highlightItems = items;
   }
 </script>
 
@@ -59,9 +57,9 @@
         {#snippet content(tabId)}
           <div class="content" data-tabId={tabId}>
             {#if tabId === "一般"}
-              <GeneralSetting />
+              <GeneralSetting bind:highlightItems={highlightItems}/>
             {:else if tabId === "読み上げ"}
-              <YomiageSetting />
+              <YomiageSetting bind:highlightItems />
             {:else if tabId === "リスナー"}
               <ListenerSetting bind:this={listenerSetting} bind:serchQuery />
             {:else if tabId === "コメント表示"}
@@ -101,6 +99,12 @@
     :global(input[type=number]) {
       width: 80px;
     }
+  }
+
+  :global(.highlight) {
+    box-shadow: 0 0 0 5px #ffb5b558;
+    background-color: #ffb5b558;
+    border-radius: 5px;
   }
 
   .mordal {
