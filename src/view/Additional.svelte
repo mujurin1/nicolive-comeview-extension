@@ -21,7 +21,6 @@
       <UserSetting {userId} noAccordion={true} />
     </div>
   {:else if Nicolive.client != null && Nicolive.client.info.loginUser != null}
-    {Nicolive.client.info.loginUser != null}
     <NicolivePostComment />
   {/if}
 </div>
