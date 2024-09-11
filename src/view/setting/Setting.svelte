@@ -21,7 +21,7 @@
   import ViewSetting from "./ViewSetting.svelte";
   import YomiageSetting from "./YomiageSetting.svelte";
 
-  const names = ["一般", "読み上げ","リスナー", "コメント表示", "Advanced"] as const;
+  const names = ["一般", "読み上げ","リスナー", "コメント表示", "フィードバック", "Advanced"] as const;
   let currentTab = $state<typeof names[number]>("一般");
   let show = $state(false);
 
@@ -39,6 +39,7 @@
       dialog?.showModal();
     } else {
       dialog?.close();
+      highlightItems.length = 0;
     }
   }
 
@@ -50,7 +51,7 @@
 
 {#if show}
   <dialog bind:this={dialog} class="mordal">
-    <button class="close-btn" onclick={() => show = false}>閉じる</button>
+    <button class="close-btn" onclick={() => switchOpen(false)}>閉じる</button>
 
     <div class="mordal-body">
       <Tab {names} bind:currentTab>
@@ -61,9 +62,29 @@
             {:else if tabId === "読み上げ"}
               <YomiageSetting bind:highlightItems />
             {:else if tabId === "リスナー"}
-              <ListenerSetting bind:this={listenerSetting} bind:serchQuery />
+              <ListenerSetting bind:serchQuery />
             {:else if tabId === "コメント表示"}
               <ViewSetting />
+            {:else if tabId === "フィードバック"}
+              <div>
+                <p>
+                  <a
+                    href="https://docs.google.com/forms/d/e/1FAIpQLSfTjmTeauWFVnc9e7kAi_yj5C_TvaV5ldTBo9fZRqmrBghtHw/viewform?usp=sf_link"
+                    target="_blank"
+                    title="Google フォーム"
+                  >
+                    フィードバックページ
+                  </a>
+                  からフィードバックを送る事が出来ます (別タブで開きます)
+                </p>
+
+                <p>
+                  <span>フィードバックでは不具合の報告や欲しい機能の要望が出来ます</span><br>
+                  <span>特に「欲しい！」と思っている機能は対応予定/他の人が送信済みの場合でも送ってください</span><br>
+                  <span>強く望まれている機能ほど対応が早くなります</span>
+                </p>
+                <p>フィードバックを貰えると開発の励みになるので、ぜひ、フィードバックをください！</p>
+              </div>
             {:else if tabId === "Advanced"}
               <AdvancedSetting />
             {/if}
@@ -99,12 +120,6 @@
     :global(input[type=number]) {
       width: 80px;
     }
-  }
-
-  :global(.highlight) {
-    box-shadow: 0 0 0 5px #ffb5b558;
-    background-color: #ffb5b558;
-    border-radius: 5px;
   }
 
   .mordal {
@@ -164,9 +179,30 @@
     }
   }
 
-
   :global(.hint) {
     margin-top: -3px;
+  }
+
+  :global(.highlight) {
+    background-color: #ffb5b530;
+    box-shadow: 0 0 0 5px #ffb5b530;
+    border-radius: 5px;
+    animation: hightlight 1.5s ease-in-out;
+  }
+
+  @keyframes hightlight {
+    0% {
+      background-color: #ffb5b558;
+      box-shadow: 0 0 0 5px #ffb5b558;
+    }
+    60% {
+      background-color: #ff8a8a58;
+      box-shadow: 0 0 0 5px #ff8a8a58;
+    }
+    100% {
+      background-color: #ffb5b530;
+      box-shadow: 0 0 0 5px #ffb5b530;
+    }
   }
 
 </style>

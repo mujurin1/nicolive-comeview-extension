@@ -7,15 +7,14 @@
 
 <div class="content-wrap">
   <div class="content">
-    <Tab names={["ピン留め", "機能紹介", "フィードバック"]} currentTab="ピン留め">
+    <Tab names={["ピン留め", "機能紹介"]} currentTab="ピン留め">
       {#snippet content(tabId)}
         <div style="margin-top: 20px;">
           {#if tabId === "ピン留め"}
             <PinnLives />
           {:else if tabId === "機能紹介"}
             <Features />
-          {:else if tabId === "フィードバック"}
-            <div></div>
+          <!-- {:else if tabId === "フィードバック"} -->
           {/if}
         </div>
       {/snippet}
@@ -52,7 +51,6 @@
         :global(&:not(.selected):hover) {
           color: #303030;
           background-color: #e8e8e8;
-          box-shadow: 1px 1px 1px #aaa;
         }
 
         :global(&.selected) {

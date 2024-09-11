@@ -41,6 +41,9 @@
       class="input-comment"
       class:broadcaster={isPostBroadcaster}
       rows="3"
+      placeholder={`${
+        isPostBroadcaster ? "生主" : isPost184 ? "184" : Nicolive.client?.info.loginUser?.name
+      } として投稿`}
       bind:value={comment}
     ></textarea>
   </div>
@@ -60,21 +63,22 @@
 
   .nicolive-comment-form {
     display: flex;
+    align-items: stretch;
     background-color: #efefef;
     box-sizing: border-box;
-    height: fit-content;
     gap: 5px;
-    padding: 5px 7px 2px 7px;
+    padding: 3px 5px 3px 5px;
   }
 
   .command-area {
-    flex: 0 1 auto;
-    margin: auto 0 3px 0;
+    flex: 0 1 content;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
   }
 
   .input-comment-area {
-    flex: 1 1 auto;
-    height: 100%;
+    flex: 1 1 content;
 
     & > .input-comment {
       box-sizing: border-box;
@@ -93,8 +97,10 @@
   }
 
   .send-button-area {
-    flex: 0 1 auto;
-    margin: auto 0 3px 0;
+    flex: 0 1 content;
+    display: flex;
+    flex-direction: column;
+    margin: auto 0 0 0;
   }
 
   .line {

@@ -74,31 +74,37 @@
   <div class="content-format">
     <div class="title">コメントフォーマット</div>
 
-    {#if $userS.format == null}
-      <button
-        type="button"
-        style="color: royalblue;"
-        onclick={() => ($userS.format = CommentFormat.new())}
-      >
-        コメントフォーマットの作成
-      </button>
-    {:else}
+    {#if $userS.format != null}
       <FormatSetting bind:format={$userS.format} />
       <br />
-      <button class="warning" type="button" onclick={() => ($userS.format = undefined)}>
-        コメントフォーマットの削除
-      </button>
     {/if}
 
-    {#if hasStored}
-      <button
-        class="warning delete-user"
-        title="ユーザーデータを削除します"
-        onclick={removeUser}
-      >
-        ユーザーデータの削除
-      </button>
-    {/if}
+    <div class="content-bottom">
+      {#if $userS.format == null}
+        <button
+          type="button"
+          style="color: royalblue;"
+          onclick={() => ($userS.format = CommentFormat.new())}
+        >
+          コメントフォーマットの作成
+        </button>
+      {:else}
+        <button class="warning" type="button" onclick={() => ($userS.format = undefined)}>
+          コメントフォーマットの削除
+        </button>
+      {/if}
+
+      {#if hasStored}
+        <button
+          class="delete-user warning"
+          title="ユーザーデータを削除します"
+          onclick={removeUser}
+        >
+          ユーザーデータの削除
+        </button>
+      {/if}
+    </div>
+
   </div>
 </div>
 {/snippet}
@@ -141,21 +147,22 @@
   }
 
   .header {
-    padding: 5px;
     display: flex;
     column-gap: 10px;
     justify-content: flex-start;
     align-items: center;
     box-sizing: border-box;
+    padding: 5px;
   }
 
   .header-icon {
     height: 25px;
     width: 25px;
+    flex: 0 1 0;
   }
   .header-title {
     display: flex;
-    /* grid-template-columns: repeat(auto-fit, min-content); */
+    align-items: center;
     column-gap: 5px;
     justify-content: flex-start;
     white-space: nowrap;
@@ -180,19 +187,15 @@
       margin-top: 20px;
       padding: 0 0 3px 0;
 
-      & > .delete-user {
-        float: right;
-        font-weight: bold;
-        margin-right: 20px;
+      & > .content-bottom {
+        display: flex;
+        justify-content: space-between;
+        white-space: nowrap;
+        
+        & > .delete-user {
+          font-weight: bold;
+        }
       }
     }
   }
-
-  /* 
-  .title {
-    width: 100%;
-    font-weight: bold;
-    margin-top: 8px;
-    text-align: center;
-  } */
 </style>

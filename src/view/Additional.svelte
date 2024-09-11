@@ -1,5 +1,5 @@
 <script lang="ts">
-    import PostNicoliveComment from "../components/PostNicoliveComment.svelte";
+    import NicolivePostComment from "../components/NicolivePostComment.svelte";
     import UserSetting from "../components/UserSetting.svelte";
     import { Nicolive } from "../function/Nicolive.svelte";
 
@@ -20,8 +20,9 @@
       {@render close(() => (userId = undefined))}
       <UserSetting {userId} noAccordion={true} />
     </div>
-  {:else if Nicolive.client != null}
-    <PostNicoliveComment />
+  {:else if Nicolive.client != null && Nicolive.client.info.loginUser != null}
+    {Nicolive.client.info.loginUser != null}
+    <NicolivePostComment />
   {/if}
 </div>
 

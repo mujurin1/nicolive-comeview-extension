@@ -12,11 +12,27 @@
 
 <div class="content-box">
   <div class="content new-features">
-    <div class="title">新機能 (2024.9.10)</div>
+    <div class="title">新機能 (2024.9.11)</div>
 
     <div class="section">
       <div class="section-title">コメント投稿</div>
       <div class="section-content">ブラウザでログインしているアカウントで投稿します</div>
+      <div class="section-content">※ログインしてる場合のみコメント投稿欄が表示されます</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">フィードバック</div>
+      <div class="section-content">フィードバックを送るためのGoogle Formsを開設しました</div>
+      <div class="section-content">
+        <button
+          class="link-button"
+          type="button"
+          onclick={() => setting.page.openHilight("フィードバック")}
+        >
+          フィードバック
+        </button>
+        から送ることが出来ます
+      </div>
     </div>
   </div>
 
