@@ -37,32 +37,6 @@ export interface UserStore {
 export const UserStore: UserStore = (() => {
   const users = $state<Record<number | string, StoreUser>>({});
 
-  // TODO: 古いデータを消すための一時的な対応策。9/20日を過ぎたらこの記述を消す
-  let removed = false;
-  const oldStorage = storages.chromeExtentionStorage.addUse(
-    "nicolive_storeuser",
-    {
-      onUpdated(newUsers: Partial<typeof users>) {
-        for (const userId in newUsers) {
-          const newUser = newUsers[userId];
-          const event = users[userId] == null ? "new" : "update";
-          safeOverwriteUser(users, userId, newUser);
-          userStore.updated.emit(event, users[userId]);
-        }
-
-        setTimeout(() => {
-          if (!removed) {
-            removed = true;
-            void oldStorage.remove(Object.keys($state.snapshot(users)));
-            void externalStoreController.update($state.snapshot(users));
-          }
-        }, 3000);
-      },
-      onRemoved() {
-        // 削除はあり得ない
-      },
-    });
-
   const externalStoreController = storages.chromeExtentionStorage.addUse(
     "nocolive_user",
     {

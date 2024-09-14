@@ -166,41 +166,10 @@ export interface SettingStore {
 export const SettingStore: SettingStore = (() => {
   const state = $state(structuredClone(SettingState) as SettingState);
 
-  // TODO: 古いデータを消すための一時的な対応策。9/20日を過ぎたらこの記述を消す
-  let removed = false;
-  const oldStorage = storages.chromeExtentionStorage.addUse(
-    "default_store",
-    {
-      onUpdated(data: Partial<SettingState>) {
-        // TODO: 間違えた初期値を消すための一時的な対応策。9/20日を過ぎたらこの記述を消す
-        if (data.commentView?.commentFormats?.default?.fontFamily === "auto") {
-          data.commentView.commentFormats.default.fontFamily = null;
-        }
-
-        safeOverwrite(state, data);
-
-        setInterval(() => {
-          if (!removed) {
-            removed = true;
-            void oldStorage.remove(Object.keys($state.snapshot(state)) as any);
-            void externalStoreController.update($state.snapshot(state));
-          }
-        }, 3000);
-      },
-      onRemoved() {
-        // 削除はあり得ない
-      },
-    });
-
   const externalStoreController = storages.chromeExtentionStorage.addUse(
     "setting",
     {
       onUpdated(data: Partial<SettingState>) {
-        // TODO: 間違えた初期値を消すための一時的な対応策。9/20日を過ぎたらこの記述を消す
-        if (data.commentView?.commentFormats?.default?.fontFamily === "auto") {
-          data.commentView.commentFormats.default.fontFamily = null;
-        }
-
         safeOverwrite(state, data);
       },
       onRemoved() {
