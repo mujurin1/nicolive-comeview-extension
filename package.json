@@ -30,7 +30,7 @@
     "eslint-plugin": "^1.0.1",
     "eslint-plugin-svelte": "^2.43.0",
     "rimraf": "^6.0.1",
-    "svelte": "^5.0.0-next.243",
+    "svelte": "^5.0.0-next.246",
     "svelte-check": "^3.8.6",
     "tslib": "^2.7.0",
     "typescript": "^5.5.4",
@@ -39,6 +39,7 @@
     "vite-plugin-zip-pack": "^1.2.4"
   },
   "dependencies": {
-    "@bufbuild/buf": "^1.38.0"
+    "@bufbuild/buf": "^1.38.0",
+    "obs-websocket-js": "^5.0.6"
   }
 }
