@@ -1,11 +1,11 @@
 <script lang="ts">
     import NicolivePostComment from "../components/NicolivePostComment.svelte";
     import UserSetting from "../components/UserSetting.svelte";
-    import { Nicolive } from "../function/Nicolive.svelte";
+    import { Nicolive } from "../Platform";
 
-  let userId = $state<number | string>();
+  let userId = $state<string>();
 
-  export function openUserSetting(_userId: number | string) {
+  export function openUserSetting(_userId: string) {
     userId = _userId;
   }
 </script>
@@ -18,7 +18,7 @@
   {#if userId != null}
     <div class="format">
       {@render close(() => (userId = undefined))}
-      <UserSetting {userId} noAccordion={true} />
+      <UserSetting platformId="nicolive" {userId} noAccordion={true} />
     </div>
   {:else if Nicolive.client != null && Nicolive.client.info.loginUser != null}
     <NicolivePostComment />

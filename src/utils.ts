@@ -20,12 +20,12 @@ export function onErrorImage(e: Event) {
   const img = e.currentTarget as HTMLImageElement;
   if (img.src === iconNone) return;
   img.src = iconNone;
-
 }
 
-export function parseIconUrl(userId?: string | number) {
-  if (typeof userId !== "number") return iconNone;
-  return `https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/${Math.floor(userId / 1e4)}/${userId}.jpg`;
+export function parseIconUrl(userId?: string) {
+  const num = +userId!;
+  if (isNaN(num)) return iconNone;
+  return `https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/${Math.floor(num / 1e4)}/${userId}.jpg`;
 }
 
 export type DeepReadonly<T> = {

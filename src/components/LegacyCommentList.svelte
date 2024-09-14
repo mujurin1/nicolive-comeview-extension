@@ -1,7 +1,7 @@
 <script lang="ts">
   import { tick } from "svelte";
   import { getCssClassNameFromMessage } from "../function/CssStyle.svelte";
-  import { Nicolive, type NicoliveUser } from "../function/Nicolive.svelte";
+  import { Nicolive, type PlatformsId } from "../Platform";
   import { SettingStore } from "../store/SettingStore.svelte";
   import { onErrorImage } from "../utils";
   import { additional } from "../view/view";
@@ -21,19 +21,20 @@
     }
   });
 
-  function openUserSetting(userId: number | string) {
+  function openUserSetting(platformId: PlatformsId, userId: string) {
     additional.page.openUserSetting(userId);
   }
 </script>
 
 <div bind:this={listView} class="comment-list" tabindex="-1">
-  {#each Nicolive.messages as message}
-    {@const user: NicoliveUser | undefined = Nicolive.users[message.userId!]}
+  {#each Nicolive.messages as message (message.messageId)}
+    {@const user = message.extUser}
+    {@const userId = user.storageUser.id}
     {@const isFirst = message.no != null && user?.firstNo === message.no}
-    {@const hideSharp = SettingStore.state.general.hideSharp && message.type === "user" && /[♯#＃]/.test(message.content)}
+    {@const hideSharp = SettingStore.state.general.hideSharp && message.includeSharp}
     <div
       class={`comment cm-default ${getCssClassNameFromMessage(message)}`}
-      class:cm-owner={message.type === "owner"}
+      class:cm-owner={user.kind === "owner"}
       class:cm-first={isFirst}
     >
       <div class="child no">{message.no}</div>
@@ -42,26 +43,30 @@
         <div class="child name">#シャープ#</div>
       {:else}
         <div class="child icon">
-          {#if user != null}
+          {#if user.kind !== "system"}
             <!-- svelte-ignore a11y_missing_attribute -->
             <img src={message.iconUrl} onerror={onErrorImage} />
           {/if}
         </div>
-        {#if (message.name ?? message.userId) !== null}
-          {#if user == null}
+        {#if (user.storageUser.name ?? userId) !== null}
+          {#if user.kind === "system"}
             <div class="child name"></div>
           {:else}
-            {@const name = (SettingStore.state.general.useKotehan && user.storeUser.kotehan) ? user.storeUser.kotehan : user.storeUser.name}
+            {@const name =
+              SettingStore.state.general.useKotehan && user.storageUser.kotehan
+                ? user.storageUser.kotehan
+                : user.storageUser.name}
             <!-- svelte-ignore a11y_click_events_have_key_events -->
             <div
               class="child name"
-              title={message.name ?? (message.userId as string)}
+              title={user.storageUser.name ?? userId}
               role="button"
               tabindex="-1"
-              onclick={() => openUserSetting(user.id)}
+              onclick={() => openUserSetting(message.platformId, userId)}
             >
-                <!-- name が存在するのは生IDだけ -->
-                {name ?? ((SettingStore.state.general.nameToNo && user.noName184) ? user.noName184 : user.id)}
+              <!-- name が存在するのは生IDだけ -->
+              {name ??
+                (SettingStore.state.general.nameToNo && user.noName184 ? user.noName184 : userId)}
             </div>
           {/if}
         {/if}
@@ -97,7 +102,12 @@
       min-height: 30px;
 
       border-top: 1px solid black;
-      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", Meiryo UI, sans-serif;
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Hiragino Kaku Gothic ProN",
+        Meiryo UI,
+        sans-serif;
 
       & > .child {
         margin-right: 3px;
@@ -118,7 +128,7 @@
         & > img {
           width: 100%;
           height: 100%;
-          object-fit: contain; 
+          object-fit: contain;
         }
       }
       & > .name {
@@ -143,7 +153,7 @@
         overflow-y: hidden;
         /* 改行出来ない文字の場合にスクロールバーが出る (アスキーアートなど) */
         overflow-x: auto;
-        
+
         /* 自動改行しない & スクロールバーを非表示 */
         /* text-wrap: nowrap; */
         /* scrollbar-width: none; */

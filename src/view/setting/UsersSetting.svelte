@@ -1,7 +1,7 @@
 <script lang="ts">
   import UserSetting from "../../components/UserSetting.svelte";
-  import { Nicolive } from "../../function/Nicolive.svelte";
-  import { UserStore, type StoreUser } from "../../store/UserStore.svelte";
+  import { Nicolive } from "../../Platform";
+  import { StorageUserStore, type StorageUser } from "../../store/StorageUserStore.svelte";
 
   let { serchQuery = $bindable("") }: {
     serchQuery?: string;
@@ -9,8 +9,8 @@
 
   let hitUsers = $derived.by(() => {
     const users = new Map([
-        ...Object.values(UserStore.users).map(u => [u, false] as const),
-        ...Object.values(Nicolive.users).map(u => [u.storeUser, true] as const),
+        ...Object.values(StorageUserStore["nicolive"].users).map(u => [u, false] as const),
+        ...Object.values(Nicolive.users).map(u => [u.storageUser, true] as const),
       ]
     );
 
@@ -22,7 +22,7 @@
       query = query.slice(3).trimStart();
     }
 
-    const array: StoreUser[] = [];
+    const array: StorageUser[] = [];
 
     for (const [user, showLive] of users) {
       if (
@@ -104,7 +104,7 @@
 
 <div class="user-list">
   {#each hitUsers as userId (userId)}
-    <UserSetting {userId} noAccordion={hitUsers.length === 1} />
+    <UserSetting platformId="nicolive" {userId} noAccordion={hitUsers.length === 1} />
   {/each}
 </div>
 

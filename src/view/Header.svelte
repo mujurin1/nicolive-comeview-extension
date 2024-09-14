@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { Nicolive } from "../function/Nicolive.svelte";
+  import { Nicolive } from "../Platform";
   import Setting, { settingStore } from "./setting/Setting.svelte";
   import { setting } from "./view";
 
@@ -9,23 +9,23 @@
     setting.page = settingPage!;
   });
 
-  let dbgCommentId = 1;
-  let dbgComment = $state("@こて@よび");
-  function sendDbgComment() {
-    Nicolive.dbgAddMessage({
-      type: "user",
-      is184: true,
-      commentId: `${dbgCommentId++}`,
-      userId: "#1",
-      no: -1,
-      iconUrl: undefined,
-      name: undefined,
-      time: "time",
-      content: dbgComment,
-      link: undefined,
-      includeSharp: false,
-    });
-  }
+  // let dbgCommentId = 1;
+  // let dbgComment = $state("@こて@よび");
+  // function sendDbgComment() {
+  //   Nicolive.dbgAddMessage({
+  //     type: "user",
+  //     is184: true,
+  //     messageId: `${dbgCommentId++}`,
+  //     userId: "#1",
+  //     no: -1,
+  //     iconUrl: undefined,
+  //     name: undefined,
+  //     time: "time",
+  //     content: dbgComment,
+  //     link: undefined,
+  //     includeSharp: false,
+  //   });
+  // }
 </script>
 
 <div class="header">

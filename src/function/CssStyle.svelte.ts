@@ -1,5 +1,5 @@
+import { Nicolive, type NicoliveMessage } from "../Platform";
 import { SettingStore, type CommentFormat } from "../store/SettingStore.svelte";
-import { Nicolive, type NicoliveMessage } from "./Nicolive.svelte";
 
 function createStyleElement() {
   const map = new Map<string, number>();
@@ -16,22 +16,22 @@ const styles = {
 export type StyleNames = keyof typeof styles;
 
 export function getCssClassNameFromMessage(message: NicoliveMessage): string {
-  if (message.type === "system") return "cm-system";
-  return getCssClassNameFromUserId(message.userId!);
+  if (message.extUser.kind === "system") return "cm-system";
+  return getCssClassNameFromUserId(message.extUser.storageUser.id);
 }
 
-export function getCssClassNameFromUserId(userId: string | number): string {
-  if (typeof userId === "string" && userId.startsWith("a:"))
+export function getCssClassNameFromUserId(userId: string): string {
+  if (userId.startsWith("a:"))
     return `cm-id-${userId.slice(2)}`;
 
   return `cm-id-${userId}`;
 }
 
-export function autoUpdateCommentCss(userId: number | string) {
+export function autoUpdateCommentCss(userId: string) {
   const className = getCssClassNameFromUserId(userId);
   return $effect.root(() => {
     $effect(() => {
-      const format = Nicolive.users[userId + ""]?.storeUser?.format;
+      const format = Nicolive.users[userId + ""]?.storageUser?.format;
 
       if (format == null) {
         clearClass("cm-user", className);

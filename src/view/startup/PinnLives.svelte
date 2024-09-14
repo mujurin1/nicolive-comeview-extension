@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getNicoliveId } from "@mujurin/nicolive-api-ts";
-  import { Nicolive } from "../../function/Nicolive.svelte";
+  import { Nicolive } from "../../Platform";
   import type { SettingState } from "../../store/SettingStore.svelte";
   import { settingStore } from "../setting/Setting.svelte";
 

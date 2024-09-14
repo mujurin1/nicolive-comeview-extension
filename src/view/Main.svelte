@@ -7,7 +7,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import LegacyCommentList from "../components/LegacyCommentList.svelte";
-  import { Nicolive } from "../function/Nicolive.svelte";
+  import { Nicolive } from "../Platform";
   import Additional from "./Additional.svelte";
   import Header from "./Header.svelte";
   import Startup from "./startup/Startup.svelte";

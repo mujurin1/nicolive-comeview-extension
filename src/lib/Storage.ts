@@ -7,10 +7,10 @@ export interface IStorage {
   addUse<
     StoreName extends string,
     Items extends { [ItemKey in string]: any },
-  >(name: StoreName, user: StorageUser<Items>): StorageController<Items>;
+  >(name: StoreName, observer: StorageObserver<Items>): StorageController<Items>;
 }
 
-export interface StorageUser<
+export interface StorageObserver<
   Items extends { [ItemKey in string]: any },
 > {
   /** ストレージのデータが更新された */

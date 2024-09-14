@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Nicolive } from "../function/Nicolive.svelte";
+  import { Nicolive } from "../Platform";
 
   let isLogined = $state(Nicolive.client?.info?.loginUser != null);
   let isBroadcaster = $state(Nicolive.client?.info?.loginUser?.isBroadcaster);

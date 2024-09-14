@@ -1,35 +1,39 @@
 <script lang="ts">
-  import { Nicolive } from "../function/Nicolive.svelte";
   import { notifierStore } from "../lib/CustomStore.svelte";
+  import { Nicolive, type PlatformsId } from "../Platform";
   import { CommentFormat } from "../store/SettingStore.svelte";
-  import type { StoreUser } from "../store/UserStore.svelte";
-  import { UserStore } from "../store/UserStore.svelte";
+  import { StorageUserStore, type StorageUser } from "../store/StorageUserStore.svelte";
   import { onErrorImage, parseIconUrl } from "../utils";
   import FormatSetting from "./FormatSetting.svelte";
 
   let {
-    userId, //
+    platformId,
+    userId,
     noAccordion = false,
-  }: { userId: number | string; noAccordion?: boolean } = $props();
+  }: {
+    platformId: PlatformsId;
+    userId: string;
+    noAccordion?: boolean;
+  } = $props();
 
-  const userS = notifierStore<StoreUser>(
-    UserStore.users[userId] ?? Nicolive.users[userId]?.storeUser,
-    () => UserStore.upsert(userS.state),
+  const userS = notifierStore<StorageUser>(
+    StorageUserStore[platformId].users[userId] ?? Nicolive.users[userId]?.storageUser,
+    () => StorageUserStore[platformId].upsert(userS.state),
     // この derived が必要な理由は、このオブジェクトはセーブデータ上で `undefiend` になる(存在しない)時があるため
     // 普通の設定項目はセーブデータ上で必ず存在するため、普通はこの derived は不要である
     () => {
-      let a = UserStore.users[userId];
-      let b = Nicolive.users[userId]?.storeUser;
+      let a = StorageUserStore[platformId].users[userId];
+      let b = Nicolive.users[userId]?.storageUser;
       return a ?? b;
     },
   );
 
   let opened = $state(noAccordion);
-  let hasStored = $derived(UserStore.users[userId] != null);
+  let hasStored = $derived(StorageUserStore[platformId].users[userId] != null);
   let hasFormat = $derived(userS.state.format != null);
 
   function removeUser() {
-    UserStore.remove(userId);
+    StorageUserStore[platformId].remove(userId);
   }
 </script>
 

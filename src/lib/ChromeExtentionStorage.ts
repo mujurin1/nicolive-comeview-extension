@@ -1,5 +1,5 @@
 import { sleep } from "@mujurin/nicolive-api-ts";
-import type { IStorage, StorageController, StorageUser } from "./Storage";
+import type { IStorage, StorageController, StorageObserver } from "./Storage";
 
 export const chromeExtentionStorage: IStorage = {
   async init() {
@@ -9,7 +9,7 @@ export const chromeExtentionStorage: IStorage = {
   addUse<
     StoreName extends string,
     Items extends { [ItemKey in string]: any },
-  >(storeName: StoreName, user: StorageUser<Items>): StorageController<Items> {
+  >(storeName: StoreName, user: StorageObserver<Items>): StorageController<Items> {
     if (!storeName || storeName.includes("#"))
       throw new Error(`ストア名は "#" を含まない１文字以上の文字です. StoreName:${storeName}`);
 
@@ -23,7 +23,7 @@ export const chromeExtentionStorage: IStorage = {
 } as const;
 
 
-const storageUsers: Record<string, StorageUser<any>> = {};
+const storageUsers: Record<string, StorageObserver<any>> = {};
 
 /** 値が存在すればこのウィンドウでセーブ中 */
 let saveFromSelfChecker: undefined | (() => void);
