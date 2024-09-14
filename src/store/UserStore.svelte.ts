@@ -126,7 +126,6 @@ export function safeOverwriteUser(users: Record<number | string, StoreUser>, use
     else users[userId].yobina = newUser.yobina;
     if (newUser.format == null) delete users[userId].format;
     else {
-      // users[userId].format = newUser.format;
       if (users[userId].format == null) users[userId].format = newUser.format;
       else {
         users[userId].format.fontFamily = newUser.format.fontFamily;

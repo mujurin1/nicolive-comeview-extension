@@ -5,7 +5,7 @@
 
   let userId = $state<number | string>();
 
-  export function openListenerSetting(_userId: number | string) {
+  export function openUserSetting(_userId: number | string) {
     userId = _userId;
   }
 </script>

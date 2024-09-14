@@ -22,7 +22,7 @@
   });
 
   function openUserSetting(userId: number | string) {
-    additional.page.openListenerSetting(userId);
+    additional.page.openUserSetting(userId);
   }
 </script>
 
@@ -30,7 +30,7 @@
   {#each Nicolive.messages as message}
     {@const user: NicoliveUser | undefined = Nicolive.users[message.userId!]}
     {@const isFirst = message.no != null && user?.firstNo === message.no}
-    {@const hideSharp = SettingStore.state.general.hideSharp && message.type === "listener" && /[♯#＃]/.test(message.content)}
+    {@const hideSharp = SettingStore.state.general.hideSharp && message.type === "user" && /[♯#＃]/.test(message.content)}
     <div
       class={`comment cm-default ${getCssClassNameFromMessage(message)}`}
       class:cm-owner={message.type === "owner"}

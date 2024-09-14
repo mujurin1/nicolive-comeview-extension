@@ -73,8 +73,8 @@
 </script>
 
 <div style="margin-bottom: 10px;">
-  <h2 style="margin: 0 0 5px 0; text-align: center;">リスナー設定</h2>
-  <div class="hint">コメビュでユーザー名をクリックするとリスナー設定を開けます</div>
+  <h2 style="margin: 0 0 5px 0; text-align: center;">ユーザー設定</h2>
+  <div class="hint">コメビュでユーザー名をクリックするとユーザー設定を開けます</div>
 </div>
 
 <div class="serch" style="margin-bottom: 10px;">

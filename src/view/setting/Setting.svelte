@@ -17,11 +17,11 @@
   import Tab from "../../components/Tab.svelte";
   import AdvancedSetting from "./AdvancedSetting.svelte";
   import GeneralSetting from "./GeneralSetting.svelte";
-  import ListenerSetting from "./ListenerSetting.svelte";
+  import UsersSetting from "./UsersSetting.svelte";
   import ViewSetting from "./ViewSetting.svelte";
   import YomiageSetting from "./YomiageSetting.svelte";
 
-  const names = ["一般", "読み上げ","リスナー", "コメント表示", "フィードバック", "Advanced"] as const;
+  const names = ["一般", "読み上げ", "リスナー", "コメント表示", "フィードバック", "Advanced"] as const;
   let currentTab = $state<typeof names[number]>("一般");
   let show = $state(false);
 
@@ -62,7 +62,7 @@
             {:else if tabId === "読み上げ"}
               <YomiageSetting bind:highlightItems />
             {:else if tabId === "リスナー"}
-              <ListenerSetting bind:serchQuery />
+              <UsersSetting bind:serchQuery/>
             {:else if tabId === "コメント表示"}
               <ViewSetting />
             {:else if tabId === "フィードバック"}

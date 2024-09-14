@@ -13,7 +13,7 @@
   let dbgComment = $state("@こて@よび");
   function sendDbgComment() {
     Nicolive.dbgAddMessage({
-      type: "listener",
+      type: "user",
       is184: true,
       commentId: `${dbgCommentId++}`,
       userId: "#1",

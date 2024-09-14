@@ -7,7 +7,7 @@ import { BouyomiChan } from "./BouyomiChan.svelte";
 import { autoUpdateCommentCss } from "./CssStyle.svelte";
 
 export interface NicoliveMessage {
-  type: "listener" | "owner" | "system";
+  type: "user" | "owner" | "system";
   /** システムメッセージは184とする */
   is184: boolean;
 
@@ -24,7 +24,7 @@ export interface NicoliveMessage {
   includeSharp: boolean;
 }
 
-/** `"owner" | "listener"` のコメントのユーザー情報 */
+/** `"owner" | "user"` のコメントのユーザー情報 */
 export interface NicoliveUser {
   id: string | number;
   firstNo?: number;
@@ -292,7 +292,7 @@ function parseMessage({ meta, payload }: dwango.ChunkedMessage, nicolive: _Nicol
   if (payload.case === "message") {
     const data = payload.value.data;
     if (data.case === "chat") {
-      type = "listener";
+      type = "user";
       userId = data.value.hashedUserId ?? Number(data.value.rawUserId);
       is184 = data.value.rawUserId == null;
       no = data.value.no;

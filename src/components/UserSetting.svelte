@@ -156,9 +156,9 @@
   }
 
   .header-icon {
-    height: 25px;
-    width: 25px;
     flex: 0 1 0;
+    height: 25px;
+    min-width: 25px;
   }
   .header-title {
     display: flex;

@@ -18,7 +18,9 @@ function pad(num: number): string {
 
 export function onErrorImage(e: Event) {
   const img = e.currentTarget as HTMLImageElement;
+  if (img.src === iconNone) return;
   img.src = iconNone;
+
 }
 
 export function parseIconUrl(userId?: string | number) {
