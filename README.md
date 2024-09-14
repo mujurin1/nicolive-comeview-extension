@@ -4,3 +4,5 @@
 対応ブラウザはChromium系のみです
 
 ストアページは[こちら](https://chromewebstore.google.com/detail/hggilkgnnelecejiioikdhhcomakjbpm)
+
+[TODOリスト](TODO.md)
