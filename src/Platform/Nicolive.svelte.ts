@@ -116,6 +116,8 @@ class _Nicolive {
 
       if (oldState !== "disconnected" && this.state === "disconnected") {
         ExtMessenger.add("切断しました");
+      } else if (oldState === "disconnected" && this.state === "reconnecting") {
+        ExtMessenger.add("再接続中です...");
       } else if (oldState === "reconnecting" && this.state === "opened") {
         ExtMessenger.add("再接続しました");
       }
