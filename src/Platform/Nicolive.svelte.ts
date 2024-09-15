@@ -110,12 +110,12 @@ class _Nicolive {
 
     this.url = this.client.info.liveId;
 
-    this.client.onState.on(event => {
+    this.client.onState.on((event, description) => {
       const oldState = this.state;
       this.state = event;
 
       if (oldState !== "disconnected" && this.state === "disconnected") {
-        ExtMessenger.add("切断しました");
+        ExtMessenger.add(`切断しました. 理由:${description}`);
       } else if (oldState === "disconnected" && this.state === "reconnecting") {
         ExtMessenger.add("再接続中です...");
       } else if (oldState === "reconnecting" && this.state === "opened") {
@@ -359,7 +359,7 @@ class _Nicolive {
     }
 
     MessageStore.cleanup();
-    this.client?.dispose();
+    this.client?.close();
     this._canSpeak = false;
     this._cleanupAutoUpdateComentCss = [];
     this.users = {};
@@ -417,6 +417,7 @@ function parseKotehanAndYobina(str: string): [string | 0 | undefined, string | 0
 
 
 function setDebug(client: NicoliveClient) {
+  client.onState.on((event, description) => { console.log(`wsClient: ${event}  desc:${description}`); });
   client.onWsState.on(event => { console.log(`wsClient: ${event}`); });
   client.onWsMessage._debugAllOn(event => { console.log("wsMsg: ", event); });
   client.onMessageState.on(event => { console.log(`commentClient: ${event}`); });
