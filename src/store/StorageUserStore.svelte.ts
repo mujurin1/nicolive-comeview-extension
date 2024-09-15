@@ -53,6 +53,30 @@ export const StorageUserStore: StorageUserStore = (() => {
     "extention": {},
   });
 
+
+  //#region TODO: 古いデータを移行する一時的な対応策。9/30日を過ぎたらこの記述を消す
+  type OldNicoliveUsers = Record<number | string, StorageUser>;
+  const oldNicoliveUsers = storages.chromeExtentionStorage.addUse(
+    "nocolive_user",
+    {
+      onUpdated(newUsers: Partial<OldNicoliveUsers>) {
+        for (const _userId in newUsers) {
+          const newUser = newUsers[_userId];
+          if (newUser == null) continue;
+          const userId = _userId + "";
+          newUser.id = userId;
+          const event = userStore.nicolive.users[userId] == null ? "new" : "update";
+          safeOverwriteUser(userStore.nicolive.users, userId, newUser);
+          userStore.nicolive.upsert(userStore.nicolive.users[userId]);
+          userStore.nicolive.updated.emit(event, userStore.nicolive.users[userId]);
+        }
+        void oldNicoliveUsers.remove(Object.keys(newUsers));
+      },
+      onRemoved() { },  // 削除は見ない
+    });
+  //#regionend TODO: 古いデータを移行する一時的な対応策。9/30日を過ぎたらこの記述を消す
+
+
   const externalStoreController = storages.chromeExtentionStorage.addUse<
     "user",
     Record<StorageUserKey, StorageUser>
