@@ -1,7 +1,8 @@
 <script lang="ts">
   import { tick } from "svelte";
   import { getCssClassNameFromMessage } from "../function/CssStyle.svelte";
-  import { Nicolive, type PlatformsId } from "../Platform";
+  import { type NicoliveMessage, type PlatformsId } from "../Platform";
+  import { MessageStore } from "../store/MessageStore.svelte";
   import { SettingStore } from "../store/SettingStore.svelte";
   import { onErrorImage } from "../utils";
   import { additional } from "../view/view";
@@ -9,7 +10,7 @@
   let listView: HTMLDivElement;
 
   $effect.pre(() => {
-    Nicolive.messages.length;
+    MessageStore.messages.length;
 
     const autoscroll =
       listView && listView.offsetHeight + listView.scrollTop > listView.scrollHeight - 50;
@@ -26,62 +27,70 @@
   }
 </script>
 
-<div bind:this={listView} class="comment-list" tabindex="-1">
-  {#each Nicolive.messages as message (message.messageId)}
-    {@const user = message.extUser}
-    {@const userId = user.storageUser.id}
-    {@const isFirst = message.no != null && user?.firstNo === message.no}
-    {@const hideSharp = SettingStore.state.general.hideSharp && message.includeSharp}
-    <div
-      class={`comment cm-default ${getCssClassNameFromMessage(message)}`}
-      class:cm-owner={user.kind === "owner"}
-      class:cm-first={isFirst}
-    >
-      <div class="child no">{message.no}</div>
-      {#if hideSharp}
-        <div class="child icon"></div>
-        <div class="child name">#シャープ#</div>
-      {:else}
-        <div class="child icon">
-          {#if user.kind !== "system"}
-            <!-- svelte-ignore a11y_missing_attribute -->
-            <img src={message.iconUrl} onerror={onErrorImage} />
-          {/if}
-        </div>
-        {#if (user.storageUser.name ?? userId) !== null}
-          {#if user.kind === "system"}
-            <div class="child name"></div>
-          {:else}
-            {@const name =
-              SettingStore.state.general.useKotehan && user.storageUser.kotehan
-                ? user.storageUser.kotehan
-                : user.storageUser.name}
-            <!-- svelte-ignore a11y_click_events_have_key_events -->
-            <div
-              class="child name"
-              title={user.storageUser.name ?? userId}
-              role="button"
-              tabindex="-1"
-              onclick={() => openUserSetting(message.platformId, userId)}
-            >
-              <!-- name が存在するのは生IDだけ -->
-              {name ??
-                (SettingStore.state.general.nameToNo && user.noName184 ? user.noName184 : userId)}
-            </div>
-          {/if}
-        {/if}
-      {/if}
-      <div class="child time">{message.time}</div>
-      <div class="child content">
-        {#if hideSharp}
-          ＃シャープコメントだよ＃
-        {:else if message.link == null}
-          {message.content}
-        {:else}
-          <a href={message.link} target="_blank" title={message.link}>{message.content}</a>
+{#snippet NicoliveView(message: NicoliveMessage)}
+  {@const user = message.extUser}
+  {@const userId = user.storageUser.id}
+  {@const isFirst = message.no != null && user?.firstNo === message.no}
+  {@const hideSharp = SettingStore.state.general.hideSharp && message.includeSharp}
+  <div
+    class={`comment cm-default ${getCssClassNameFromMessage(message)}`}
+    class:cm-owner={user.kind === "owner"}
+    class:cm-first={isFirst}
+  >
+    <div class="child no">{message.no}</div>
+    {#if hideSharp}
+      <div class="child icon"></div>
+      <div class="child name">#シャープ#</div>
+    {:else}
+      <div class="child icon">
+        {#if user.kind !== "system"}
+          <!-- svelte-ignore a11y_missing_attribute -->
+          <img src={message.iconUrl} onerror={onErrorImage} />
         {/if}
       </div>
+      {#if (user.storageUser.name ?? userId) !== null}
+        {#if user.kind === "system"}
+          <div class="child name"></div>
+        {:else}
+          {@const name =
+            SettingStore.state.general.useKotehan && user.storageUser.kotehan
+              ? user.storageUser.kotehan
+              : user.storageUser.name}
+          <!-- svelte-ignore a11y_click_events_have_key_events -->
+          <div
+            class="child name"
+            title={user.storageUser.name ?? userId}
+            role="button"
+            tabindex="-1"
+            onclick={() => openUserSetting(message.platformId, userId)}
+          >
+            <!-- name が存在するのは生IDだけ -->
+            {name ??
+              (SettingStore.state.general.nameToNo && user.noName184 ? user.noName184 : userId)}
+          </div>
+        {/if}
+      {/if}
+    {/if}
+    <div class="child time">{message.time}</div>
+    <div class="child content">
+      {#if hideSharp}
+        ＃シャープコメントだよ＃
+      {:else if message.link == null}
+        {message.content}
+      {:else}
+        <a href={message.link} target="_blank" title={message.link}>{message.content}</a>
+      {/if}
     </div>
+  </div>
+{/snippet}
+
+<div bind:this={listView} class="comment-list" tabindex="-1">
+  {#each MessageStore.messages as message (message.id)}
+    {#if message.platformId === "nicolive"}
+      {@render NicoliveView(message)}
+    {:else if message.platformId === "extention"}
+      <div>{message.content}</div>
+    {/if}
   {/each}
 </div>
 

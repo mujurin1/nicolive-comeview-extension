@@ -47,7 +47,17 @@ export interface ExtUserType<PlatformId extends PlatformsId = PlatformsId> {
  * 各サイトのコメントデータはこれを実装すること
  */
 export interface ExtMessageType<PlatformId extends PlatformsId = PlatformsId> {
+  /**
+   * 全てのコメントで一意なID\
+   * `platformId#messageId`
+   */
+  id: string;
   platformId: PlatformId;
+  /**
+   * 配信サイト毎の放送毎のID\
+   * 別放送サイトとは被っても良い
+   */
+  liveId: string;
   /**
    * 放送サイト毎のコメントID\
    * 別放送サイトとは被っても良い

@@ -41,12 +41,11 @@
       {/if}
     </div>
 
-    <!-- デバッグ用
-      <div>
-        <button type="button" onclick={sendDbgComment}>テスト</button>
-        <input type="text" bind:value={dbgComment} />
-      </div>
-     -->
+    <!-- 
+    <div>
+      <button type="button" onclick={() => ExtMessenger.add("test")}>テスト</button>
+    </div>
+    -->
 
     <div class="head-item">
       {#if Nicolive.state === "none"}

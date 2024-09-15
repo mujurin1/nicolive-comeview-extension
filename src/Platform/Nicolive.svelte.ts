@@ -2,6 +2,7 @@ import { NicoliveClient, type NicoliveClientState, NicoliveWatchError, type dwan
 import { type ExtMessageType, type ExtUserKind, type ExtUserType, PlatformsId } from ".";
 import { BouyomiChan } from "../function/BouyomiChan";
 import { autoUpdateCommentCss } from "../function/CssStyle.svelte";
+import { MessageStore } from "../store/MessageStore.svelte";
 import { SettingStore } from "../store/SettingStore.svelte";
 import { StorageUserStore } from "../store/StorageUserStore.svelte";
 import { parseIconUrl, timeString } from "../utils";
@@ -24,7 +25,7 @@ type NicoliveMessagePart = Omit<NicoliveMessage, "extUser">;
 
 export const NicoliveConstUsers = {
   system: {
-    platformId: PlatformsId.nicolive,
+    platformId: "nicolive",
     storageUser: {
       id: "nicolive_system",
     },
@@ -50,7 +51,7 @@ class _Nicolive {
   public errorMessages = $state<string[]>([]);
 
   public client = $state<NicoliveClient>();
-  public messages = $state<NicoliveMessage[]>([]);
+  // public messages = $state<NicoliveMessage[]>([]);
 
 
   /**
@@ -96,9 +97,15 @@ class _Nicolive {
       this.client = await NicoliveClient.create(this.url, "now", SettingStore.state.general.fetchConnectingBackward ? 1 : 0, false);
     } catch (e) {
       this.state = "disconnected";
-      if (!(e instanceof NicoliveWatchError)) throw e;
+      if (e instanceof NicoliveWatchError) {
+        this.errorMessages.push(e.message);
+      } else if (e instanceof Error && e.message === "Failed to fetch") {
+        this.errorMessages.push("インターネットと接続されていません");
+      } else {
+        this.errorMessages.push("不明なエラーが発生しました");
+        throw e;
+      }
 
-      this.errorMessages.push(e.message);
       return;
     }
 
@@ -121,8 +128,11 @@ class _Nicolive {
     this.client.onWsState.on(event => {
       this.connectWs = event === "opened";
     });
-    this.client.onMessageState.on(event => {
+    this.client.onMessageState.on((event, descript) => {
       this.connectComment = event === "opened";
+      if (descript) {
+        // TODO: 終了理由
+      }
     });
 
     this.client.onMessageEntry.on(message => {
@@ -168,17 +178,17 @@ class _Nicolive {
 
     if (this._canSpeak && !(SettingStore.state.general.hideSharp && message.includeSharp)) {
       let name: string | undefined;
-      // if (message.extUser.type !== "system") {
-      const storeUser = message.extUser.storageUser;
-      if (SettingStore.state.general.useYobina && storeUser.yobina != null) name = storeUser.yobina;
-      else if (SettingStore.state.yomiage.speachNames.コテハン && SettingStore.state.general.useKotehan && storeUser.kotehan != null) name = storeUser.kotehan;
-      else if (SettingStore.state.yomiage.speachNames.コメ番 && SettingStore.state.general.nameToNo && message.extUser?.noName184 != null) name = message.extUser.noName184;
-      else if (SettingStore.state.yomiage.speachNames.ユーザー名 && storeUser.name != null) name = storeUser.name;
-      // }
+      if (message.extUser.kind !== "system") {
+        const storeUser = message.extUser.storageUser;
+        if (SettingStore.state.general.useYobina && storeUser.yobina != null) name = storeUser.yobina;
+        else if (SettingStore.state.yomiage.speachNames.コテハン && SettingStore.state.general.useKotehan && storeUser.kotehan != null) name = storeUser.kotehan;
+        else if (SettingStore.state.yomiage.speachNames.コメ番 && SettingStore.state.general.nameToNo && message.extUser?.noName184 != null) name = message.extUser.noName184;
+        else if (SettingStore.state.yomiage.speachNames.ユーザー名 && storeUser.name != null) name = storeUser.name;
+      }
       void BouyomiChan.speak(message.content, name);
     }
 
-    this.messages.push(message);
+    MessageStore.messages.push(message);
   };
 
   private readonly onMessageOld = (chunkedMessages: dwango.ChunkedMessage[]) => {
@@ -190,7 +200,7 @@ class _Nicolive {
       messages.push(message);
     }
 
-    this.messages.unshift(...messages);
+    MessageStore.messages.unshift(...messages);
   };
 
   parseMessage({ meta, payload }: dwango.ChunkedMessage): NicoliveMessage | undefined {
@@ -263,7 +273,9 @@ class _Nicolive {
     }
 
     const messagePart = {
+      id: `${PlatformsId.nicolive}#${messageId}`,
       platformId: PlatformsId.nicolive,
+      liveId: this.url,
       messageId,
       extUser: undefined as NicoliveUser | undefined,
       no,
@@ -327,7 +339,7 @@ class _Nicolive {
     this.client?.dispose();
     this._canSpeak = false;
     this._cleanupAutoUpdateComentCss = [];
-    this.messages = [];
+    // this.messages = [];
     this.users = {};
     this.canFetchBackwaardMessage = true;
     this.errorMessages = [];
@@ -385,7 +397,7 @@ function parseKotehanAndYobina(str: string): [string | 0 | undefined, string | 0
 function setDebug(client: NicoliveClient) {
   client.onWsState.on(event => { console.log(`wsClient: ${event}`); });
   client.onWsMessage._debugAllOn(event => { console.log("wsMsg: ", event); });
-  client.onMessageState.on(event => { console.log(`commentClient: ${event}`); });
+  client.onMessageState.on((event, descript) => { console.log(`commentClient: ${event}, ${descript}`); });
   client.onMessageEntry.on(event => { console.log(`commentEntry: ${event}`); });
   client.onMessage.on(x);
   client.onMessageOld.on(msgs => { x(...msgs); });
