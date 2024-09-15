@@ -34,6 +34,11 @@
       <input type="text" bind:value={Nicolive.url} size="18" placeholder="URL (lv ch user/)" />
       {#if Nicolive.state === "none" || Nicolive.state === "disconnected"}
         <button type="button" onclick={() => Nicolive.connect()}>接続</button>
+        {#if Nicolive.client?.canReconnect() === true}
+          <div>
+            <button type="button" onclick={() => Nicolive.reconnect()}>再接続</button>
+          </div>
+        {/if}
       {:else if Nicolive.state === "opened"}
         <button type="button" onclick={() => Nicolive.close()}>切断</button>
       {:else}

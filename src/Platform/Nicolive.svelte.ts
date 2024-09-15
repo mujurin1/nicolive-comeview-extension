@@ -51,7 +51,6 @@ class _Nicolive {
   public errorMessages = $state<string[]>([]);
 
   public client = $state<NicoliveClient>();
-  // public messages = $state<NicoliveMessage[]>([]);
 
 
   /**
@@ -128,11 +127,8 @@ class _Nicolive {
     this.client.onWsState.on(event => {
       this.connectWs = event === "opened";
     });
-    this.client.onMessageState.on((event, descript) => {
+    this.client.onMessageState.on(event => {
       this.connectComment = event === "opened";
-      if (descript) {
-        // TODO: 終了理由
-      }
     });
 
     this.client.onMessageEntry.on(message => {
@@ -147,8 +143,8 @@ class _Nicolive {
 
     document.title = `${this.client.info.title} - ${this.client.info.liveId}`;
 
-    // // デバッグ用
-    // setDebug(this.client);
+    // デバッグ用
+    setDebug(this.client);
   }
 
   public close() {
@@ -162,6 +158,15 @@ class _Nicolive {
     await this.client.fetchBackwardMessages(maxBackwords);
     this.isFetchingBackwardMessage = this.client.isFetchingBackwardMessage;
     this.canFetchBackwaardMessage = this.client.canFetchBackwardMessage();
+  }
+
+  public async reconnect() {
+    if (this.client == null) return;
+    if (this.state === "reconnecting") return;
+
+    this._canSpeak = false;
+    await this.client.reconnect();
+    this._canSpeak = true;
   }
 
   // // デバッグ用
@@ -336,10 +341,10 @@ class _Nicolive {
       cleanupFn();
     }
 
+    MessageStore.cleanup();
     this.client?.dispose();
     this._canSpeak = false;
     this._cleanupAutoUpdateComentCss = [];
-    // this.messages = [];
     this.users = {};
     this.canFetchBackwaardMessage = true;
     this.errorMessages = [];
@@ -397,7 +402,7 @@ function parseKotehanAndYobina(str: string): [string | 0 | undefined, string | 0
 function setDebug(client: NicoliveClient) {
   client.onWsState.on(event => { console.log(`wsClient: ${event}`); });
   client.onWsMessage._debugAllOn(event => { console.log("wsMsg: ", event); });
-  client.onMessageState.on((event, descript) => { console.log(`commentClient: ${event}, ${descript}`); });
+  client.onMessageState.on(event => { console.log(`commentClient: ${event}`); });
   client.onMessageEntry.on(event => { console.log(`commentEntry: ${event}`); });
   client.onMessage.on(x);
   client.onMessageOld.on(msgs => { x(...msgs); });
