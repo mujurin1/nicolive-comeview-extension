@@ -25,7 +25,8 @@ class _ExtMessenger {
       content: message,
       iconUrl: undefined,
       messageId: (MessageStore.messages.length + 1) + "",
-      time: new Date().toLocaleTimeString("ja-JP"),
+      // time: new Date().toLocaleTimeString("ja-JP"),
+      time: "",
 
       link: undefined,
       includeSharp: false,

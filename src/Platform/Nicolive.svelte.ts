@@ -1,5 +1,5 @@
 import { NicoliveClient, type NicoliveClientState, NicoliveWatchError, type dwango, timestampToMs } from "@mujurin/nicolive-api-ts";
-import { type ExtMessageType, type ExtUserKind, type ExtUserType, PlatformsId } from ".";
+import { type ExtMessageType, ExtMessenger, type ExtUserKind, type ExtUserType, PlatformsId } from ".";
 import { BouyomiChan } from "../function/BouyomiChan";
 import { autoUpdateCommentCss } from "../function/CssStyle.svelte";
 import { MessageStore } from "../store/MessageStore.svelte";
@@ -110,7 +110,16 @@ class _Nicolive {
 
     this.url = this.client.info.liveId;
 
-    this.client.onState.on(event => this.state = event);
+    this.client.onState.on(event => {
+      const oldState = this.state;
+      this.state = event;
+
+      if (oldState !== "disconnected" && this.state === "disconnected") {
+        ExtMessenger.add("切断しました");
+      } else if (oldState === "reconnecting" && this.state === "opened") {
+        ExtMessenger.add("再接続しました");
+      }
+    });
     this.client.onLog.on("info", message => {
       if (message.type === "reconnect") {
         if (message.sec == null) this.errorMessages = [];

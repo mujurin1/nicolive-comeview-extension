@@ -1,7 +1,7 @@
 <script lang="ts">
   import { tick } from "svelte";
   import { getCssClassNameFromMessage } from "../function/CssStyle.svelte";
-  import { type NicoliveMessage, type PlatformsId } from "../Platform";
+  import { type ExtentionMessage, type NicoliveMessage, type PlatformsId } from "../Platform";
   import { MessageStore } from "../store/MessageStore.svelte";
   import { SettingStore } from "../store/SettingStore.svelte";
   import { onErrorImage } from "../utils";
@@ -27,7 +27,7 @@
   }
 </script>
 
-{#snippet NicoliveView(message: NicoliveMessage)}
+{#snippet NicoliveMessageView(message: NicoliveMessage)}
   {@const user = message.extUser}
   {@const userId = user.storageUser.id}
   {@const isFirst = message.no != null && user?.firstNo === message.no}
@@ -83,13 +83,26 @@
     </div>
   </div>
 {/snippet}
+{#snippet ExtentionMessageView(message: ExtentionMessage)}
+  {@const user = message.extUser}
+  <div
+    class={`comment cm-default cm-system`}
+    class:cm-owner={user.kind === "owner"}
+  >
+    <div class="child no"></div>
+    <div class="child icon"></div>
+    <div class="child name"></div>
+    <div class="child time">{message.time}</div>
+    <div class="child content">{message.content}</div>
+  </div>
+{/snippet}
 
 <div bind:this={listView} class="comment-list" tabindex="-1">
   {#each MessageStore.messages as message (message.id)}
     {#if message.platformId === "nicolive"}
-      {@render NicoliveView(message)}
+      {@render NicoliveMessageView(message)}
     {:else if message.platformId === "extention"}
-      <div>{message.content}</div>
+      {@render ExtentionMessageView(message)}
     {/if}
   {/each}
 </div>
