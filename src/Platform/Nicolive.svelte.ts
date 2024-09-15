@@ -275,6 +275,12 @@ class _Nicolive {
 
     if (SettingStore.state.general.urlToLink && link == null) {
       link = /.*(https?:\/\/\S*).*/.exec(content)?.[1];
+      if (link == null) {
+        const smId = /.*(sm\d+).*/.exec(content)?.[1];
+        if (smId != null) {
+          link = `https://www.nicovideo.jp/watch/${smId}`;
+        }
+      }
     }
 
     const messagePart = {
