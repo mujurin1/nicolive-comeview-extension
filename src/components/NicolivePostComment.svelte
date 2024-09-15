@@ -1,16 +1,33 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import { Nicolive } from "../Platform";
 
   let isLogined = $state(Nicolive.client?.info?.loginUser != null);
   let isBroadcaster = $state(Nicolive.client?.info?.loginUser?.isBroadcaster);
 
+  let inputCommentArea: HTMLTextAreaElement;
   let comment = $state("");
   let isPost184 = $state(true);
   let isPostBroadcaster = $state(isBroadcaster);
+  let canNotPostComment = $derived(!isLogined || Nicolive.state !== "opened");
+
+  onMount(() => {
+    const commentArea = inputCommentArea;
+    commentArea.addEventListener("keydown", onKeyDown);
+
+    return () => commentArea.removeEventListener("keydown", onKeyDown);
+
+    async function onKeyDown(e: KeyboardEvent) {
+      if (!e.shiftKey && e.key === "Enter") {
+        if (comment) postComment();
+        e.preventDefault();
+      }
+    }
+  });
 
   function postComment() {
     if (isPostBroadcaster) {
-      Nicolive.client!.postBroadcasterComment(comment);
+      void Nicolive.client!.postBroadcasterComment(comment);
     } else {
       Nicolive.client!.postComment(comment, isPost184);
     }
@@ -38,18 +55,20 @@
 
   <div class="input-comment-area">
     <textarea
+      bind:this={inputCommentArea}
       class="input-comment"
       class:broadcaster={isPostBroadcaster}
       rows="3"
       placeholder={`${
         isPostBroadcaster ? "生主" : isPost184 ? "184" : Nicolive.client?.info.loginUser?.name
-      } として投稿`}
+      } として投稿\n\n  Enter で投稿  Shift+Enter で改行`}
       bind:value={comment}
+      disabled={canNotPostComment}
     ></textarea>
   </div>
 
   <div class="send-button-area">
-    <button type="button" onclick={postComment} disabled={!isLogined}>送信</button>
+    <button type="button" onclick={postComment} disabled={canNotPostComment}>送信</button>
   </div>
 </div>
 
