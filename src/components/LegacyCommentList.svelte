@@ -88,7 +88,7 @@
     <div class="child no"></div>
     <div class="child icon"></div>
     <div class="child name"></div>
-    <div class="child time">{message.time}</div>
+    <!-- <div class="child time">{message.time}</div> -->
     <div class="child content">{message.content}</div>
   </div>
 {/snippet}

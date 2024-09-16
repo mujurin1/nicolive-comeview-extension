@@ -309,10 +309,11 @@ class _Nicolive {
     if (message.kind === "system" || userId == null) return;
 
     const [kotehan, yobina] = parseKotehanAndYobina(message.content);
-    const user = this.users[userId] ?? createUser(message, userId, name)!;  // ! がなくての nullable ではないが‥？
+    // kind:"system" は弾いているので createUser が undefined を返すことはあり得ない
+    const user = this.users[userId] ?? createUser(message, userId, name)!;
 
     // this.users を更新
-    if (message.no != null && user.firstNo != null && message.no < user.firstNo) {
+    if (message.kind === "user" && message.no != null && (user.firstNo == null || message.no < user.firstNo)) {
       user.firstNo = message.no;
       if (user.is184) user.noName184 = `${message.no}コメ`;
     }
@@ -357,7 +358,7 @@ class _Nicolive {
 
 export const Nicolive = new _Nicolive();
 
-function createUser(message: NicoliveMessage, userId: string | undefined, name: string | undefined): NicoliveUser | undefined {
+function createUser(message: NicoliveMessage, userId: string, name: string | undefined): NicoliveUser | undefined {
   if (message.kind === "system" || userId == null) return;
 
   let noName184: string | undefined;
@@ -373,7 +374,7 @@ function createUser(message: NicoliveMessage, userId: string | undefined, name: 
       kotehan: undefined,
       yobina: undefined,
     },
-    firstNo: message.no,
+    firstNo: message.kind === "user" ? message.no : undefined,
     is184: message.is184,
     noName184,
   };
