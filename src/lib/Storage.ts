@@ -13,19 +13,32 @@ export interface IStorage {
 export interface StorageObserver<
   Items extends { [ItemKey in string]: any },
 > {
-  /** ストレージのデータが更新された */
-  onUpdated: (items: Partial<Items>) => void;
-  /** ストレージのデータが削除された */
-  onRemoved: (ItemKeys: KeysOf<Items>[]) => void;
+  /**
+   * ストレージのデータが更新された
+   * @param items 変更された値のみを含むレコード
+   * @param type 変更の理由. 初期読み込み/再読み込み or ストレージからの変更通知
+   */
+  onUpdated(items: Partial<Items>, type: "load" | "change"): void;
+  /**
+   * ストレージのデータが削除された
+   * @param itemKeys 削除されたキーの配列
+   */
+  onRemoved(itemKeys: KeysOf<Items>[]): void;
 }
 
 export interface StorageController<
   Items extends { [ItemKey in string]: any },
 > {
-  /** データを保存する */
-  update: (items: Partial<Items>) => Promise<void>;
-  /** データを削除する */
-  remove: (iteKeys: (KeysOf<Items>)[]) => Promise<void>;
+  /**
+   * データを保存する
+   * @param items 変更する値のみを含むデータ
+   */
+  update(items: Partial<Items>): Promise<void>;
+  /**
+   * データを削除する
+   * @param itemKeys 削除するキーの配列
+   */
+  remove(iteKeys: (KeysOf<Items>)[]): Promise<void>;
 }
 
 export const storages = {

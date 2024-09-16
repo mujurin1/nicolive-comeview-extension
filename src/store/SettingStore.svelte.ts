@@ -169,7 +169,8 @@ export const SettingStore: SettingStore = (() => {
   const externalStoreController = storages.chromeExtentionStorage.addUse(
     "setting",
     {
-      onUpdated(data: Partial<SettingState>) {
+      onUpdated(data: Partial<SettingState>, type) {
+        if (type === "change") unsetNotChangeProperty(data);
         safeOverwrite(state, data);
       },
       onRemoved() {
@@ -193,3 +194,12 @@ export const SettingStore: SettingStore = (() => {
     },
   };
 })();
+
+/**
+ * ウィンドウ間で共有しない値を `undefined` にして変更されないようにする
+ */
+function unsetNotChangeProperty(data: Partial<SettingState>) {
+  if (data.yomiage?.isSpeak !== undefined) {
+    data.yomiage.isSpeak = undefined!;
+  }
+}

@@ -99,7 +99,6 @@ fieldset {
   line-height: normal;
 
   font-size: 0.75rem;
-  /* text-indent: 1rem; */
   margin-left: 5px;
 }
 
@@ -145,5 +144,9 @@ fieldset {
 
   &.from-next::before {
     color: indianred;
+  }
+
+  &.no-share::before {
+    color: indigo;
   }
 }

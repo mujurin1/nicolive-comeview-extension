@@ -6,7 +6,7 @@
 
 <div class="line">
   <div class="explanation from-next" style="font-size: 0.7rem;">
-    ←このアイコンがある項目は過去のコメントに遡っては反映されません
+    ←このアイコンのある項目を変更しても取得済みのコメントには適用されません
   </div>
 </div>
 

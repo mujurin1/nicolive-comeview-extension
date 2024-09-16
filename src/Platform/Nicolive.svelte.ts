@@ -267,8 +267,6 @@ class _Nicolive {
     } else
       return;
 
-    // const extUser = nicolive.
-
     if (link == null) {
       link = /.*(https?:\/\/\S*).*/.exec(content)?.[1];
       if (link == null) {

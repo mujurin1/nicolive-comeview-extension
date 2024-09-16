@@ -54,7 +54,7 @@ async function load() {
   for (const storeName in stores) {
     const store = storageUsers[storeName];
     if (store == null) continue;
-    store.onUpdated(stores[storeName]);
+    store.onUpdated(stores[storeName], "load");
   }
 }
 
@@ -149,7 +149,7 @@ function onChanged(changed: Record<string, chrome.storage.StorageChange>) {
     const store = storageUsers[storeName];
     if (store == null) continue;
     if (Object.keys(stores[storeName].updated).length > 0)
-      store.onUpdated(stores[storeName].updated);
+      store.onUpdated(stores[storeName].updated, "change");
     if (stores[storeName].removed.length > 0)
       store.onRemoved(stores[storeName].removed);
   }

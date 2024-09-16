@@ -5,13 +5,19 @@
   let { highlightItems = $bindable() }: { highlightItems: string[] } = $props();
 </script>
 
+<div class="line">
+  <div class="explanation no-share" style="font-size: 0.7rem;">
+    ←このアイコンのある項目を変更しても同時に開いているウィンドウには反映されません
+  </div>
+</div>
+
 <div
   class="line"
   class:highlight={highlightItems.includes("yomiage-speach")}
   style="margin-bottom: 30px;"
 >
   <input type="checkbox" id="is-speach" bind:checked={$settingStore.yomiage.isSpeak} />
-  <label for="is-speach">コメントを読み上げる</label>
+  <label class="explanation no-share" for="is-speach">コメントを読み上げる</label>
 </div>
 
 <fieldset class:highlight={highlightItems.includes("yomiage-name")}>
@@ -67,7 +73,7 @@
 
 <div class="line" class:highlight={highlightItems.includes("yomiage-system")}>
   <input type="checkbox" id="speak-system" bind:checked={$settingStore.yomiage.speachSystem} />
-  <label for="speak-system">システムメッセージの読み上げ</label>
+  <label class="explanation" for="speak-system">システムメッセージの読み上げ</label>
 </div>
 
 <div class="line">
