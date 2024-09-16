@@ -2,7 +2,7 @@ export * from "./Extention.svelte";
 export * from "./Nicolive.svelte";
 
 import type { StorageUser } from "../store/StorageUserStore.svelte";
-import type { ExtentionMessage, ExtentionUser } from "./Extention.svelte";
+import type { ExtentionMessage } from "./Extention.svelte";
 import type { NicoliveMessage, NicoliveUser } from "./Nicolive.svelte";
 
 /**
@@ -30,7 +30,7 @@ export const ExtUserKind = {
 } as const;
 export type ExtUserKind = keyof typeof ExtUserKind;
 
-export type ExtUesr = ExtentionUser | NicoliveUser;
+export type ExtUesr = NicoliveUser;
 export type ExtMessage = ExtentionMessage | NicoliveMessage;
 
 /**
@@ -63,7 +63,7 @@ export interface ExtMessageType<PlatformId extends PlatformsId = PlatformsId> {
    */
   messageId: string;
   kind: ExtUserKind;
-  extUser: ExtUesr & { platformId: PlatformId; };
+  extUser: undefined | (ExtUesr & { platformId: PlatformId; });
   iconUrl: string | undefined;
   time: string;
   content: string;

@@ -21,20 +21,6 @@ export interface NicoliveMessage extends ExtMessageType<"nicolive"> {
   no: number | undefined;
 }
 
-type NicoliveMessagePart = Omit<NicoliveMessage, "extUser">;
-
-export const NicoliveConstUsers = {
-  system: {
-    platformId: "nicolive",
-    storageUser: {
-      id: "nicolive_system",
-    },
-    is184: true,
-    firstNo: undefined,
-    noName184: undefined,
-  } as const satisfies NicoliveUser,    // satisfies を付けると内部の readonly が変わる？
-} as const;
-
 
 class _Nicolive {
   /** 接続開始時の過去コメを読み上げないためのフラグ */
@@ -193,7 +179,7 @@ class _Nicolive {
 
     if (this._canSpeak && !(SettingStore.state.general.hideSharp && message.includeSharp)) {
       let name: string | undefined;
-      if (message.kind !== "system") {
+      if (message.extUser != null) {
         const storeUser = message.extUser.storageUser;
         if (SettingStore.state.general.useYobina && storeUser.yobina != null) name = storeUser.yobina;
         else if (SettingStore.state.yomiage.speachNames.コテハン && SettingStore.state.general.useKotehan && storeUser.kotehan != null) name = storeUser.kotehan;
@@ -293,13 +279,13 @@ class _Nicolive {
       }
     }
 
-    const messagePart = {
+    const message: NicoliveMessage = {
       id: `${PlatformsId.nicolive}#${messageId}`,
       platformId: PlatformsId.nicolive,
       liveId: this.url,
       messageId,
       kind,
-      extUser: undefined as NicoliveUser | undefined,
+      extUser: undefined,
       no,
       iconUrl,
       is184,
@@ -309,9 +295,9 @@ class _Nicolive {
       includeSharp: kind === "user" && /[♯#＃]/.test(content),
     };
 
-    messagePart.extUser = this.upsertUser(userId, name, messagePart) ?? NicoliveConstUsers.system;
+    message.extUser = this.upsertUser(message, userId, name);
 
-    return messagePart as NicoliveMessage;
+    return message;
   }
 
   /**
@@ -319,16 +305,16 @@ class _Nicolive {
    * `store`と`this.users`を更新する
    * @returns 更新・作成したユーザー
    */
-  private upsertUser(userId: string | undefined, name: string | undefined, messagePart: NicoliveMessagePart): NicoliveUser | undefined {
-    if (messagePart.kind === "system" || userId == null) return;
+  private upsertUser(message: NicoliveMessage, userId: string | undefined, name: string | undefined): NicoliveUser | undefined {
+    if (message.kind === "system" || userId == null) return;
 
-    const [kotehan, yobina] = parseKotehanAndYobina(messagePart.content);
-    const user = this.users[userId] ?? createUser(userId, name, messagePart)!;  // ! がなくての nullable ではないが‥？
+    const [kotehan, yobina] = parseKotehanAndYobina(message.content);
+    const user = this.users[userId] ?? createUser(message, userId, name)!;  // ! がなくての nullable ではないが‥？
 
     // this.users を更新
-    if (messagePart.no != null && user.firstNo != null && messagePart.no < user.firstNo) {
-      user.firstNo = messagePart.no;
-      if (user.is184) user.noName184 = `${messagePart.no}コメ`;
+    if (message.no != null && user.firstNo != null && message.no < user.firstNo) {
+      user.firstNo = message.no;
+      if (user.is184) user.noName184 = `${message.no}コメ`;
     }
 
     // StorageUserStore を更新
@@ -371,12 +357,12 @@ class _Nicolive {
 
 export const Nicolive = new _Nicolive();
 
-function createUser(userId: string | undefined, name: string | undefined, messagePart: NicoliveMessagePart): NicoliveUser | undefined {
-  if (messagePart.kind === "system" || userId == null) return;
+function createUser(message: NicoliveMessage, userId: string | undefined, name: string | undefined): NicoliveUser | undefined {
+  if (message.kind === "system" || userId == null) return;
 
   let noName184: string | undefined;
-  if (messagePart.is184 && messagePart.no != null) {
-    noName184 = `${messagePart.no}コメ`;
+  if (message.is184 && message.no != null) {
+    noName184 = `${message.no}コメ`;
   }
 
   return {
@@ -387,8 +373,8 @@ function createUser(userId: string | undefined, name: string | undefined, messag
       kotehan: undefined,
       yobina: undefined,
     },
-    firstNo: messagePart.no,
-    is184: messagePart.is184,
+    firstNo: message.no,
+    is184: message.is184,
     noName184,
   };
 }

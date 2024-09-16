@@ -29,7 +29,6 @@
 
 {#snippet NicoliveMessageView(message: NicoliveMessage)}
   {@const user = message.extUser}
-  {@const userId = user.storageUser.id}
   {@const isFirst = message.no != null && user?.firstNo === message.no}
   {@const hideSharp = SettingStore.state.general.hideSharp && message.includeSharp}
   <div
@@ -38,18 +37,17 @@
     class:cm-first={isFirst}
   >
     <div class="child no">{message.no}</div>
-    {#if hideSharp}
-      <div class="child icon"></div>
-      <div class="child name">#シャープ#</div>
-    {:else}
-      <div class="child icon">
-        {#if message.kind !== "system"}
-          <!-- svelte-ignore a11y_missing_attribute -->
-          <img src={message.iconUrl} onerror={onErrorImage} />
-        {/if}
-      </div>
-      {#if (user.storageUser.name ?? userId) !== null}
-        {#if message.kind === "system"}
+      {#if hideSharp}
+        <div class="child icon"></div>
+        <div class="child name">#シャープ#</div>
+      {:else}
+        <div class="child icon">
+          {#if message.kind !== "system"}
+            <!-- svelte-ignore a11y_missing_attribute -->
+            <img src={message.iconUrl} onerror={onErrorImage} />
+          {/if}
+        </div>
+        {#if user == null || message.kind === "system"}
           <div class="child name"></div>
         {:else}
           {@const name =
@@ -59,18 +57,17 @@
           <!-- svelte-ignore a11y_click_events_have_key_events -->
           <div
             class="child name"
-            title={user.storageUser.name ?? userId}
+            title={user.storageUser.name ?? user.storageUser.id}
             role="button"
             tabindex="-1"
-            onclick={() => openUserSetting(message.platformId, userId)}
+            onclick={() => openUserSetting(message.platformId, user.storageUser.id)}
           >
             <!-- name が存在するのは生IDだけ -->
             {name ??
-              (SettingStore.state.general.nameToNo && user.noName184 ? user.noName184 : userId)}
+              (SettingStore.state.general.nameToNo && user.noName184 ? user.noName184 : user.storageUser.id)}
           </div>
         {/if}
       {/if}
-    {/if}
     <div class="child time">{message.time}</div>
     <div class="child content">
       {#if hideSharp}
