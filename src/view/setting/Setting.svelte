@@ -22,7 +22,9 @@
   import YomiageSetting from "./YomiageSetting.svelte";
 
   const names = ["一般", "読み上げ", "リスナー", "コメント表示", "フィードバック", "Advanced"] as const;
-  let currentTab = $state<typeof names[number]>("一般");
+  type TabNames = typeof names[number];
+  
+  let currentTab = $state<TabNames>("一般");
   let show = $state(false);
 
   let dialog = $state<HTMLDialogElement>();
@@ -30,7 +32,11 @@
     
   let serchQuery = $state("");
 
-  export async function switchOpen(_show: boolean, tab?: typeof names[number]) {
+  function switchedTab(_newTab: TabNames) {
+    highlightItems.length = 0;
+  }
+
+  export async function switchOpen(_show: boolean, tab?: TabNames) {
     show = _show;
     await tick();
 
@@ -43,7 +49,7 @@
     }
   }
 
-  export async function openHilight(tab: typeof names[number], ...items: string[]) {
+  export async function openHilight(tab: TabNames, ...items: string[]) {
     await switchOpen(true, tab);
     highlightItems = items;
   }
@@ -54,11 +60,11 @@
     <button class="close-btn" onclick={() => switchOpen(false)}>閉じる</button>
 
     <div class="mordal-body">
-      <Tab {names} bind:currentTab>
+      <Tab {names} bind:currentTab {switchedTab}>
         {#snippet content(tabId)}
           <div class="content" data-tabId={tabId}>
             {#if tabId === "一般"}
-              <GeneralSetting bind:highlightItems={highlightItems}/>
+              <GeneralSetting bind:highlightItems />
             {:else if tabId === "読み上げ"}
               <YomiageSetting bind:highlightItems />
             {:else if tabId === "リスナー"}
