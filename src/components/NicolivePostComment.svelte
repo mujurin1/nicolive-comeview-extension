@@ -9,7 +9,7 @@
   let comment = $state("");
   let isPost184 = $state(true);
   let isPostBroadcaster = $state(isBroadcaster);
-  let canNotPostComment = $derived(!isLogined || Nicolive.state !== "opened");
+  let canPostComment = $derived(isLogined && Nicolive.state === "opened");
 
   onMount(() => {
     const commentArea = inputCommentArea;
@@ -63,12 +63,12 @@
         isPostBroadcaster ? "生主" : isPost184 ? "184" : Nicolive.client?.info.loginUser?.name
       } として投稿\n\n  Enter で投稿  Shift+Enter で改行`}
       bind:value={comment}
-      disabled={canNotPostComment}
+      disabled={!canPostComment}
     ></textarea>
   </div>
 
   <div class="send-button-area">
-    <button type="button" onclick={postComment} disabled={canNotPostComment}>送信</button>
+    <button type="button" onclick={postComment} disabled={!canPostComment}>送信</button>
   </div>
 </div>
 

@@ -34,7 +34,7 @@
   {@const hideSharp = SettingStore.state.general.hideSharp && message.includeSharp}
   <div
     class={`comment cm-default ${getCssClassNameFromMessage(message)}`}
-    class:cm-owner={user.kind === "owner"}
+    class:cm-owner={message.kind === "owner"}
     class:cm-first={isFirst}
   >
     <div class="child no">{message.no}</div>
@@ -43,13 +43,13 @@
       <div class="child name">#シャープ#</div>
     {:else}
       <div class="child icon">
-        {#if user.kind !== "system"}
+        {#if message.kind !== "system"}
           <!-- svelte-ignore a11y_missing_attribute -->
           <img src={message.iconUrl} onerror={onErrorImage} />
         {/if}
       </div>
       {#if (user.storageUser.name ?? userId) !== null}
-        {#if user.kind === "system"}
+        {#if message.kind === "system"}
           <div class="child name"></div>
         {:else}
           {@const name =
@@ -75,19 +75,18 @@
     <div class="child content">
       {#if hideSharp}
         ＃シャープコメントだよ＃
-      {:else if message.link == null}
-        {message.content}
-      {:else}
+      {:else if SettingStore.state.general.urlToLink && message.link != null}
         <a href={message.link} target="_blank" title={message.link}>{message.content}</a>
+      {:else}
+        {message.content}
       {/if}
     </div>
   </div>
 {/snippet}
 {#snippet ExtentionMessageView(message: ExtentionMessage)}
-  {@const user = message.extUser}
   <div
     class={`comment cm-default cm-system`}
-    class:cm-owner={user.kind === "owner"}
+    class:cm-owner={message.kind === "owner"}
   >
     <div class="child no"></div>
     <div class="child icon"></div>

@@ -50,7 +50,8 @@
 
 <div class="line" class:highlight={highlightItems.includes("general-url")}>
   <input type="checkbox" id="url-to-link" bind:checked={$settingStore.general.urlToLink} />
-  <label class="explanation from-next" for="url-to-link">URLを含むコメントをリンクにする</label>
+  <label class="explanation" for="url-to-link">URLを含むコメントをリンクにする</label>
+  <div class="hint">URLを含む特殊なコメントまたはURLが含まれている場合にリンクになります</div>
 </div>
 
 <div class="line" class:highlight={highlightItems.includes("general-sharp")}>

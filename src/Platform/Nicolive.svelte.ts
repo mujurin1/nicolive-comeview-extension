@@ -29,7 +29,6 @@ export const NicoliveConstUsers = {
     storageUser: {
       id: "nicolive_system",
     },
-    kind: "system",
     is184: true,
     firstNo: undefined,
     noName184: undefined,
@@ -154,8 +153,8 @@ class _Nicolive {
 
     document.title = `${this.client.info.title} - ${this.client.info.liveId}`;
 
-    // // デバッグ用
-    // setDebug(this.client);
+    // デバッグ用
+    setDebug(this.client);
   }
 
   public close() {
@@ -194,7 +193,7 @@ class _Nicolive {
 
     if (this._canSpeak && !(SettingStore.state.general.hideSharp && message.includeSharp)) {
       let name: string | undefined;
-      if (message.extUser.kind !== "system") {
+      if (message.kind !== "system") {
         const storeUser = message.extUser.storageUser;
         if (SettingStore.state.general.useYobina && storeUser.yobina != null) name = storeUser.yobina;
         else if (SettingStore.state.yomiage.speachNames.コテハン && SettingStore.state.general.useKotehan && storeUser.kotehan != null) name = storeUser.kotehan;
@@ -284,7 +283,7 @@ class _Nicolive {
 
     // const extUser = nicolive.
 
-    if (SettingStore.state.general.urlToLink && link == null) {
+    if (link == null) {
       link = /.*(https?:\/\/\S*).*/.exec(content)?.[1];
       if (link == null) {
         const smId = /.*(sm\d+).*/.exec(content)?.[1];
@@ -299,6 +298,7 @@ class _Nicolive {
       platformId: PlatformsId.nicolive,
       liveId: this.url,
       messageId,
+      kind,
       extUser: undefined as NicoliveUser | undefined,
       no,
       iconUrl,
@@ -309,7 +309,7 @@ class _Nicolive {
       includeSharp: kind === "user" && /[♯#＃]/.test(content),
     };
 
-    messagePart.extUser = this.upsertUser(kind, userId, name, messagePart) ?? NicoliveConstUsers.system;
+    messagePart.extUser = this.upsertUser(userId, name, messagePart) ?? NicoliveConstUsers.system;
 
     return messagePart as NicoliveMessage;
   }
@@ -319,11 +319,11 @@ class _Nicolive {
    * `store`と`this.users`を更新する
    * @returns 更新・作成したユーザー
    */
-  private upsertUser(kind: ExtUserKind, userId: string | undefined, name: string | undefined, messagePart: NicoliveMessagePart): NicoliveUser | undefined {
-    if (kind === "system" || userId == null) return;
+  private upsertUser(userId: string | undefined, name: string | undefined, messagePart: NicoliveMessagePart): NicoliveUser | undefined {
+    if (messagePart.kind === "system" || userId == null) return;
 
     const [kotehan, yobina] = parseKotehanAndYobina(messagePart.content);
-    const user = this.users[userId] ?? createUser(kind, userId, name, messagePart)!;  // ! がなくての nullable ではないが‥？
+    const user = this.users[userId] ?? createUser(userId, name, messagePart)!;  // ! がなくての nullable ではないが‥？
 
     // this.users を更新
     if (messagePart.no != null && user.firstNo != null && messagePart.no < user.firstNo) {
@@ -371,8 +371,8 @@ class _Nicolive {
 
 export const Nicolive = new _Nicolive();
 
-function createUser(kind: ExtUserKind, userId: string | undefined, name: string | undefined, messagePart: NicoliveMessagePart): NicoliveUser | undefined {
-  if (kind === "system" || userId == null) return;
+function createUser(userId: string | undefined, name: string | undefined, messagePart: NicoliveMessagePart): NicoliveUser | undefined {
+  if (messagePart.kind === "system" || userId == null) return;
 
   let noName184: string | undefined;
   if (messagePart.is184 && messagePart.no != null) {
@@ -387,7 +387,6 @@ function createUser(kind: ExtUserKind, userId: string | undefined, name: string 
       kotehan: undefined,
       yobina: undefined,
     },
-    kind,
     firstNo: messagePart.no,
     is184: messagePart.is184,
     noName184,

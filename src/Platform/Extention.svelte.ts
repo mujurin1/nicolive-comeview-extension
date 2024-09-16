@@ -9,7 +9,6 @@ export interface ExtentionMessage extends ExtMessageType<"extention"> {
 
 export const ExtentionUser = {
   platformId: "extention",
-  kind: "system",
   storageUser: {
     id: "extention-user",
   },
@@ -20,11 +19,12 @@ class _ExtMessenger {
     MessageStore.messages.push({
       id: `extention#${MessageStore.messages.length + 1}`,
       platformId: "extention",
+      messageId: (MessageStore.messages.length + 1) + "",
+      kind: "system",
       liveId: "extention",
       extUser: ExtentionUser,
       content: message,
       iconUrl: undefined,
-      messageId: (MessageStore.messages.length + 1) + "",
       // time: new Date().toLocaleTimeString("ja-JP"),
       time: "",
 

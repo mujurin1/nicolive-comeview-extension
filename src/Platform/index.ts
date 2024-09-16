@@ -39,7 +39,6 @@ export type ExtMessage = ExtentionMessage | NicoliveMessage;
 export interface ExtUserType<PlatformId extends PlatformsId = PlatformsId> {
   platformId: PlatformId;
   storageUser: StorageUser;
-  kind: ExtUserKind;
 }
 
 /**
@@ -63,6 +62,7 @@ export interface ExtMessageType<PlatformId extends PlatformsId = PlatformsId> {
    * 別放送サイトとは被っても良い
    */
   messageId: string;
+  kind: ExtUserKind;
   extUser: ExtUesr & { platformId: PlatformId; };
   iconUrl: string | undefined;
   time: string;
