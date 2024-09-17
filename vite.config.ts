@@ -56,7 +56,8 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        main: "./index.html"
+        main: "./index.html",
+        comejene: "./comejene/index.html",
       }
     },
   },
