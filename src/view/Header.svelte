@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { Nicolive } from "../Platform";
-  import Setting, { settingStore } from "./setting/Setting.svelte";
+  import Setting, { settingViewStore } from "./setting/Setting.svelte";
   import { setting } from "./view";
 
   let settingPage = $state<Setting>();
@@ -107,7 +107,7 @@ ws:${Nicolive.connectWs ? "ON" : "off"} co:${Nicolive.connectComment ? "ON" : "o
 
     <div class="head-item">
       <label for="speak">読み上げ</label>
-      <input type="checkbox" id="speak" bind:checked={$settingStore.yomiage.isSpeak} />
+      <input type="checkbox" id="speak" bind:checked={$settingViewStore.yomiage.isSpeak} />
     </div>
   </div>
 

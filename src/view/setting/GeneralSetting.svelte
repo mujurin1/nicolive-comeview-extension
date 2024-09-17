@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { settingStore } from "./Setting.svelte";
+  import { settingViewStore } from "./Setting.svelte";
 
   let { highlightItems = $bindable() }: { highlightItems: string[] } = $props();
 </script>
@@ -11,7 +11,7 @@
 </div>
 
 <div class="line" class:highlight={highlightItems.includes("general-kotehan")}>
-  <input type="checkbox" id="user-kotehan" bind:checked={$settingStore.general.useKotehan} />
+  <input type="checkbox" id="user-kotehan" bind:checked={$settingViewStore.general.useKotehan} />
   <label class="explanation from-next" for="user-kotehan">コテハンを使用する　(@コテハン)</label>
   <details class="hint">
     <summary>「@コテハン」でコテハンを設定できます</summary>
@@ -21,7 +21,7 @@
 </div>
 
 <div class="line" class:highlight={highlightItems.includes("general-yobina")}>
-  <input type="checkbox" id="user-yobina" bind:checked={$settingStore.general.useYobina} />
+  <input type="checkbox" id="user-yobina" bind:checked={$settingViewStore.general.useYobina} />
   <label class="explanation from-next" for="user-yobina">呼び名機能を使う　(@@呼び名)</label>
   <details class="hint">
     <summary>見た目の名前と読み上げられる名前を変えるための機能です</summary>
@@ -33,7 +33,7 @@
 </div>
 
 <div class="line" class:highlight={highlightItems.includes("general-184no")}>
-  <input type="checkbox" id="name-184no" bind:checked={$settingStore.general.nameToNo} />
+  <input type="checkbox" id="name-184no" bind:checked={$settingViewStore.general.nameToNo} />
   <label class="explanation" for="name-184no">184の表示名をコメ番にする</label>
   <div class="hint">184の表示名はその人の最初のコメント番号になります</div>
 </div>
@@ -42,20 +42,20 @@
   <input
     type="checkbox"
     id="fetch-connecting-backward"
-    bind:checked={$settingStore.general.fetchConnectingBackward}
+    bind:checked={$settingViewStore.general.fetchConnectingBackward}
   />
   <label class="explanation" for="fetch-connecting-backward">接続時に過去コメントを取得する</label>
   <div class="hint">OFFの場合でも少しだけ過去コメントを取得する場合があります</div>
 </div>
 
 <div class="line" class:highlight={highlightItems.includes("general-url")}>
-  <input type="checkbox" id="url-to-link" bind:checked={$settingStore.general.urlToLink} />
+  <input type="checkbox" id="url-to-link" bind:checked={$settingViewStore.general.urlToLink} />
   <label class="explanation" for="url-to-link">URLを含むコメントをリンクにする</label>
   <div class="hint">URLを含む特殊なコメントまたはURLが含まれている場合にリンクになります</div>
 </div>
 
 <div class="line" class:highlight={highlightItems.includes("general-sharp")}>
-  <input type="checkbox" id="hide-sharp" bind:checked={$settingStore.general.hideSharp} />
+  <input type="checkbox" id="hide-sharp" bind:checked={$settingViewStore.general.hideSharp} />
   <div>
     <label class="explanation" for="hide-sharp">
       シャープ(♯ # ＃)を含むコメントを隠す＆読み上げない

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { SpeachNameItems, YomiageTypes } from "../../store/SettingStore.svelte";
-  import { settingStore } from "./Setting.svelte";
+  import { settingViewStore } from "./Setting.svelte";
 
   let { highlightItems = $bindable() }: { highlightItems: string[] } = $props();
 </script>
@@ -16,13 +16,13 @@
   class:highlight={highlightItems.includes("yomiage-speach")}
   style="margin-bottom: 30px;"
 >
-  <input type="checkbox" id="is-speach" bind:checked={$settingStore.yomiage.isSpeak} />
+  <input type="checkbox" id="is-speach" bind:checked={$settingViewStore.yomiage.isSpeak} />
   <label class="explanation no-share" for="is-speach">コメントを読み上げる</label>
 </div>
 
 <fieldset class:highlight={highlightItems.includes("yomiage-name")}>
   <legend>名前の読み上げ位置</legend>
-  <select bind:value={$settingStore.yomiage.isSpeachName}>
+  <select bind:value={$settingViewStore.yomiage.isSpeachName}>
     <option value="none">読み上げない</option>
     <option value="mae">コメントの前</option>
     <option value="ato">コメントの後</option>
@@ -35,19 +35,19 @@
 
     <div style="display: flex;">
       {#each SpeachNameItems as speachNameType (speachNameType)}
-        {@const selected = $settingStore.yomiage.speachNames[speachNameType]}
+        {@const selected = $settingViewStore.yomiage.speachNames[speachNameType]}
         <button
           class="select-btn"
           data-selected={selected}
           type="button"
-          onclick={() => ($settingStore.yomiage.speachNames[speachNameType] = !selected)}
+          onclick={() => ($settingViewStore.yomiage.speachNames[speachNameType] = !selected)}
         >
           {speachNameType}
         </button>
       {/each}
       <button
         class="select-btn"
-        data-selected={$settingStore.general.useYobina}
+        data-selected={$settingViewStore.general.useYobina}
         type="button"
         title="「一般 > 呼び名機能を使う」で変更できます"
         disabled
@@ -56,13 +56,13 @@
       </button>
     </div>
   </fieldset>
-  {#if $settingStore.yomiage.speachNames["コメ番"] && !$settingStore.general.nameToNo}
+  {#if $settingViewStore.yomiage.speachNames["コメ番"] && !$settingViewStore.general.nameToNo}
     <div class="hint warning">
       ※コメ番は名前として使用されません「一般 >
       184の表示名をコメ番にする」も有効にする必要があります
     </div>
   {/if}
-  {#if $settingStore.yomiage.speachNames["コテハン"] && !$settingStore.general.useKotehan}
+  {#if $settingViewStore.yomiage.speachNames["コテハン"] && !$settingViewStore.general.useKotehan}
     <div class="hint warning">
       ※コテハンは名前として使用されません「一般 > コテハンを使用する」も有効にする必要があります
     </div>
@@ -72,7 +72,7 @@
 </div>
 
 <div class="line" class:highlight={highlightItems.includes("yomiage-system")}>
-  <input type="checkbox" id="speak-system" bind:checked={$settingStore.yomiage.speachSystem} />
+  <input type="checkbox" id="speak-system" bind:checked={$settingViewStore.yomiage.speachSystem} />
   <label class="explanation" for="speak-system">システムメッセージの読み上げ</label>
 </div>
 
@@ -84,14 +84,14 @@
 
   <div style="display: flex;" class:highlight={highlightItems.includes("yomiage-use")}>
     {#each YomiageTypes as yomi (yomi)}
-      {@const selected = $settingStore.yomiage.useYomiage === yomi}
+      {@const selected = $settingViewStore.yomiage.useYomiage === yomi}
       {@const disabled = yomi === "VOICEVOX"}
       <input
         type="radio"
         id={yomi}
         name="contact"
         value={yomi}
-        onclick={() => ($settingStore.yomiage.useYomiage = yomi)}
+        onclick={() => ($settingViewStore.yomiage.useYomiage = yomi)}
         checked={selected}
         {disabled}
       />
@@ -100,12 +100,12 @@
   </div>
 </div>
 
-{#if $settingStore.yomiage.useYomiage === "棒読みちゃん"}
+{#if $settingViewStore.yomiage.useYomiage === "棒読みちゃん"}
   <fieldset>
     <legend>棒読みちゃんPORT</legend>
-    <input type="number" bind:value={$settingStore.bouyomiChan.port} />
+    <input type="number" bind:value={$settingViewStore.bouyomiChan.port} />
   </fieldset>
-{:else if $settingStore.yomiage.useYomiage === "VOICEVOX"}
+{:else if $settingViewStore.yomiage.useYomiage === "VOICEVOX"}
   <div></div>
 {/if}
 

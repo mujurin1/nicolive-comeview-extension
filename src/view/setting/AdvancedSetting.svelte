@@ -1,6 +1,6 @@
 <script lang="ts">
   import { SettingStore } from "../../store/SettingStore.svelte";
-  import { settingStore } from "./Setting.svelte";
+  import { settingViewStore } from "./Setting.svelte";
 
   let useAdvancedFlg = $state(false);
   let checkedClearOk = $state(false);
@@ -35,7 +35,7 @@
   function useAdvanced() {
     useAdvancedFlg = true;
 
-    savedata = JSON.stringify($settingStore, null, 2);
+    savedata = JSON.stringify($settingViewStore, null, 2);
   }
 </script>
 

@@ -2,7 +2,7 @@
   import { getNicoliveId } from "@mujurin/nicolive-api-ts";
   import { Nicolive } from "../../Platform";
   import type { SettingState } from "../../store/SettingStore.svelte";
-  import { settingStore } from "../setting/Setting.svelte";
+  import { settingViewStore } from "../setting/Setting.svelte";
 
   let newPinn = $state<SettingState["nicolive"]["pinnLives"][number]>({
     id: "",
@@ -28,31 +28,31 @@
   }
 
   function remove(id: string) {
-    const index = settingStore.state.nicolive.pinnLives.findIndex(pinn => pinn.id === id);
+    const index = settingViewStore.state.nicolive.pinnLives.findIndex(pinn => pinn.id === id);
     if (index === -1) return;
-    settingStore.state.nicolive.pinnLives.splice(index, 1);
-    settingStore.changeBind();
+    settingViewStore.state.nicolive.pinnLives.splice(index, 1);
+    settingViewStore.changeBind();
   }
 
   function add() {
     if (
       getNicoliveId(newPinn.id) == null ||
-      settingStore.state.nicolive.pinnLives.find(pinn => pinn.id === newPinn.id) != null
+      settingViewStore.state.nicolive.pinnLives.find(pinn => pinn.id === newPinn.id) != null
     )
       return;
 
-    settingStore.state.nicolive.pinnLives.push({
+    settingViewStore.state.nicolive.pinnLives.push({
       id: getNicoliveId(newPinn.id)!,
       description: newPinn.description,
     });
-    settingStore.changeBind();
+    settingViewStore.changeBind();
     newPinn = { id: "", description: "" };
   }
 </script>
 
 <div class="title">ピン留めした放送</div>
 <div class="pinns">
-  {#each $settingStore.nicolive.pinnLives as pinn (pinn)}
+  {#each $settingViewStore.nicolive.pinnLives as pinn (pinn)}
     <button type="button" onclick={() => connect(pinn.id)}>接続</button>
     <input type="text" bind:value={pinn.id} />
     <input type="text" bind:value={pinn.description} size="10" />

@@ -1,6 +1,6 @@
 <script lang="ts">
   import FormatSetting from "../../components/FormatSetting.svelte";
-  import { settingStore } from "./Setting.svelte";
+  import { settingViewStore } from "./Setting.svelte";
 
   let tabOpened = $state({
     default: true,
@@ -17,7 +17,7 @@
     <summary class="tab">デフォルト （全てのコメントフォーマットの初期値）</summary>
     {#if tabOpened.default}
       <div class="format">
-        <FormatSetting bind:format={$settingStore.commentView.commentFormats.default} />
+        <FormatSetting bind:format={$settingViewStore.commentView.commentFormats.default} />
       </div>
     {/if}
   </details>
@@ -26,7 +26,7 @@
     <summary class="tab">生主</summary>
     {#if tabOpened.owner}
       <div class="format">
-        <FormatSetting bind:format={$settingStore.commentView.commentFormats.owner} />
+        <FormatSetting bind:format={$settingViewStore.commentView.commentFormats.owner} />
       </div>
     {/if}
   </details>
@@ -35,7 +35,7 @@
     <summary class="tab">初コメ</summary>
     {#if tabOpened.first}
       <div class="format">
-        <FormatSetting bind:format={$settingStore.commentView.commentFormats.first} />
+        <FormatSetting bind:format={$settingViewStore.commentView.commentFormats.first} />
       </div>
     {/if}
   </details>
@@ -44,7 +44,7 @@
     <summary class="tab">システムメッセージ</summary>
     {#if tabOpened.system}
       <div class="format">
-        <FormatSetting bind:format={$settingStore.commentView.commentFormats.system} />
+        <FormatSetting bind:format={$settingViewStore.commentView.commentFormats.system} />
       </div>
     {/if}
   </details>

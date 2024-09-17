@@ -3,7 +3,7 @@
   import { type SettingState, SettingStore } from "../../store/SettingStore.svelte";
   import type { DeepMutable } from "../../utils";
 
-  export const settingStore = notifierStore(
+  export const settingViewStore = notifierStore(
     SettingStore.state as DeepMutable<SettingState>,
     () => {
       SettingStore.save();
