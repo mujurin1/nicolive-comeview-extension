@@ -1,7 +1,6 @@
-<script module>
+<script lang="ts" module>
   import { notifierStore } from "../../lib/CustomStore.svelte";
-  import type { SettingState } from "../../store/SettingStore.svelte";
-  import { SettingStore } from "../../store/SettingStore.svelte";
+  import { type SettingState, SettingStore } from "../../store/SettingStore.svelte";
   import type { DeepMutable } from "../../utils";
 
   export const settingStore = notifierStore(
