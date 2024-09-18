@@ -7,7 +7,7 @@ import zipPack from "vite-plugin-zip-pack";
 const manifest = defineManifest({
   manifest_version: 3,
   name: "ニコ生コメビュ",
-  version: "0.2.7",
+  version: "0.2.8",
   icons: {
     128: "assets/128x128.png",
   },
