@@ -2,7 +2,7 @@ import { EventEmitter, type IEventEmitter } from "@mujurin/nicolive-api-ts";
 import { storages } from "../lib/Storage";
 import type { PlatformsId } from "../Platform";
 import type { DeepReadonly } from "../utils";
-import type { CommentFormat } from "./SettingStore.svelte";
+import { CommentFormat } from "./SettingStore.svelte";
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 type StorageUserUpdate =
@@ -178,14 +178,6 @@ function safeOverwriteUser(users: Record<string, StorageUser>, userId: string, n
     else users[userId].yobina = newUser.yobina;
     if (newUser.format == null) delete users[userId].format;
     else if (users[userId].format == null) users[userId].format = newUser.format;
-    else {
-      users[userId].format.fontFamily = newUser.format.fontFamily;
-      users[userId].format.fontSize = newUser.format.fontSize;
-      users[userId].format.isBold = newUser.format.isBold;
-      users[userId].format.isItally = newUser.format.isItally;
-      users[userId].format.backgroundColor = newUser.format.backgroundColor;
-      users[userId].format.nameColor = newUser.format.nameColor;
-      users[userId].format.contentColor = newUser.format.contentColor;
-    }
+    else CommentFormat.safeOverwrite(users[userId].format, newUser.format);
   }
 }

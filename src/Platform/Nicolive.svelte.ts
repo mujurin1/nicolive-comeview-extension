@@ -14,12 +14,12 @@ export interface NicoliveUser extends ExtUserType<"nicolive"> {
   noName184?: string;
 }
 
-export interface NicoliveMessage extends ExtMessageType<"nicolive"> {
+export type NicoliveMessage = ExtMessageType<"nicolive"> & {
   /** システムメッセージは184とする */
   is184: boolean;
 
   no: number | undefined;
-}
+};
 
 
 class _Nicolive {
@@ -139,8 +139,8 @@ class _Nicolive {
 
     document.title = `${this.client.info.title} - ${this.client.info.liveId}`;
 
-    // デバッグ用
-    setDebug(this.client);
+    // // デバッグ用
+    // setDebug(this.client);
   }
 
   public close() {
@@ -163,6 +163,25 @@ class _Nicolive {
     this._canSpeak = false;
     await this.client.reconnect();
     this._canSpeak = true;
+  }
+
+  public getUser(userId: string): NicoliveUser | undefined {
+    return Nicolive.users[userId];
+  }
+
+  private cleanup() {
+    for (const cleanupFn of this._cleanupAutoUpdateComentCss) {
+      cleanupFn();
+    }
+
+    MessageStore.cleanup();
+    this.client?.close();
+    this._canSpeak = false;
+    this._cleanupAutoUpdateComentCss = [];
+    this.users = {};
+    this.canFetchBackwaardMessage = true;
+    this.errorMessages = [];
+    this.isFetchingBackwardMessage = false;
   }
 
   // // デバッグ用
@@ -204,7 +223,73 @@ class _Nicolive {
     MessageStore.messages.unshift(...messages);
   };
 
-  parseMessage({ meta, payload }: dwango.ChunkedMessage): NicoliveMessage | undefined {
+  private parseMessage(chunkedMessage: dwango.ChunkedMessage): NicoliveMessage | undefined {
+    const part = this.parseMessagePart(chunkedMessage);
+    if (part == null) return;
+
+    if (part.kind === "system") {
+      return {
+        ...NicoliveMessagePart.delete(part),
+        liveId: this.url,
+        kind: part.kind,
+        extUser: undefined,
+      };
+    }
+
+    const extUser = this.upsertUser(part)!;
+
+    return {
+      ...NicoliveMessagePart.delete(part),
+      liveId: this.url,
+      kind: part.kind,
+      extUser,
+    };
+  }
+
+  /**
+   * メッセージからユーザー情報を更新・新規作成する\
+   * `store`と`this.users`を更新する
+   * @returns 更新・作成したユーザー
+   */
+  private upsertUser(part: NicoliveMessagePart): NicoliveUser | undefined {
+    if (part.kind === "system" || part.userId == null) return;
+
+    const koteyobi = parseKotehanAndYobina(part.content);
+    const isNew = this.users[part.userId] == null;
+
+    // MEMO: kind:system は弾いているので createUser が undefined を返すことはあり得ない
+    if (isNew) this.users[part.userId] = createUser(part)!;
+    // MEMO: svelte の $state 参照を経由する必要があるため必ず this.users から取り出す必要がある
+    const user = this.users[part.userId];
+
+    // this.users を更新
+    if (part.kind === "user" && part.no != null && (user.firstNo == null || part.no < user.firstNo)) {
+      user.firstNo = part.no;
+      if (user.is184) user.noName184 = `${part.no}コメ`;
+    }
+
+    // StorageUserStore を更新
+    if (koteyobi != null) {
+      if (koteyobi.kotehan != null) user.storageUser.kotehan = koteyobi.kotehan === 0 ? undefined : koteyobi.kotehan;
+      if (koteyobi.yobina != null) user.storageUser.yobina = koteyobi.yobina === 0 ? undefined : koteyobi.yobina;
+      StorageUserStore.nicolive.upsert(user.storageUser);
+    }
+
+    if (isNew) {
+      this.onFirstComment(user);
+    }
+
+    return user;
+  }
+
+  /**
+   * 初コメのユーザー
+   */
+  private onFirstComment(user: NicoliveUser) {
+    this._cleanupAutoUpdateComentCss.push(autoUpdateCommentCss(user.storageUser.id));
+  }
+
+  private parseMessagePart({ meta, payload }: dwango.ChunkedMessage): NicoliveMessagePart | undefined {
     if (meta == null) return;
 
     const messageId = meta.id;
@@ -255,7 +340,7 @@ class _Nicolive {
         content = data.value.message.value!;
       } else return;
     } else if (payload.case === "state") {
-      kind = "owner";
+      kind = "system";
       is184 = false;
       const operatorComment = payload.value.marquee?.display?.operatorComment;
       if (operatorComment == null) return;
@@ -277,13 +362,16 @@ class _Nicolive {
       }
     }
 
-    const message: NicoliveMessage = {
+    return {
       id: `${PlatformsId.nicolive}#${messageId}`,
       platformId: PlatformsId.nicolive,
-      liveId: this.url,
       messageId,
       kind,
       extUser: undefined,
+
+      userId,
+      name,
+
       no,
       iconUrl,
       is184,
@@ -292,88 +380,29 @@ class _Nicolive {
       link,
       includeSharp: kind === "user" && /[♯#＃]/.test(content),
     };
-
-    message.extUser = this.upsertUser(message, userId, name);
-
-    return message;
-  }
-
-  /**
-   * メッセージからユーザー情報を更新・新規作成する\
-   * `store`と`this.users`を更新する
-   * @returns 更新・作成したユーザー
-   */
-  private upsertUser(message: NicoliveMessage, userId: string | undefined, name: string | undefined): NicoliveUser | undefined {
-    if (message.kind === "system" || userId == null) return;
-
-    const [kotehan, yobina] = parseKotehanAndYobina(message.content);
-    // kind:"system" は弾いているので createUser が undefined を返すことはあり得ない
-    const user = this.users[userId] ?? createUser(message, userId, name)!;
-
-    // this.users を更新
-    if (message.kind === "user" && message.no != null && (user.firstNo == null || message.no < user.firstNo)) {
-      user.firstNo = message.no;
-      if (user.is184) user.noName184 = `${message.no}コメ`;
-    }
-
-    // StorageUserStore を更新
-    if (kotehan != null || yobina != null) {
-      if (kotehan != null) user.storageUser.kotehan = kotehan === 0 ? undefined : kotehan;
-      if (yobina != null) user.storageUser.yobina = yobina === 0 ? undefined : yobina;
-      StorageUserStore.nicolive.upsert(user.storageUser);
-    }
-
-    if (this.users[userId] == null) {
-      this.users[userId] = user;
-      this.onFirstComment(user);
-    }
-
-    return user;
-  }
-
-  /**
-   * 初コメのユーザー
-   */
-  private onFirstComment(user: NicoliveUser) {
-    this._cleanupAutoUpdateComentCss.push(autoUpdateCommentCss(user.storageUser.id));
-  }
-
-  private cleanup() {
-    for (const cleanupFn of this._cleanupAutoUpdateComentCss) {
-      cleanupFn();
-    }
-
-    MessageStore.cleanup();
-    this.client?.close();
-    this._canSpeak = false;
-    this._cleanupAutoUpdateComentCss = [];
-    this.users = {};
-    this.canFetchBackwaardMessage = true;
-    this.errorMessages = [];
-    this.isFetchingBackwardMessage = false;
   }
 }
 
 export const Nicolive = new _Nicolive();
 
-function createUser(message: NicoliveMessage, userId: string, name: string | undefined): NicoliveUser | undefined {
-  if (message.kind === "system" || userId == null) return;
+function createUser(part: NicoliveMessagePart): NicoliveUser | undefined {
+  if (part.kind === "system" || part.userId == null) return;
 
   let noName184: string | undefined;
-  if (message.is184 && message.no != null) {
-    noName184 = `${message.no}コメ`;
+  if (part.is184 && part.no != null) {
+    noName184 = `${part.no}コメ`;
   }
 
   return {
     platformId: PlatformsId.nicolive,
-    storageUser: StorageUserStore.nicolive.users[userId] ?? {
-      id: userId,
-      name,
+    storageUser: StorageUserStore.nicolive.users[part.userId] ?? {
+      id: part.userId,
+      name: part.name,
       kotehan: undefined,
       yobina: undefined,
     },
-    firstNo: message.kind === "user" ? message.no : undefined,
-    is184: message.is184,
+    firstNo: part.kind === "user" ? part.no : undefined,
+    is184: part.is184,
     noName184,
   };
 }
@@ -382,21 +411,24 @@ function createUser(message: NicoliveMessage, userId: string, name: string | und
  * 文字列からコテハンと呼び名をパースする\
  * `0`は削除するフラグ
  * @param str パースする文字列
- * @returns [コテハン, 呼び名]
  */
-function parseKotehanAndYobina(str: string): [string | 0 | undefined, string | 0 | undefined] {
-  if (!SettingStore.state.general.useKotehan && !SettingStore.state.general.useYobina) return [undefined, undefined];
+function parseKotehanAndYobina(str: string): { kotehan?: string | 0; yobina?: string | 0; } | undefined {
+  let kotehan: string | 0 | undefined;
+  let yobina: string | 0 | undefined;
+
+  if (!SettingStore.state.general.useKotehan && !SettingStore.state.general.useYobina) return undefined;
 
   const reg = /[@＠](\s|[^\s@＠]+)?[^@＠]*(?:[@＠](\s|[^\s@＠]+))?/.exec(str);
-  if (reg == null) return [undefined, undefined];
+  if (reg == null) return undefined;
 
-  const kotehan = SettingStore.state.general.useKotehan ? reg[1] : undefined;
-  const yobina = SettingStore.state.general.useYobina ? reg[2] : undefined;
+  if (SettingStore.state.general.useKotehan && reg[0] != null)
+    kotehan = /\s/.test(reg[0]) ? 0 : reg[0];
+  if (SettingStore.state.general.useYobina && reg[1] != null)
+    yobina = /\s/.test(reg[1]) ? 0 : reg[1];
 
-  return [
-    /\s/.test(kotehan!) ? 0 : kotehan,
-    /\s/.test(yobina!) ? 0 : yobina,
-  ];
+
+  if (kotehan == null && yobina == null) return undefined;
+  return { kotehan, yobina };
 }
 
 
@@ -431,3 +463,31 @@ function setDebug(client: NicoliveClient) {
     }
   }
 }
+
+
+interface NicoliveMessagePart {
+  id: `nicolive#${string}`;
+  platformId: "nicolive";
+  messageId: string;
+  kind: ExtUserKind;
+  extUser: undefined;
+
+  no: number | undefined;
+  iconUrl: string | undefined;
+  is184: boolean;
+  time: string;
+  content: string;
+  link: string | undefined;
+  includeSharp: boolean;
+
+  // 以下は本体にはないので削除する必要がある
+  userId: string | undefined;
+  name: string | undefined;
+}
+const NicoliveMessagePart = {
+  delete: (part: NicoliveMessagePart) => {
+    delete part["userId"];
+    delete part["name"];
+    return part;
+  }
+} as const;

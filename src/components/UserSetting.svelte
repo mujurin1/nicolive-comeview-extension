@@ -19,8 +19,7 @@
   const userS = notifierStore<StorageUser>(
     StorageUserStore[platformId].users[userId] ?? Nicolive.users[userId]?.storageUser,
     () => StorageUserStore[platformId].upsert(userS.state),
-    // この derived が必要な理由は、このオブジェクトはセーブデータ上で `undefiend` になる(存在しない)時があるため
-    // 普通の設定項目はセーブデータ上で必ず存在するため、普通はこの derived は不要である
+    // このオブジェクトはセーブデータ上で `undefiend` になる(存在しない)時があるため derived が必要
     () => {
       let a = StorageUserStore[platformId].users[userId];
       let b = Nicolive.users[userId]?.storageUser;

@@ -5,7 +5,7 @@
   let { format = $bindable()}: { format: CommentFormat } = $props();
 
   const isDefault = format === SettingStore.state.commentView.commentFormats.default;
-  const trueFalseNull = isDefault ? [true, false] : [null, true, false]
+  const trueFalseNull = isDefault ? [true, false] : [null, true, false];
 
   const formatS = notifierStore(
     format,

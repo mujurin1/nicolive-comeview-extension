@@ -51,6 +51,15 @@ export const CommentFormat = {
     if (format.backgroundColor === "") format.backgroundColor = null;
     if (format.nameColor === "") format.nameColor = null;
     if (format.contentColor === "") format.contentColor = null;
+  },
+  safeOverwrite: (format: CommentFormat, newFormat: CommentFormat) => {
+    format.fontFamily = newFormat.fontFamily;
+    format.fontSize = newFormat.fontSize;
+    format.isBold = newFormat.isBold;
+    format.isItally = newFormat.isItally;
+    format.backgroundColor = newFormat.backgroundColor;
+    format.nameColor = newFormat.nameColor;
+    format.contentColor = newFormat.contentColor;
   }
 } as const;
 

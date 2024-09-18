@@ -19,7 +19,7 @@
     "@crxjs/vite-plugin": "^2.0.0-beta.21",
     "@stylistic/eslint-plugin": "^2.6.4",
     "@stylistic/eslint-plugin-ts": "^2.6.4",
-    "@sveltejs/vite-plugin-svelte": "^3.1.2",
+    "@sveltejs/vite-plugin-svelte": "^4.0.0-next.7",
     "@tsconfig/svelte": "^5.0.4",
     "@types/chrome": "^0.0.270",
     "@types/eslint": "^8.56.11",

@@ -16,7 +16,7 @@ const styles = {
 export type StyleNames = keyof typeof styles;
 
 export function getCssClassNameFromMessage(message: NicoliveMessage): string {
-  if (message.extUser == null || message.kind === "system") return "cm-system";
+  if (message.kind === "system") return "cm-system";
   return getCssClassNameFromUserId(message.extUser.storageUser.id);
 }
 
@@ -31,7 +31,7 @@ export function autoUpdateCommentCss(userId: string) {
   const className = getCssClassNameFromUserId(userId);
   return $effect.root(() => {
     $effect(() => {
-      const format = Nicolive.users[userId + ""]?.storageUser?.format;
+      const format = Nicolive.users[userId]?.storageUser?.format;
 
       if (format == null) {
         clearClass("cm-user", className);

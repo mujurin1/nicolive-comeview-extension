@@ -1,11 +1,18 @@
+<script lang="ts" module>
+  import { additional } from "../view/view";
+  
+  export function openUserSetting(user: ExtUserType) {
+    additional.page.openUserSetting(user.storageUser.id);
+  }
+</script>
+
 <script lang="ts">
   import { tick } from "svelte";
   import { getCssClassNameFromMessage } from "../function/CssStyle.svelte";
-  import { type ExtentionMessage, type NicoliveMessage, type PlatformsId } from "../Platform";
+  import { type ExtentionMessage, type ExtUserType, type NicoliveMessage, type NicoliveUser } from "../Platform";
   import { MessageStore } from "../store/MessageStore.svelte";
   import { SettingStore } from "../store/SettingStore.svelte";
-  import { onErrorImage } from "../utils";
-  import { additional } from "../view/view";
+  import LegacyCommentViewItem from "./LegacyCommentViewItem.svelte";
 
   let listView: HTMLDivElement;
 
@@ -22,74 +29,77 @@
     }
   });
 
-  function openUserSetting(platformId: PlatformsId, userId: string) {
-    additional.page.openUserSetting(userId);
+  function getNicoliveUserName(user: NicoliveUser) {
+    if(SettingStore.state.general.useKotehan && user.storageUser.kotehan != null)
+      return user.storageUser.kotehan;
+    if(user.storageUser.name != null)
+      return user.storageUser.name;
+    if(SettingStore.state.general.nameToNo && user.noName184 != null)
+      return user.noName184;
+    return user.storageUser.id;
   }
 </script>
 
+{#snippet Content(message: NicoliveMessage)}
+  <div class="child content">
+    {#if SettingStore.state.general.urlToLink && message.link != null}
+      <a href={message.link} target="_blank" title={message.link}>{message.content}</a>
+    {:else}
+      {message.content}
+    {/if}
+  </div>
+{/snippet}
+
 {#snippet NicoliveMessageView(message: NicoliveMessage)}
-  {@const user = message.extUser}
-  {@const isFirst = message.no != null && user?.firstNo === message.no}
+  {@const isFirst = message.no != null && message.extUser?.firstNo === message.no}
   {@const hideSharp = SettingStore.state.general.hideSharp && message.includeSharp}
   <div
     class={`comment cm-default ${getCssClassNameFromMessage(message)}`}
     class:cm-owner={message.kind === "owner"}
     class:cm-first={isFirst}
   >
-    <div class="child no">{message.no}</div>
-      {#if hideSharp}
-        <div class="child icon"></div>
-        <div class="child name">#シャープ#</div>
-      {:else}
-        <div class="child icon">
-          {#if message.kind !== "system"}
-            <!-- svelte-ignore a11y_missing_attribute -->
-            <img src={message.iconUrl} onerror={onErrorImage} />
-          {/if}
-        </div>
-        {#if user == null || message.kind === "system"}
-          <div class="child name"></div>
-        {:else}
-          {@const name =
-            SettingStore.state.general.useKotehan && user.storageUser.kotehan
-              ? user.storageUser.kotehan
-              : user.storageUser.name}
+    {#if hideSharp}
+      <LegacyCommentViewItem no={message.no} time={message.time} content={"#シャープ#"} />
+    {:else if message.kind === "system"}
+      <LegacyCommentViewItem no={message.no} time={message.time}>
+        {#snippet content()}
+          {@render Content(message)}
+        {/snippet}
+      </LegacyCommentViewItem>
+    {:else}
+      {@const user = message.extUser}
+      <LegacyCommentViewItem
+        no={message.no}
+        iconUrl={message.iconUrl}
+        time={message.time}
+      >
+        {#snippet name()}
+          {@const name = getNicoliveUserName(user)}
           <!-- svelte-ignore a11y_click_events_have_key_events -->
           <div
             class="child name"
             title={user.storageUser.name ?? user.storageUser.id}
             role="button"
             tabindex="-1"
-            onclick={() => openUserSetting(message.platformId, user.storageUser.id)}
+            onclick={() => openUserSetting(user)}
           >
-            <!-- name が存在するのは生IDだけ -->
-            {name ??
-              (SettingStore.state.general.nameToNo && user.noName184 ? user.noName184 : user.storageUser.id)}
-          </div>
-        {/if}
-      {/if}
-    <div class="child time">{message.time}</div>
-    <div class="child content">
-      {#if hideSharp}
-        ＃シャープコメントだよ＃
-      {:else if SettingStore.state.general.urlToLink && message.link != null}
-        <a href={message.link} target="_blank" title={message.link}>{message.content}</a>
-      {:else}
-        {message.content}
-      {/if}
-    </div>
+          <!-- svelte の不具合でこれがないと name が変わっても更新されない -->
+          {#key name}
+            {name}
+          {/key}
+        </div>
+        {/snippet}
+        {#snippet content()}
+          {@render Content(message)}
+        {/snippet}
+      </LegacyCommentViewItem>
+    {/if}
   </div>
 {/snippet}
+
 {#snippet ExtentionMessageView(message: ExtentionMessage)}
-  <div
-    class={`comment cm-default cm-system`}
-    class:cm-owner={message.kind === "owner"}
-  >
-    <div class="child no"></div>
-    <div class="child icon"></div>
-    <div class="child name"></div>
-    <!-- <div class="child time">{message.time}</div> -->
-    <div class="child content">{message.content}</div>
+  <div class="comment cm-default cm-system">
+    <LegacyCommentViewItem time={message.time} content={message.content} />
   </div>
 {/snippet}
 
@@ -115,7 +125,7 @@
   }
 
   @layer {
-    .comment {
+    :global(.comment) {
       display: flex;
       min-height: 30px;
 
@@ -127,44 +137,44 @@
         Meiryo UI,
         sans-serif;
 
-      & > .child {
+      :global(& > .child) {
         margin-right: 3px;
         display: flex;
         align-items: center;
       }
 
-      & > .no {
+      :global(& > .no) {
         font-weight: normal;
         flex: 0 0 30px;
         display: flex;
         justify-content: flex-end;
         font-size: 0.8em;
       }
-      & > .icon {
+      :global(& > .icon) {
         flex: 0 0 30px;
 
-        & > img {
+        :global(& > img) {
           width: 100%;
           height: 100%;
           object-fit: contain;
         }
       }
-      & > .name {
+      :global(& > .name) {
         flex: 0 0 80px;
         overflow: hidden;
         white-space: nowrap;
 
-        &[role="button"] {
+        :global(&[role="button"]) {
           cursor: pointer;
         }
       }
-      & > .time {
+      :global(& > .time) {
         font-weight: normal;
         flex: 0 1 auto;
         padding-right: 2px;
         font-size: 0.8em;
       }
-      & > .content {
+      :global(& > .content) {
         flex: 1 0 10px;
         white-space-collapse: preserve;
 

@@ -1,4 +1,4 @@
-<script module>
+<script lang="ts" module>
   import { storageInit } from "../lib/Storage";
 
   storageInit();
@@ -6,7 +6,7 @@
 
 <script lang="ts">
   import { onMount } from "svelte";
-  import LegacyCommentList from "../components/LegacyCommentList.svelte";
+  import LegacyCommentView from "../components/LegacyCommentView.svelte";
   import { Nicolive } from "../Platform";
   import Additional from "./Additional.svelte";
   import Header from "./Header.svelte";
@@ -16,16 +16,15 @@
   let additionalPage = $state<Additional>();
 
   onMount(() => {
-    if(additionalPage == null) return;
+    if (additionalPage == null) return;
     additional.page = additionalPage;
   });
-    
+
   let startup = $state(true);
 
   $effect(() => {
     if (startup && Nicolive.state === "opened") startup = false;
   });
-
 </script>
 
 <main>
@@ -37,7 +36,7 @@
         {#if startup}
           <Startup />
         {:else}
-          <LegacyCommentList />
+          <LegacyCommentView />
         {/if}
       </div>
       <div class="content-sub">
@@ -58,8 +57,8 @@
   .content {
     display: grid;
     grid-template:
-            "main" 1fr
-            "sub" auto / 1fr auto;
+      "main" 1fr
+      "sub" auto / 1fr auto;
     background-color: ghostwhite;
     height: 100%;
     overflow: hidden;
@@ -73,7 +72,7 @@
       overflow: hidden;
     }
 
-    .content-sub{
+    .content-sub {
       grid-area: sub;
       height: fit-content;
     }
