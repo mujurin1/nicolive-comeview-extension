@@ -1,11 +1,11 @@
 export * from "./NicoliveType";
 
-import { NicoliveClient, type NicoliveClientState, NicoliveDisconectReasonDescription, NicoliveWatchError, type dwango, timestampToMs } from "@mujurin/nicolive-api-ts";
+import { type dwango, NicoliveClient, type NicoliveClientState, NicoliveDisconectReasonDescription, NicoliveWatchError, timestampToMs } from "@mujurin/nicolive-api-ts";
 import { ExtMessenger } from ".";
 import { BouyomiChan } from "../function/BouyomiChan";
 import { autoUpdateCommentCss } from "../function/CssStyle.svelte";
 import { MessageStore } from "../store/MessageStore.svelte";
-import { SettingStore } from "../store/SettingStore.svelte";
+import { checkVisibleSpeachType_Speach, SettingStore } from "../store/SettingStore.svelte";
 import { StorageUserStore } from "../store/StorageUserStore.svelte";
 import { timeString } from "../utils";
 import { NicoliveMessage, NicoliveUser, type SystemMessageType } from "./NicoliveType";
@@ -181,25 +181,31 @@ class _Nicolive {
     const message = this.createMessage(chunkedMessage);
     if (message == null) return;
 
-    if (
-      this._canSpeak && (
-        message.kind !== "user" ||
-        !(SettingStore.state.general.hideSharp && message.includeSharp)
-      )
-    ) {
-      let name: string | undefined;
-      if (message.kind !== "system") {
-        const storeUser = message.extUser.storageUser;
-        if (SettingStore.state.general.useYobina && storeUser.yobina != null) name = storeUser.yobina;
-        else if (SettingStore.state.yomiage.speachNames.コテハン && SettingStore.state.general.useKotehan && storeUser.kotehan != null) name = storeUser.kotehan;
-        else if (SettingStore.state.yomiage.speachNames.コメ番 && SettingStore.state.general.nameToNo && message.extUser?.noName184 != null) name = message.extUser.noName184;
-        else if (SettingStore.state.yomiage.speachNames.ユーザー名 && storeUser.name != null) name = storeUser.name;
-      }
-      void BouyomiChan.speak(message.content, name);
-    }
+    this.speach(message);
 
     MessageStore.messages.push(message);
   };
+
+  private speach(message: NicoliveMessage) {
+    if (!this._canSpeak) return;
+    if (message.kind === "user") {
+      if (SettingStore.state.general.hideSharp && message.includeSharp) return;
+      if (message.is184 && !checkVisibleSpeachType_Speach(SettingStore.state.nicolive.visibleAndYomiage["184"])) return;
+    } else if (message.kind === "system") {
+      const check = SettingStore.state.nicolive.visibleAndYomiage.system[message.systemMessageType];
+      if (!checkVisibleSpeachType_Speach(check)) return;
+    }
+
+    let name: string | undefined;
+    if (message.kind !== "system") {
+      const storeUser = message.extUser.storageUser;
+      if (SettingStore.state.general.useYobina && storeUser.yobina != null) name = storeUser.yobina;
+      else if (SettingStore.state.yomiage.speachNames.コテハン && SettingStore.state.general.useKotehan && storeUser.kotehan != null) name = storeUser.kotehan;
+      else if (SettingStore.state.yomiage.speachNames.コメ番 && SettingStore.state.general.nameToNo && message.extUser?.noName184 != null) name = message.extUser.noName184;
+      else if (SettingStore.state.yomiage.speachNames.ユーザー名 && storeUser.name != null) name = storeUser.name;
+    }
+    void BouyomiChan.speak(message.content, name);
+  }
 
   private readonly onMessageOld = (chunkedMessages: dwango.ChunkedMessage[]) => {
     const messages: NicoliveMessage[] = [];
@@ -258,8 +264,12 @@ class _Nicolive {
           content += `${giftUser}さんがギフト「${itemName}（${point}pt）」を贈りました`;
         } else if (data.case === "simpleNotification") {
           if (data.value.message.case == null) return;
-          type = "gift";
-          content = data.value.message.value;
+          const message = data.value.message;
+          if (message.case === "rankingIn" || message.case === "rankingUpdated")
+            type = "ranking";
+          else
+            type = message.case;
+          content = message.value;
         } else
           return;
         return builder.system(content, type);
@@ -309,6 +319,8 @@ class _Nicolive {
 
     // this.messages から返すことで svelte の更新のルールに則る
     user = this.users[user.storageUser.id];
+    if (StorageUserStore.nicolive.users[user.storageUser.id] != null)
+      user.storageUser = StorageUserStore.nicolive.users[user.storageUser.id];
 
     if (no != null && (user.firstNo == null || no < user.firstNo)) {
       user.firstNo = no;

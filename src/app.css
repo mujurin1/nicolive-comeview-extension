@@ -68,7 +68,7 @@ fieldset {
   width: 100%;
   line-height: 0;
 
-  margin: 8px 0 3px 0;
+  margin: 10px 0 3px 0;
   padding: 0;
 
   &>legend {
@@ -106,25 +106,27 @@ fieldset {
   color: crimson;
 }
 
-
 .line {
-  display: grid;
-  grid-template:
-    "a b" auto
-    ". c" auto / auto 1fr;
-  column-gap: 13px;
   align-items: center;
 
-  &>*:nth-child(1) {
-    grid-area: a;
-  }
+  &:has(> :nth-child(2)) {
+    display: grid;
+    grid-template:
+      "a b" auto
+      ". c" auto / auto 1fr;
+    column-gap: 13px;
 
-  &>*:nth-child(2) {
-    grid-area: b;
-  }
+    &>*:nth-child(1) {
+      grid-area: a;
+    }
 
-  &>*:nth-child(3) {
-    grid-area: c;
+    &>*:nth-child(2) {
+      grid-area: b;
+    }
+
+    &>*:nth-child(3) {
+      grid-area: c;
+    }
   }
 }
 
@@ -142,10 +144,12 @@ fieldset {
     margin-left: -5px;
   }
 
+  /* 取得済みのコメントに影響しない項目に付ける */
   &.from-next::before {
     color: indianred;
   }
 
+  /* 他のウィンドウに共有されない項目に付ける */
   &.no-share::before {
     color: indigo;
   }

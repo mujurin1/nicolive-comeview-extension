@@ -20,6 +20,9 @@ export const PlatformsId = {
    */
   nicolive: "nicolive",
 } as const;
+export type PlatformsId = typeof PlatformsId[keyof typeof PlatformsId];
+export const PlatformsIds = Object.keys(PlatformsId) as (keyof typeof PlatformsId)[];
+
 
 // 放送サイトのユーザー・メッセージ型
 export type ExtUesr = NicoliveUser;
@@ -90,16 +93,6 @@ export type ExtMessageType<
     : never
   );
 
-/**
- * メッセージに含まれる主に装飾やコメントビューが必要とするデータ
- */
-export interface ExtMessageDeco {
-}
-
-
-
-export type PlatformsId = typeof PlatformsId[keyof typeof PlatformsId];
-export const PlatformsIds = Object.keys(PlatformsId) as (keyof typeof PlatformsId)[];
 
 /**
  * メッセージ投稿者の種別

@@ -20,55 +20,59 @@
   <label class="explanation no-share" for="is-speach">コメントを読み上げる</label>
 </div>
 
-<fieldset class:highlight={highlightItems.includes("yomiage-name")}>
-  <legend>名前の読み上げ位置</legend>
-  <select bind:value={$settingViewStore.yomiage.isSpeachName}>
-    <option value="none">読み上げない</option>
-    <option value="mae">コメントの前</option>
-    <option value="ato">コメントの後</option>
-  </select>
-</fieldset>
+<div class="line">
+  <fieldset class:highlight={highlightItems.includes("yomiage-name")}>
+    <legend>名前の読み上げ位置</legend>
+    <select bind:value={$settingViewStore.yomiage.isSpeachName}>
+      <option value="none">読み上げない</option>
+      <option value="mae">コメントの前</option>
+      <option value="ato">コメントの後</option>
+    </select>
+  </fieldset>
+</div>
 
-<div>
-  <fieldset class:highlight={highlightItems.includes("yomiage-type")}>
-    <legend>読み上げる名前のタイプ (右側の項目を優先します)</legend>
+<div class="line">
+  <div>
+    <fieldset class:highlight={highlightItems.includes("yomiage-type")}>
+      <legend>読み上げる名前のタイプ (右側の項目を優先します)</legend>
 
-    <div style="display: flex;">
-      {#each SpeachNameItems as speachNameType (speachNameType)}
-        {@const selected = $settingViewStore.yomiage.speachNames[speachNameType]}
+      <div class="select-area">
+        {#each SpeachNameItems as speachNameType (speachNameType)}
+          {@const selected = $settingViewStore.yomiage.speachNames[speachNameType]}
+          <button
+            class="select-btn"
+            data-selected={selected}
+            type="button"
+            onclick={() => ($settingViewStore.yomiage.speachNames[speachNameType] = !selected)}
+          >
+            {speachNameType}
+          </button>
+        {/each}
         <button
           class="select-btn"
-          data-selected={selected}
+          data-selected={$settingViewStore.general.useYobina}
           type="button"
-          onclick={() => ($settingViewStore.yomiage.speachNames[speachNameType] = !selected)}
+          title="「一般 > 呼び名機能を使う」で変更できます"
+          disabled
         >
-          {speachNameType}
+          呼び名
         </button>
-      {/each}
-      <button
-        class="select-btn"
-        data-selected={$settingViewStore.general.useYobina}
-        type="button"
-        title="「一般 > 呼び名機能を使う」で変更できます"
-        disabled
-      >
-        呼び名
-      </button>
-    </div>
-  </fieldset>
-  {#if $settingViewStore.yomiage.speachNames["コメ番"] && !$settingViewStore.general.nameToNo}
-    <div class="hint warning">
-      ※コメ番は名前として使用されません「一般 >
-      184の表示名をコメ番にする」も有効にする必要があります
-    </div>
-  {/if}
-  {#if $settingViewStore.yomiage.speachNames["コテハン"] && !$settingViewStore.general.useKotehan}
-    <div class="hint warning">
-      ※コテハンは名前として使用されません「一般 > コテハンを使用する」も有効にする必要があります
-    </div>
-  {/if}
-  <div class="hint">呼び名は「一般 > 呼び名機能を使う」設定で切り替えられます</div>
-  <div class="hint">コメントの名前として使われる項目を選択します</div>
+      </div>
+    </fieldset>
+    {#if $settingViewStore.yomiage.speachNames["コメ番"] && !$settingViewStore.general.nameToNo}
+      <div class="hint warning">
+        ※コメ番は名前として使用されません「一般 >
+        184の表示名をコメ番にする」も有効にする必要があります
+      </div>
+    {/if}
+    {#if $settingViewStore.yomiage.speachNames["コテハン"] && !$settingViewStore.general.useKotehan}
+      <div class="hint warning">
+        ※コテハンは名前として使用されません「一般 > コテハンを使用する」も有効にする必要があります
+      </div>
+    {/if}
+    <div class="hint">呼び名は「一般 > 呼び名機能を使う」設定で切り替えられます</div>
+    <div class="hint">コメントの名前として使われる項目を選択します</div>
+  </div>
 </div>
 
 <div class="line" class:highlight={highlightItems.includes("yomiage-system")}>
@@ -108,28 +112,3 @@
 {:else if $settingViewStore.yomiage.useYomiage === "VOICEVOX"}
   <div></div>
 {/if}
-
-<style>
-  .select-btn {
-    border-radius: 0;
-    border: 2px solid black;
-    border-color: #f9f9f954;
-    color: ghostwhite;
-    font-size: 1rem;
-
-    &:not(:last-child) {
-      margin-right: 3px;
-    }
-
-    &[data-selected="true"] {
-      background-color: #4889f4;
-    }
-    &[data-selected="false"] {
-      background-color: #f2686f;
-      background-color: #888888;
-    }
-    &[disabled] {
-      filter: contrast(70%);
-    }
-  }
-</style>

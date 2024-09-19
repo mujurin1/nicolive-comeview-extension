@@ -1,13 +1,28 @@
-import { PlatformsId, type ExtMessageType, type ExtUserType } from ".";
-import { StorageUserStore } from "../store/StorageUserStore.svelte";
+import { PlatformsId, type ExtMessageType, type ExtUserType } from "./index";
 
-
+/**
+ * MEMO: 元々は`"rankingIn"` `"rankingUpdated"`があるが冗長なのでどちらも`"ranking"`として扱う
+ */
 export const SystemMessageType = [
   "nicoad", "gift", "enquete",
   // simpleNotification
-  "ichiba", "quote", "emotion", "cruise", "programExtended", "rankingIn", "rankingUpdated", "visited"
+  "ichiba", "quote", "emotion", "cruise", "programExtended", "ranking" /* "rankingIn", "rankingUpdated" */, "visited"
 ] as const;
 export type SystemMessageType = typeof SystemMessageType[number];
+export const SystemMessageTypeDisplayName = {
+  nicoad: "広告",
+  gift: "ギフト",
+  enquete: "アンケート",
+  ichiba: "放送ネタ",
+  quote: "引用",
+  emotion: "エモーション",
+  cruise: "クルーズ",
+  programExtended: "延長",
+  ranking: "ランキング",
+  // rankingIn: "ランクイン",
+  // rankingUpdated: "ランキング更新",
+  visited: "来場",
+};
 
 
 export type NicoliveMessage =
@@ -122,7 +137,7 @@ export const NicoliveUser = {
     no: number | undefined
   ) => ({
     platformId: PlatformsId.nicolive,
-    storageUser: StorageUserStore.nicolive.users[userId] ?? {
+    storageUser: {
       id: userId,
       name: name,
       kotehan: undefined,

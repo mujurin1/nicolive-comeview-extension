@@ -2,6 +2,7 @@
     import NicolivePostComment from "../components/NicolivePostComment.svelte";
     import UserSetting from "../components/UserSetting.svelte";
     import { Nicolive } from "../Platform";
+    import { SettingStore } from "../store/SettingStore.svelte";
 
   let userId = $state<string>();
 
@@ -20,7 +21,7 @@
       {@render close(() => (userId = undefined))}
       <UserSetting platformId="nicolive" {userId} noAccordion={true} />
     </div>
-  {:else if Nicolive.client != null && Nicolive.client.info.loginUser != null}
+  {:else if SettingStore.state.nicolive.showPostArea && Nicolive.client != null && Nicolive.client.info.loginUser != null}
     <NicolivePostComment />
   {/if}
 </div>

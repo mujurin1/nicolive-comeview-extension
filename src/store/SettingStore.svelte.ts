@@ -1,4 +1,5 @@
 import { storages } from "../lib/Storage";
+import { SystemMessageType } from "../Platform";
 import { safeOverwrite, type DeepReadonly } from "../utils";
 
 export const Talker = ["none", "bouyomiChan"] as const;
@@ -16,6 +17,23 @@ export type YomiageTypes = typeof YomiageTypes[number];
  */
 export const SpeachNameItems = ["ユーザー名", "コメ番", "コテハン"] as const;
 export type SpeachNameItems = typeof SpeachNameItems[number];
+
+export const VisibleSpeachType = {
+  none: 0b00,
+  visible: 0b01,
+  yomiage: 0b10,
+  all: 0b11,
+} as const;
+export type VisibleSpeachType = typeof VisibleSpeachType[keyof typeof VisibleSpeachType];
+export function checkVisibleSpeachType_Speach(check: VisibleSpeachType): boolean {
+  return (
+    0 !== (check & VisibleSpeachType.visible) &&
+    0 !== (check & VisibleSpeachType.yomiage)
+  );
+}
+export function checkVisibleYomiage_Visible(check: VisibleSpeachType): boolean {
+  return 0 !== (check & VisibleSpeachType.visible);
+}
 
 // MEMO: 空文字の値は CSSOM 側で無いものとして扱われるので null と "" は今は同じ挙動をしている
 export interface CommentFormat {
@@ -105,6 +123,12 @@ export interface SettingState {
       id: string;
       description: string;
     }[];
+    showPostArea: boolean,
+    post184: boolean;
+    visibleAndYomiage: {
+      system: { [K: SystemMessageType[number]]: VisibleSpeachType; };
+      "184": VisibleSpeachType;
+    };
   };
 }
 
@@ -160,6 +184,18 @@ export const SettingState: DeepReadonly<SettingState> = {
   },
   nicolive: {
     pinnLives: [] as { id: string, description: string; }[],
+    showPostArea: true,
+    post184: true,
+    visibleAndYomiage: {
+      system: SystemMessageType.reduce<SettingState["nicolive"]["visibleAndYomiage"]["system"]>(
+        (current, type) => ({
+          ...current,
+          [type]: VisibleSpeachType.all,
+        }),
+        {},
+      ),
+      "184": VisibleSpeachType.all,
+    }
   },
 } as const;
 
@@ -208,7 +244,11 @@ export const SettingStore: SettingStore = (() => {
  * ウィンドウ間で共有しない値を `undefined` にして変更されないようにする
  */
 function unsetNotChangeProperty(data: Partial<SettingState>) {
-  if (data.yomiage?.isSpeak !== undefined) {
+  if (data.yomiage !== undefined) {
     data.yomiage.isSpeak = undefined!;
+  }
+  if (data.nicolive !== undefined) {
+    data.nicolive.showPostArea = undefined!;
+    data.nicolive.post184 = undefined!;
   }
 }

@@ -16,11 +16,12 @@
   import Tab from "../../components/Tab.svelte";
   import AdvancedSetting from "./AdvancedSetting.svelte";
   import GeneralSetting from "./GeneralSetting.svelte";
+  import NicoliveSetting from "./NicoliveSetting.svelte";
   import UsersSetting from "./UsersSetting.svelte";
   import ViewSetting from "./ViewSetting.svelte";
   import YomiageSetting from "./YomiageSetting.svelte";
 
-  const names = ["一般", "読み上げ", "リスナー", "コメント表示", "フィードバック", "Advanced"] as const;
+  const names = ["一般", "読み上げ", "ニコ生", "リスナー", "コメント表示", "フィードバック", "Advanced"] as const;
   type TabNames = typeof names[number];
   
   let currentTab = $state<TabNames>("一般");
@@ -66,6 +67,8 @@
               <GeneralSetting bind:highlightItems />
             {:else if tabId === "読み上げ"}
               <YomiageSetting bind:highlightItems />
+            {:else if tabId === "ニコ生"}
+              <NicoliveSetting bind:highlightItems />
             {:else if tabId === "リスナー"}
               <UsersSetting bind:serchQuery/>
             {:else if tabId === "コメント表示"}
@@ -180,6 +183,35 @@
 
       :global(& > *:not(:last-child)) {
         margin-bottom: 15px;
+      }
+    }
+  }
+
+  :global(.select-area) {
+    display: flex;
+    flex-wrap: wrap;
+    
+    :global(.select-btn) {
+      text-wrap: nowrap;
+      
+      border-radius: 0;
+      border: 2px solid black;
+      border-color: #f9f9f954;
+      color: ghostwhite;
+      font-size: 1rem;
+
+      :global(&:not(:last-child)) {
+        margin-right: 3px;
+      }
+
+      :global(&[data-selected="true"]) {
+        background-color: #4889f4;
+      }
+      :global(&[data-selected="false"]) {
+        background-color: #888;
+      }
+      :global(&[disabled]) {
+        filter: contrast(50%);
       }
     }
   }

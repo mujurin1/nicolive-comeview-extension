@@ -11,7 +11,7 @@
   import { getCssClassNameFromMessage } from "../function/CssStyle.svelte";
   import { type ExtentionMessage, type ExtUserType, type NicoliveMessage, type NicoliveUser } from "../Platform";
   import { MessageStore } from "../store/MessageStore.svelte";
-  import { SettingStore } from "../store/SettingStore.svelte";
+  import { checkVisibleYomiage_Visible, SettingStore } from "../store/SettingStore.svelte";
   import LegacyCommentViewItem from "./LegacyCommentViewItem.svelte";
 
   let listView: HTMLDivElement;
@@ -37,6 +37,17 @@
     if(SettingStore.state.general.nameToNo && user.noName184 != null)
       return user.noName184;
     return user.storageUser.id;
+  }
+
+  function checkVisible(message: NicoliveMessage): boolean {
+    if (message.kind === "owner") return true;
+    else if (message.kind === "user") {
+      if (!message.is184) return true;
+      return checkVisibleYomiage_Visible(SettingStore.state.nicolive.visibleAndYomiage["184"]);
+    } else {
+      const check = SettingStore.state.nicolive.visibleAndYomiage.system[message.systemMessageType];
+      return checkVisibleYomiage_Visible(check);
+    }
   }
 </script>
 
@@ -64,6 +75,7 @@
       <LegacyCommentViewItem name={""} time={message.time}>
         {#snippet content()}
           {@render Content(message)}
+          {message.systemMessageType} {checkVisible(message)} {SettingStore.state.nicolive.visibleAndYomiage.system[message.systemMessageType]}
         {/snippet}
       </LegacyCommentViewItem>
     {:else}
@@ -106,7 +118,10 @@
 <div bind:this={listView} class="comment-list" tabindex="-1">
   {#each MessageStore.messages as message (message.id)}
     {#if message.platformId === "nicolive"}
-      {@render NicoliveMessageView(message)}
+      {@const visible = checkVisible(message)}
+      {#if visible}
+        {@render NicoliveMessageView(message)}
+      {/if}
     {:else if message.platformId === "extention"}
       {@render ExtentionMessageView(message)}
     {/if}
@@ -122,6 +137,10 @@
     &:focus {
       outline: none;
     }
+  }
+
+  .hide {
+    display: none;
   }
 
   @layer {

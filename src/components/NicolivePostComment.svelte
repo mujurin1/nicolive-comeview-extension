@@ -1,13 +1,14 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { Nicolive } from "../Platform";
+  import { SettingStore } from "../store/SettingStore.svelte";
+  import { settingViewStore } from "../view/setting/Setting.svelte";
 
   let isLogined = $state(Nicolive.client?.info?.loginUser != null);
   let isBroadcaster = $state(Nicolive.client?.info?.loginUser?.isBroadcaster);
 
   let inputCommentArea: HTMLTextAreaElement;
   let comment = $state("");
-  let isPost184 = $state(true);
   let isPostBroadcaster = $state(isBroadcaster);
   let canPostComment = $derived(isLogined && Nicolive.state === "opened");
 
@@ -29,7 +30,7 @@
     if (isPostBroadcaster) {
       void Nicolive.client!.postBroadcasterComment(comment);
     } else {
-      Nicolive.client!.postComment(comment, isPost184);
+      Nicolive.client!.postComment(comment, SettingStore.state.nicolive.post184);
     }
     comment = "";
   }
@@ -38,7 +39,12 @@
 <div class="nicolive-comment-form">
   <div class="command-area">
     <div class="line">
-      <input id="is184" type="checkbox" bind:checked={isPost184} disabled={isPostBroadcaster} />
+      <input
+        id="is184"
+        type="checkbox"
+        bind:checked={$settingViewStore.nicolive.post184}
+        disabled={isPostBroadcaster}
+      />
       <label class:disabled={isPostBroadcaster} for="is184">184</label>
     </div>
 
@@ -60,7 +66,11 @@
       class:broadcaster={isPostBroadcaster}
       rows="3"
       placeholder={`${
-        isPostBroadcaster ? "生主" : isPost184 ? "184" : Nicolive.client?.info.loginUser?.name
+        isPostBroadcaster
+          ? "生主"
+          : $settingViewStore.nicolive.post184
+            ? "184"
+            : Nicolive.client?.info.loginUser?.name
       } として投稿\n\n  Enter で投稿  Shift+Enter で改行`}
       bind:value={comment}
       disabled={!canPostComment}
