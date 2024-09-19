@@ -38,7 +38,10 @@ export interface ExtUserType<PlatformId extends PlatformsId = PlatformsId> {
 /**
  * 放送サイト毎に実装する必要のあるコメントインターフェース
  */
-export type ExtMessageType<PlatformId extends PlatformsId = PlatformsId> =
+export type ExtMessageType<
+  PlatformId extends PlatformsId = PlatformsId,
+  UserKind extends ExtUserKind = ExtUserKind,
+> =
   {
     platformId: PlatformId;
     /**
@@ -71,14 +74,23 @@ export type ExtMessageType<PlatformId extends PlatformsId = PlatformsId> =
      */
     includeSharp: boolean;
   } & (
-    | {
+    UserKind extends "system" ? {
       /** メッセージ投稿者の種別 */
-      kind: "system";
-      extUser: undefined;
+      kind: UserKind;
+      includeSharp: false;
     }
-    | {
-      kind: "owner" | "user";
+    : UserKind extends "owner" ? {
+      kind: UserKind;
       extUser: ExtUesr & { platformId: PlatformId; };
+      includeSharp: false;
+    }
+    : UserKind extends "user" ? {
+      kind: UserKind;
+      extUser: ExtUesr & { platformId: PlatformId; };
+    }
+    : {
+      kind: UserKind;
+      extUser: undefined | (ExtUesr & { platformId: PlatformId; });
     }
   );
 
@@ -96,19 +108,4 @@ export const PlatformsIds = Object.keys(PlatformsId) as (keyof typeof PlatformsI
 /**
  * メッセージ投稿者の種別
  */
-export const ExtUserKind = {
-  /**
-   * 配信サイトの運営/システムメッセージ\
-   * システムメッセージはユーザーデータを持たない
-   */
-  system: "system",
-  /**
-   * その放送の放送者
-   */
-  owner: "owner",
-  /**
-   * リスナー
-   */
-  user: "user",
-} as const;
-export type ExtUserKind = typeof ExtUserKind[keyof typeof ExtUserKind];;
+export type ExtUserKind = "system" | "owner" | "user";

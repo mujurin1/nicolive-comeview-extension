@@ -12,7 +12,6 @@ class _ExtMessenger {
       messageId: (MessageStore.messages.length + 1) + "",
       kind: "system",
       liveId: "extention",
-      extUser: undefined,
 
 
       content: message,

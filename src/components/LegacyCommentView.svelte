@@ -51,7 +51,7 @@
 {/snippet}
 
 {#snippet NicoliveMessageView(message: NicoliveMessage)}
-  {@const isFirst = message.no != null && message.extUser?.firstNo === message.no}
+  {@const isFirst = message.kind === "user" && message.no != null && message.extUser?.firstNo === message.no}
   {@const hideSharp = SettingStore.state.general.hideSharp && message.includeSharp}
   <div
     class={`comment cm-default ${getCssClassNameFromMessage(message)}`}
@@ -61,7 +61,7 @@
     {#if hideSharp}
       <LegacyCommentViewItem no={message.no} time={message.time} content={"#シャープ#"} />
     {:else if message.kind === "system"}
-      <LegacyCommentViewItem no={message.no} time={message.time}>
+      <LegacyCommentViewItem name={""} time={message.time}>
         {#snippet content()}
           {@render Content(message)}
         {/snippet}
