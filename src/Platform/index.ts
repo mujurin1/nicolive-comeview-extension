@@ -75,7 +75,6 @@ export type ExtMessageType<
     includeSharp: boolean;
   } & (
     UserKind extends "system" ? {
-      /** メッセージ投稿者の種別 */
       kind: UserKind;
       includeSharp: false;
     }
@@ -88,10 +87,7 @@ export type ExtMessageType<
       kind: UserKind;
       extUser: ExtUesr & { platformId: PlatformId; };
     }
-    : {
-      kind: UserKind;
-      extUser: undefined | (ExtUesr & { platformId: PlatformId; });
-    }
+    : never
   );
 
 /**

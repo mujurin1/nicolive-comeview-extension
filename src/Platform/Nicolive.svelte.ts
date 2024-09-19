@@ -1,6 +1,6 @@
 export * from "./NicoliveType";
 
-import { NicoliveClient, type NicoliveClientState, NicoliveWatchError, type dwango, timestampToMs } from "@mujurin/nicolive-api-ts";
+import { NicoliveClient, type NicoliveClientState, NicoliveDisconectReasonDescription, NicoliveWatchError, type dwango, timestampToMs } from "@mujurin/nicolive-api-ts";
 import { ExtMessenger } from ".";
 import { BouyomiChan } from "../function/BouyomiChan";
 import { autoUpdateCommentCss } from "../function/CssStyle.svelte";
@@ -90,7 +90,10 @@ class _Nicolive {
       this.state = event;
 
       if (oldState !== "disconnected" && this.state === "disconnected") {
-        ExtMessenger.add(`切断しました. 理由:${description}`);
+        const desc = typeof description === "object"
+          ? `${description[0]}: ${NicoliveDisconectReasonDescription[description[1]!]}`
+          : description;
+        ExtMessenger.add(`切断しました. 理由:${desc}`);
       } else if (oldState === "disconnected" && this.state === "reconnecting") {
         ExtMessenger.add("再接続中です...");
       } else if (oldState === "reconnecting" && this.state === "opened") {
@@ -129,8 +132,8 @@ class _Nicolive {
 
     document.title = `${this.client.info.title} - ${this.client.info.liveId}`;
 
-    // デバッグ用
-    setDebug(this.client);
+    // // デバッグ用
+    // setDebug(this.client);
   }
 
   public close() {
@@ -368,7 +371,11 @@ function parseKotehanAndYobina(str: string): { kotehan?: string | 0; yobina?: st
 
 
 function setDebug(client: NicoliveClient) {
-  client.onState.on((event, description) => { console.log(`wsClient: ${event}  desc:${description}`); });
+  client.onState.on((event, description) => {
+    if (typeof description === "object")
+      console.log(`wsClient: ${event}  desc:${description}  ${NicoliveDisconectReasonDescription[description[1]]}`);
+    else console.log(`wsClient: ${event}  desc:${description}`);
+  });
   client.onWsState.on(event => { console.log(`wsClient: ${event}`); });
   client.onWsMessage._debugAllOn(event => { console.log("wsMsg: ", event); });
   client.onMessageState.on(event => { console.log(`commentClient: ${event}`); });
