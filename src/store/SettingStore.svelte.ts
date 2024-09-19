@@ -26,10 +26,7 @@ export const VisibleSpeachType = {
 } as const;
 export type VisibleSpeachType = typeof VisibleSpeachType[keyof typeof VisibleSpeachType];
 export function checkVisibleSpeachType_Speach(check: VisibleSpeachType): boolean {
-  return (
-    0 !== (check & VisibleSpeachType.visible) &&
-    0 !== (check & VisibleSpeachType.yomiage)
-  );
+  return check === VisibleSpeachType.all;
 }
 export function checkVisibleYomiage_Visible(check: VisibleSpeachType): boolean {
   return 0 !== (check & VisibleSpeachType.visible);

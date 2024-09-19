@@ -12,32 +12,70 @@
 
 <div class="content-box">
   <div class="content new-features">
-    <div class="title">新機能 (2024.9.11)</div>
+    <div class="title">新機能 (2024.9.XX)</div>
 
     <div class="section">
-      <div class="section-title">コメント投稿</div>
-      <div class="section-content">ブラウザでログインしているアカウントで投稿します</div>
-      <div class="section-content">※ログインしてる場合のみコメント投稿欄が表示されます</div>
+      <div class="section-title feadback-request">
+        184コメント・システムの表示/読み上げ設定を追加しました
+      </div>
+      <div class="section-content">
+        <div>
+          <button
+            class="link-button"
+            type="button"
+            onclick={() =>
+              setting.page.openHilight(
+                "ニコ生",
+                "nicolive-184-visible",
+                "nicolive-system-visible",
+                "nicolive-system-yomiage",
+              )}
+          >
+            ニコ生設定
+          </button>
+          から変更できます（アンケートも表示するようになりました）
+        </div>
+        <div>「読み上げ > システムメッセージの読み上げ」設定は無くなりました</div>
+      </div>
     </div>
 
     <div class="section">
       <div class="section-title">フィードバック</div>
-      <div class="section-content">フィードバックを送るためのGoogle Formsを開設しました</div>
       <div class="section-content">
-        <button
-          class="link-button"
-          type="button"
-          onclick={() => setting.page.openHilight("フィードバック")}
-        >
-          フィードバック
-        </button>
-        から送ることが出来ます
+        <div>フィードバックを送るためのGoogle Formsを開設しました</div>
+        <div>
+          <button
+            class="link-button"
+            type="button"
+            onclick={() => setting.page.openHilight("フィードバック")}
+          >
+            フィードバック
+          </button>
+          から送ることが出来ます
+        </div>
       </div>
     </div>
   </div>
 
   <div class="content features">
     <div class="title">機能紹介</div>
+
+    <div class="section">
+      <div class="section-title">コメント投稿</div>
+      <div class="section-content">
+        <div>ブラウザでログインしているアカウントで投稿します</div>
+        <div>
+          <button
+            class="link-button"
+            type="button"
+            onclick={() => setting.page.openHilight("ニコ生", "nicolive-show-post-area")}
+          >
+            コメント投稿欄を表示する
+          </button>
+          から表示/非表示を変更できます
+        </div>
+      </div>
+    </div>
 
     <div class="section">
       <div class="section-title">見た目のカスタマイズ</div>
@@ -158,8 +196,22 @@
       &:hover {
         border-left-color: deepskyblue;
       }
+      /* TODO: クリックしたら波紋が出るとか‥?
       &:active {
       }
+       */
     }
+  }
+
+  .feadback-request::before {
+    content: "フィードバック";
+    font-size: 0.75em;
+    font-weight: bold;
+    padding: 0 5px;
+    margin-right: 5px;
+    background-color: #e1f6fd;
+    color: #50ceda;
+    border: 2px solid;
+    border-radius: 7px;
   }
 </style>

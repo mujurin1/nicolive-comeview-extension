@@ -75,7 +75,6 @@
       <LegacyCommentViewItem name={""} time={message.time}>
         {#snippet content()}
           {@render Content(message)}
-          {message.systemMessageType} {checkVisible(message)} {SettingStore.state.nicolive.visibleAndYomiage.system[message.systemMessageType]}
         {/snippet}
       </LegacyCommentViewItem>
     {:else}

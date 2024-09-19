@@ -12,7 +12,7 @@
   </div>
 </div>
 
-<div class="line" class:highlight={highlightItems.includes("nikolive-show-post-area")}>
+<div class="line" class:highlight={highlightItems.includes("nicolive-show-post-area")}>
   <input
     type="checkbox"
     id="show-post-area"
@@ -22,15 +22,15 @@
   <div class="hint">ブラウザでログインている場合のみコメント投稿欄が表示されます</div>
 </div>
 
-<div class="line" class:highlight={highlightItems.includes("nikolive-post-184")}>
+<div class="line" class:highlight={highlightItems.includes("nicolive-post-184")}>
   <input type="checkbox" id="post-184" bind:checked={$settingViewStore.nicolive.post184} />
   <label class="explanation no-share" for="post-184">184でコメント投稿する</label>
 </div>
 
 <br />
 
-<div class="line" class:highlight={highlightItems.includes("nikolive-184-visible")}>
-  <fieldset class:highlight={highlightItems.includes("nikolive-yomiage-name")}>
+<div class="line" class:highlight={highlightItems.includes("nicolive-184-visible")}>
+  <fieldset>
     <legend>184コメントの表示/読み上げ</legend>
     <select bind:value={$settingViewStore.nicolive.visibleAndYomiage["184"]}>
       <option value={VisibleSpeachType.all}>表示する/読み上げる</option>
@@ -49,7 +49,7 @@
 </div>
 
 <div class="line">
-  <fieldset class:highlight={highlightItems.includes("nikolive-system-visible")}>
+  <fieldset class:highlight={highlightItems.includes("nicolive-system-visible")}>
     <legend>表示するシステムメッセージ</legend>
 
     <div class="select-area" style="flex-wrap: wrap;">
@@ -74,7 +74,7 @@
 </div>
 
 <div class="line">
-  <fieldset class:highlight={highlightItems.includes("nikolive-system-visible")}>
+  <fieldset class:highlight={highlightItems.includes("nicolive-system-yomiage")}>
     <legend>読み上げるシステムメッセージ</legend>
 
     <div class="select-area" style="flex-wrap: wrap;">
@@ -82,11 +82,11 @@
         {@const selected =
           0 !==
           ($settingViewStore.nicolive.visibleAndYomiage.system[systemMessageType] &
-            VisibleSpeachType.visible)}
+            VisibleSpeachType.yomiage)}
         {@const disabled =
           0 ===
           ($settingViewStore.nicolive.visibleAndYomiage.system[systemMessageType] &
-            VisibleSpeachType.yomiage)}
+            VisibleSpeachType.visible)}
         <button
           class="select-btn"
           data-selected={selected}
