@@ -340,7 +340,7 @@ class _Nicolive {
         content = data.value.message.value!;
       } else return;
     } else if (payload.case === "state") {
-      kind = "system";
+      kind = "owner";
       is184 = false;
       const operatorComment = payload.value.marquee?.display?.operatorComment;
       if (operatorComment == null) return;
