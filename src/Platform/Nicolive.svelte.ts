@@ -139,8 +139,8 @@ class _Nicolive {
 
     document.title = `${this.client.info.title} - ${this.client.info.liveId}`;
 
-    // // デバッグ用
-    // setDebug(this.client);
+    // デバッグ用
+    setDebug(this.client);
   }
 
   public close() {
@@ -340,15 +340,31 @@ class _Nicolive {
         content = data.value.message.value!;
       } else return;
     } else if (payload.case === "state") {
-      kind = "owner";
-      is184 = false;
-      const operatorComment = payload.value.marquee?.display?.operatorComment;
-      if (operatorComment == null) return;
-      userId = this.client!.info.owner.id;
-      iconUrl = parseIconUrl(userId);
-      name = this.client!.info.owner.name;
-      content = operatorComment.content!;
-      link = operatorComment.link;
+      if (payload.value.marquee != null) {
+        kind = "owner";
+        is184 = false;
+        const operatorComment = payload.value.marquee.display?.operatorComment;
+        if (operatorComment == null) return;
+        userId = this.client!.info.owner.id;
+        iconUrl = parseIconUrl(userId);
+        name = this.client!.info.owner.name;
+        content = operatorComment.content!;
+        link = operatorComment.link;
+      } else if (payload.value.enquete != null) {
+        if (payload.value.enquete.choices.length === 0) return;
+        kind = "system";
+        is184 = false;
+        const isStart = payload.value.enquete.choices[0].perMille == null;
+        content = isStart ? "【アンケート開始】" : "【アンケート結果】";
+        content += payload.value.enquete.question;
+        for (let i = 0; i < payload.value.enquete.choices.length; i++) {
+          const choice = payload.value.enquete.choices[i];
+          content += `\n　${i}:`;
+          if (choice.perMille != null) content += `${choice.perMille / 10}% `;
+          content += choice.description;
+        }
+      } else
+        return;
     } else
       return;
 

@@ -83,11 +83,11 @@
             tabindex="-1"
             onclick={() => openUserSetting(user)}
           >
-          <!-- svelte の不具合でこれがないと name が変わっても更新されない -->
-          {#key name}
-            {name}
-          {/key}
-        </div>
+            <!-- svelte の不具合でこれがないと name が変わっても更新されない -->
+            {#key name}
+              {name}
+            {/key}
+          </div>
         {/snippet}
         {#snippet content()}
           {@render Content(message)}
