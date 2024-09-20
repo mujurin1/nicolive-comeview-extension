@@ -168,7 +168,6 @@ export function getNicoliveIconUrl(userId: string, is184 = false, providerType: 
   if (providerType === "user") {
     const num = +userId;
     if (isNaN(num)) return nicoliveNoneIcon;
-
     return `https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/${Math.floor(num / 1e4)}/${userId}.jpg`;
   } else {
     return `https://secure-dcdn.cdn.nimg.jp/comch/channel-icon/128x128/${userId}.jpg`;
