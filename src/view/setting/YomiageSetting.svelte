@@ -75,11 +75,6 @@
   </div>
 </div>
 
-<div class="line" class:highlight={highlightItems.includes("yomiage-system")}>
-  <input type="checkbox" id="speak-system" bind:checked={$settingViewStore.yomiage.speachSystem} />
-  <label class="explanation" for="speak-system">システムメッセージの読み上げ</label>
-</div>
-
 <div class="line">
   <div>
     <h3 style="margin-bottom: 0;">使用する読み上げ</h3>

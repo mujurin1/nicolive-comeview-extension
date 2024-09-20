@@ -102,7 +102,6 @@ export interface SettingState {
       コメ番: boolean;
       コテハン: boolean;
     };
-    speachSystem: boolean;
   };
   bouyomiChan: {
     port: number;
@@ -153,7 +152,6 @@ export const SettingState: DeepReadonly<SettingState> = {
       "コメ番": false as boolean,
       "コテハン": true as boolean,
     } satisfies { [K in SpeachNameItems]: boolean; },
-    speachSystem: true,
   },
   bouyomiChan: {
     port: 50080,

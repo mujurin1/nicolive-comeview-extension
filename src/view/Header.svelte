@@ -109,10 +109,6 @@ ws:${Nicolive.connectWs ? "ON" : "off"} co:${Nicolive.connectComment ? "ON" : "o
       <label for="speak">読み上げ</label>
       <input type="checkbox" id="speak" bind:checked={$settingViewStore.yomiage.isSpeak} />
     </div>
-
-    <div class="head-item">
-      <a target="_blank" href="./comejene/index.html">コメジェネ</a>
-    </div>
   </div>
 
   <button class="setting-btn" type="button" onclick={() => settingPage?.switchOpen(true)}>

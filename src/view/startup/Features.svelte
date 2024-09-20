@@ -12,7 +12,7 @@
 
 <div class="content-box">
   <div class="content new-features">
-    <div class="title">新機能 (2024.9.XX)</div>
+    <div class="title">新機能 (2024.9.20)</div>
 
     <div class="section">
       <div class="section-title feadback-request">
@@ -209,9 +209,9 @@
     font-weight: bold;
     padding: 0 5px;
     margin-right: 5px;
-    background-color: #e1f6fd;
-    color: #50ceda;
-    border: 2px solid;
+    background-color: #e9f9ff;
+    color: #3079ff;
+    border: 1px solid;
     border-radius: 7px;
   }
 </style>
