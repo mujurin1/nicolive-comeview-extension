@@ -1,9 +1,8 @@
 <script lang="ts">
   import { notifierStore } from "../lib/CustomStore.svelte";
-  import { Nicolive, type PlatformsId } from "../Platform";
+  import { getNicoliveIconUrl, Nicolive, onErrorImage, type PlatformsId } from "../Platform";
   import { CommentFormat } from "../store/SettingStore.svelte";
   import { StorageUserStore, type StorageUser } from "../store/StorageUserStore.svelte";
-  import { onErrorImage, parseIconUrl } from "../utils";
   import FormatSetting from "./FormatSetting.svelte";
 
   let {
@@ -38,7 +37,7 @@
 
 {#snippet header()}
   <!-- svelte-ignore a11y_missing_attribute -->
-  <img class="header-icon" src={parseIconUrl($userS.id)} onerror={onErrorImage} />
+  <img class="header-icon" src={getNicoliveIconUrl($userS.id)} onerror={onErrorImage} />
   <div class="header-title">
     {#if typeof $userS.id === "number"}
       <div class="user-raw-id">{`${$userS.id}`}</div>

@@ -132,8 +132,8 @@ class _Nicolive {
 
     document.title = `${this.client.info.title} - ${this.client.info.liveId}`;
 
-    // // デバッグ用
-    // setDebug(this.client);
+    // デバッグ用
+    setDebug(this.client);
   }
 
   public close() {
@@ -156,6 +156,10 @@ class _Nicolive {
     this._canSpeak = false;
     await this.client.reconnect();
     this._canSpeak = true;
+  }
+
+  public getOwner(): NicoliveUser {
+    return Nicolive.users[this.client!.info.provider.id];
   }
 
   public getUser(userId: string | undefined): NicoliveUser | undefined {
@@ -279,7 +283,7 @@ class _Nicolive {
         const operatorComment = payload.value.marquee.display?.operatorComment;
         if (operatorComment == null) return;
         const content = operatorComment.content;
-        const user = this.upsertUser(this.getUser(this.client!.info.owner.id)!, content);
+        const user = this.upsertUser(this.getOwner(), content);
 
         return builder.owner(content, user, operatorComment.link);
       } else {
@@ -347,9 +351,11 @@ class _Nicolive {
   }
 
   private createOwner() {
-    const { id, name } = this.client!.info.owner;
+    const { id, name } = this.client!.info.provider;
+    if (id == null) return;
+
     this.upsertUser(
-      NicoliveUser.create(id!, false, name, undefined),
+      NicoliveUser.create(id, false, name, undefined, this.client!.info.provider.type),
       ""
     );
   }

@@ -1,3 +1,4 @@
+import type { NicoliveInfoProviderType } from "@mujurin/nicolive-api-ts";
 import { PlatformsId, type ExtMessageType, type ExtUserType } from "./index";
 
 /**
@@ -41,7 +42,8 @@ export type NicoliveMessage =
     });
 
 export interface NicoliveUser extends ExtUserType<"nicolive"> {
-  firstNo?: number;
+  providerType: NicoliveInfoProviderType;
+  firstNo: number | undefined;
   is184: boolean;
   /** 184のコメ番名. 184のみ値が入る */
   noName184?: string;
@@ -98,7 +100,7 @@ export const NicoliveMessage = {
     content,
     link: link ?? getLink(content),
     extUser,
-    iconUrl: getNicoliveIconUrl(extUser.storageUser.id, false),
+    iconUrl: getNicoliveIconUrl(extUser.storageUser.id, false, extUser.providerType),
     no: undefined,
     includeSharp: false,
   }),
@@ -134,8 +136,10 @@ export const NicoliveUser = {
     userId: string,
     is184: boolean,
     name: string | undefined,
-    no: number | undefined
-  ) => ({
+    no: number | undefined,
+    providerType: NicoliveInfoProviderType = "user",
+  ): NicoliveUser => ({
+    providerType,
     platformId: PlatformsId.nicolive,
     storageUser: {
       id: userId,
@@ -151,13 +155,24 @@ export const NicoliveUser = {
 
 
 export const nicoliveNoneIcon = "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/defaults/blank.jpg";
-export function getNicoliveIconUrl(userId: string, is184: boolean) {
+
+export function onErrorImage(e: Event): void {
+  const img = e.currentTarget as HTMLImageElement;
+  if (img.src === nicoliveNoneIcon) return;
+  img.src = nicoliveNoneIcon;
+}
+
+export function getNicoliveIconUrl(userId: string, is184 = false, providerType: NicoliveInfoProviderType = "user"): string {
   if (is184) return nicoliveNoneIcon;
 
-  const num = +userId;
-  if (isNaN(num)) return nicoliveNoneIcon;
+  if (providerType === "user") {
+    const num = +userId;
+    if (isNaN(num)) return nicoliveNoneIcon;
 
-  return `https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/${Math.floor(num / 1e4)}/${userId}.jpg`;
+    return `https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/${Math.floor(num / 1e4)}/${userId}.jpg`;
+  } else {
+    return `https://secure-dcdn.cdn.nimg.jp/comch/channel-icon/128x128/${userId}.jpg`;
+  }
 }
 
 function testIncludeSharp(text: string): boolean {

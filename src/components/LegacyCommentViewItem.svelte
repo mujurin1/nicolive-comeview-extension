@@ -1,7 +1,7 @@
 
 <script lang="ts">
   import type { Snippet } from "svelte";
-  import { onErrorImage } from "../utils";
+  import { onErrorImage } from "../Platform";
 
   let { no, iconUrl, name, time, content }: {
     no?: number;

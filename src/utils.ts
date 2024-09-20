@@ -1,6 +1,3 @@
-
-export const iconNone = "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/defaults/blank.jpg";
-
 export function timeString(ms: number): string {
   const sign = ms < 0 ? "-" : "";
 
@@ -14,18 +11,6 @@ export function timeString(ms: number): string {
 
 function pad(num: number): string {
   return `00${num}`.slice(-2);
-}
-
-export function onErrorImage(e: Event) {
-  const img = e.currentTarget as HTMLImageElement;
-  if (img.src === iconNone) return;
-  img.src = iconNone;
-}
-
-export function parseIconUrl(userId?: string) {
-  const num = +userId!;
-  if (isNaN(num)) return iconNone;
-  return `https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/${Math.floor(num / 1e4)}/${userId}.jpg`;
 }
 
 export type DeepReadonly<T> = {
