@@ -40,6 +40,17 @@
     </div>
 
     <div class="section">
+      <div class="section-title">ニコニ・コモンズ</div>
+      <div class="section-content">
+        <div>
+          <a href="TODO" target="_blank">ニコニ・コモンズ</a>
+          へこのアプリを登録しました
+        </div>
+        <div>親作品登録や権利表記などは任意です</div>
+      </div>
+    </div>
+
+    <div class="section">
       <div class="section-title">フィードバック</div>
       <div class="section-content">
         <div>フィードバックを送るためのGoogle Formsを開設しました</div>

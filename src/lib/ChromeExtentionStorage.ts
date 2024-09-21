@@ -134,6 +134,15 @@ function onChanged(changed: Record<string, chrome.storage.StorageChange>) {
     const itemName = parsed[1];
 
     if (key in saveBookingData) {
+      // saveBookingData はこれから保存しようとしているデータ
+      // つまり同じデータへ書き込みしようとして競合が発生する
+      // そのためこのコード行で
+      // 1. 待機中の自身の保存しようとしているデータから削除
+      //    delete saveBookingData[key];
+      // 2. 受け取ったデータを無視して保存しようとしているデータを優先
+      //    continue;
+      // のどちらかを実行する必要がある
+
       // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
       delete saveBookingData[key];
     }
