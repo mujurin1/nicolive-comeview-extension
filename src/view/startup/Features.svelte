@@ -12,10 +12,13 @@
 
 <div class="content-box">
   <div class="content bug-fix">
-    <div class="title">不具合修正 (2024.9.23)</div>
+    <div class="title">既知の不具合 (2024.9.20 ~ )</div>
 
     <div class="section">
-      <div class="section-title">コテハン・呼び名が正常に登録出来ない不具合修正</div>
+      <div class="section-title">(修正済み) コテハン・呼び名が正常に登録出来ない不具合修正</div>
+      <div class="section-title">
+        (調査中) 再接続後に過去コメントの取得をすると拡張機能毎停止する事がある
+      </div>
     </div>
   </div>
 

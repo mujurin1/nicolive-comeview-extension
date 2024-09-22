@@ -132,8 +132,8 @@ class _Nicolive {
 
     document.title = `${this.client.info.title} - ${this.client.info.liveId}`;
 
-    // デバッグ用
-    setDebug(this.client);
+    // // デバッグ用
+    // setDebug(this.client);
   }
 
   public close() {
