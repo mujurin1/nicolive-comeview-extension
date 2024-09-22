@@ -11,6 +11,14 @@
 </script>
 
 <div class="content-box">
+  <div class="content bug-fix">
+    <div class="title">不具合修正 (2024.9.23)</div>
+
+    <div class="section">
+      <div class="section-title">コテハン・呼び名が正常に登録出来ない不具合修正</div>
+    </div>
+  </div>
+
   <div class="content new-features">
     <div class="title">新機能 (2024.9.20)</div>
 
@@ -43,7 +51,7 @@
       <div class="section-title">ニコニ・コモンズ</div>
       <div class="section-content">
         <div>
-          <a href="TODO" target="_blank">ニコニ・コモンズ</a>
+          <a href="https://commons.nicovideo.jp/works/nc372441" target="_blank">ニコニ・コモンズ</a>
           へこのアプリを登録しました
         </div>
         <div>親作品登録や権利表記などは任意です</div>
@@ -167,8 +175,10 @@
   }
 
   .title {
-    font-size: 1.5rem;
-    margin: 0 0 10px 10px;
+    font-size: 1.5em;
+    /* margin: 0 0 10px 10px; */
+    margin-bottom: 10px;
+    text-align: center;
     font-weight: bold;
   }
 
@@ -177,6 +187,31 @@
 
     .title {
       color: #42a1ff;
+    }
+  }
+
+  .bug-fix {
+    background-color: #e5e8f5;
+    font-size: 0.85em;
+
+    .title {
+      font-size: 1.5em;
+      color: #7c7c7c;
+      margin-bottom: 0;
+    }
+  }
+
+  .features {
+    .section {
+      border-left: 2px solid #00bfff85;
+
+      &:hover {
+        border-left-color: deepskyblue;
+      }
+      /* TODO: クリックしたら波紋が出るとか‥?
+      &:active {
+      }
+       */
     }
   }
 
@@ -197,20 +232,6 @@
       & > div {
         text-indent: -1em;
       }
-    }
-  }
-
-  .features {
-    .section {
-      border-left: 2px solid #00bfff85;
-
-      &:hover {
-        border-left-color: deepskyblue;
-      }
-      /* TODO: クリックしたら波紋が出るとか‥?
-      &:active {
-      }
-       */
     }
   }
 

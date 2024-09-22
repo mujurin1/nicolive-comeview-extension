@@ -1,12 +1,21 @@
 <script lang="ts" generics="Name extends string">
   import type { Snippet } from "svelte";
 
-  let { names, currentTab = $bindable(), content, switchedTab }: {
-    names: readonly Name[];
+  type NameDisplay = readonly (readonly [Name, string])[];
+
+  let { names, currentTab = $bindable(), header, content, switchedTab }: {
+    names: readonly Name[] | NameDisplay;
     currentTab: Name;
+    header?: Snippet;
     content: Snippet<[Name]>;
     switchedTab?: (newTab: Name) => void;
   } = $props();
+
+  const _names = $derived(
+    typeof names[0] === "string"
+      ? names.map(name => [name, name] as const) as NameDisplay
+      : names as NameDisplay
+  );
 
   function tabSwitch(newTab: Name) {
     if (currentTab === newTab) return;
@@ -17,9 +26,11 @@
 
 <div class="tab">
   <div class="tab-header" role="tablist">
-    {#each names as tabName (tabName)}
-      {@const selected = tabName === currentTab}
-      <button class="tab-name" class:selected={selected} type="button" onclick={() => tabSwitch(tabName)}>{tabName}</button>
+    {#each _names as [name, displayName] (name)}
+      {@const selected = name === currentTab}
+      <button class={`tab-name ${name}`} class:selected={selected} type="button" onclick={() => tabSwitch(name)}>
+        {displayName}
+      </button>
     {/each}
   </div>
 

@@ -144,7 +144,7 @@
     }
   }
 
-  * {
+  .mordal-body {
     :global(.tab-header) {
       margin-right: 70px;
 
