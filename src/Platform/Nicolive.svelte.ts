@@ -377,11 +377,11 @@ function parseKotehanAndYobina(str: string): { kotehan?: string | 0; yobina?: st
   const reg = /[@＠](\s|[^\s@＠]+)?[^@＠]*(?:[@＠](\s|[^\s@＠]+))?/.exec(str);
   if (reg == null) return undefined;
 
-  if (SettingStore.state.general.useKotehan && reg[0] != null)
-    kotehan = /\s/.test(reg[0]) ? 0 : reg[0];
-  if (SettingStore.state.general.useYobina && reg[1] != null)
-    yobina = /\s/.test(reg[1]) ? 0 : reg[1];
-
+  const [, kote, yobi] = reg;
+  if (SettingStore.state.general.useKotehan && kote != null)
+    kotehan = /\s/.test(kote) ? 0 : kote;
+  if (SettingStore.state.general.useYobina && yobi != null)
+    yobina = /\s/.test(yobi) ? 0 : yobi;
 
   if (kotehan == null && yobina == null) return undefined;
   return { kotehan, yobina };
