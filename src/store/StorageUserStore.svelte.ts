@@ -1,4 +1,4 @@
-import { EventEmitter, type IEventEmitter } from "@mujurin/nicolive-api-ts";
+import { type IEventEmitter, EventEmitter } from "../lib/EventEmitter";
 import { storages } from "../lib/Storage";
 import type { PlatformsId } from "../Platform";
 import type { DeepReadonly } from "../utils";

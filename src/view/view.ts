@@ -1,6 +1,5 @@
-import type Additional from "./Additional.svelte";
-import type Setting from "./setting/Setting.svelte";
-
+import  Additional from "./Additional.svelte";
+import  Setting from "./setting/Setting.svelte";
 
 let additionalPage: Additional;
 export const additional = {

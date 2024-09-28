@@ -20,11 +20,7 @@
     additional.page = additionalPage;
   });
 
-  let startup = $state(true);
-
-  $effect(() => {
-    if (startup && Nicolive.state === "opened") startup = false;
-  });
+  let startup = $derived(Nicolive.state === "none")
 </script>
 
 <main>

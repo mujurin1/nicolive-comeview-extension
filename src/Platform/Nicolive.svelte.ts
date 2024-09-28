@@ -1,13 +1,13 @@
 export * from "./NicoliveType";
 
-import { type dwango, NicoliveClient, type NicoliveClientState, NicoliveDisconectReasonDescription, NicoliveWatchError, timestampToMs } from "@mujurin/nicolive-api-ts";
-import { ExtMessenger } from ".";
+import { type dwango, getNicoliveId, type INicoliveServerConnector, isAbortError, type NicoliveMessageServerConnector, type NicolivePageData, NicoliveUtility, type NicoliveWsServerConnector, sleep, timestampToMs } from "@mujurin/nicolive-api-ts";
 import { BouyomiChan } from "../function/BouyomiChan";
 import { autoUpdateCommentCss } from "../function/CssStyle.svelte";
 import { MessageStore } from "../store/MessageStore.svelte";
 import { checkVisibleSpeachType_Speach, SettingStore } from "../store/SettingStore.svelte";
 import { StorageUserStore } from "../store/StorageUserStore.svelte";
 import { timeString } from "../utils";
+import { ExtMessenger } from "./Extention.svelte";
 import { NicoliveMessage, NicoliveUser, type SystemMessageType } from "./NicoliveType";
 
 
@@ -16,17 +16,16 @@ class _Nicolive {
   private _canSpeak = false;
   /** ストアを監視してCSSを更新する機能のクリーンアップ関数 */
   private _cleanupAutoUpdateComentCss: (() => void)[] = [];
+  // private client: NicoliveClient;
+  // private erroredDelayGenerator = delayMsGenerator();
 
-  public state = $state<"none" | NicoliveClientState>("none");
-  public connectWs = $state(false);
-  public connectComment = $state(false);
+  public state = $state<"none" | "connecting" | "opened" | "reconnecting" | "closed">("none");
+  public pageData = $state<NicolivePageData>();
+  private wsServerConnector: NicoliveWsServerConnector | undefined;
+  private msgServerConnector: NicoliveMessageServerConnector | undefined;
+  private fetchingBackwardAborter: AbortController | undefined;
 
   public url = $state("");
-  public errorMessages = $state<string[]>([]);
-
-  public client = $state<NicoliveClient>();
-
-
   /**
    * 接続している放送単位でのユーザーの情報を管理する\
    * システムメッセージのコメントのユーザーは管理しない
@@ -37,7 +36,7 @@ class _Nicolive {
   /**
    * 過去メッセージを取得可能か (全て取得しているか)
    */
-  public canFetchBackwaardMessage = $state(false);
+  public canFetchBackwaardMessage = $state(true);
   /**
    * 過去コメントを取得中か
    */
@@ -58,127 +57,176 @@ class _Nicolive {
     });
   }
 
+  /**
+   * 放送に接続します
+   * @returns 
+   */
   public async connect() {
-    if (!this.url) return;
-    if (!(this.state === "none" || this.state === "disconnected")) return;
-
-    this.cleanup();
+    if (this.state !== "none" && this.state !== "closed") return;
+    if (!this.fixUrl()) return;
 
     this.state = "connecting";
+    ExtMessenger.add("せつぞくちゅ～");
 
     try {
-      this.client = await NicoliveClient.create(this.url, "now", SettingStore.state.general.fetchConnectingBackward ? 1 : 0, false);
+      await this.setupConnector();
+
+      this.state = "opened";
+      if (SettingStore.state.general.fetchConnectingBackward)
+        await this.fetchBackword(1);
+
+      await this.connectReaderWaitAnyClose();
     } catch (e) {
-      this.state = "disconnected";
-      if (e instanceof NicoliveWatchError) {
-        this.errorMessages.push(e.message);
-      } else if (e instanceof Error && e.message === "Failed to fetch") {
-        this.errorMessages.push("インターネットと接続されていません");
-      } else {
-        this.errorMessages.push("不明なエラーが発生しました");
-        throw e;
-      }
-
-      return;
+      // TODO: 例外メッセージの通知
+      throw e;
+    } finally {
+      this.close();
     }
-
-    this.url = this.client.info.liveId;
-    this.createOwner();
-
-    this.client.onState.on((event, description) => {
-      const oldState = this.state;
-      this.state = event;
-
-      if (oldState !== "disconnected" && this.state === "disconnected") {
-        const desc = typeof description === "object"
-          ? `${description[0]}: ${NicoliveDisconectReasonDescription[description[1]!]}`
-          : description;
-        ExtMessenger.add(`切断しました. 理由:${desc}`);
-      } else if (oldState === "disconnected" && this.state === "reconnecting") {
-        ExtMessenger.add("再接続中です...");
-      } else if (oldState === "reconnecting" && this.state === "opened") {
-        ExtMessenger.add("再接続しました");
-      }
-    });
-    this.client.onLog.on("info", message => {
-      if (message.type === "reconnect") {
-        if (message.sec == null) this.errorMessages = [];
-        else this.errorMessages.push(`ネットワークエラーが発生したため再接続中です\n    待機時間: ${message.sec}秒`);
-      }
-      else this.errorMessages.push(JSON.stringify(message));
-    });
-    this.client.onLog.on("error", message => {
-      let msg = message.type;
-      if ("error" in message) msg += `\n${message.error}`;
-      this.errorMessages.push(msg);
-    });
-
-    this.client.onWsState.on(event => {
-      this.connectWs = event === "opened";
-    });
-    this.client.onMessageState.on(event => {
-      this.connectComment = event === "opened";
-    });
-
-    this.client.onMessageEntry.on(message => {
-      if (message === "segment") {
-        this._canSpeak = true;
-        this.canFetchBackwaardMessage = this.client!.canFetchBackwardMessage();
-      }
-    });
-
-    this.client.onMessage.on(this.onMessage);
-    this.client.onMessageOld.on(this.onMessageOld);
-
-    document.title = `${this.client.info.title} - ${this.client.info.liveId}`;
-
-    // // デバッグ用
-    // setDebug(this.client);
   }
 
   public close() {
-    this.client?.close();
-  }
+    if (this.state === "none" || this.state === "closed") return;
+    this.state = "closed";
 
-  public async fetchBackword(maxBackwords: number) {
-    if (this.client == null) return;
-    this.isFetchingBackwardMessage = true;
-
-    await this.client.fetchBackwardMessages(maxBackwords);
-    this.isFetchingBackwardMessage = this.client.isFetchingBackwardMessage;
-    this.canFetchBackwaardMessage = this.client.canFetchBackwardMessage();
+    this.wsServerConnector?.getAbortController()?.abort();
+    this.msgServerConnector?.getAbortController()?.abort();
   }
 
   public async reconnect() {
-    if (this.client == null) return;
-    if (this.state === "reconnecting") return;
+    if (this.state !== "none" && this.state !== "closed") return;
+    if (this.wsServerConnector == null || this.msgServerConnector == null) return;
+    this.state = "reconnecting";
 
-    this._canSpeak = false;
-    await this.client.reconnect();
-    this._canSpeak = true;
+    try {
+      await Promise.all([
+        this.wsServerConnector.reconnect(),
+        this.msgServerConnector.reconnect(),
+      ]);
+
+      this.state = "opened";
+
+      await this.connectReaderWaitAnyClose();
+    } finally {
+      this.close();
+    }
+  }
+
+  public async fetchBackword(maxBackwords: number) {
+    if (
+      this.isFetchingBackwardMessage ||
+      this.msgServerConnector == null ||
+      !this.canFetchBackwaardMessage
+    ) return;
+    this.isFetchingBackwardMessage = true;
+
+    try {
+      const obj = this.msgServerConnector.getBackwardMessages(
+        1e3, maxBackwords, false
+      );
+      if (obj == null) {
+        this.canFetchBackwaardMessage = false;
+        return;
+      }
+      this.fetchingBackwardAborter = obj.abortController;
+      const [messaages, isMoreBackwards] = await obj.messagePromise;
+      this.canFetchBackwaardMessage = isMoreBackwards;
+      this.onMessageOld(messaages);
+    } finally {
+      this.fetchingBackwardAborter = undefined;
+      this.isFetchingBackwardMessage = false;
+    }
+  }
+
+  public stopFetchBackward() {
+    this.fetchingBackwardAborter?.abort();
+  }
+
+
+  public async postBroadcasterComment(comment: string) {
+    if (this.state !== "opened") return;
+    this.pageData!.postBroadcasterComment(comment);
+  }
+  public async postComment(comment: string, isAnonymous: boolean) {
+    this.wsServerConnector!.getWsData().postComment(comment, isAnonymous);
+  }
+
+  private async setupConnector() {
+    this.pageData = await NicoliveUtility.fetchNicolivePageData(this.url);
+    if (this.pageData == null) return;
+
+    this.createOwner(this.pageData);
+
+    this.wsServerConnector = await NicoliveUtility.createWsServerConnector(this.pageData);
+    this.msgServerConnector = await this.wsServerConnector.connectMessageServer();
+  }
+
+  private async connectReaderWaitAnyClose() {
+    if (this.wsServerConnector == null || this.msgServerConnector == null) return;
+    await Promise.race([
+      this.readWsMessage(this.wsServerConnector),
+      this.readServerMessage(this.msgServerConnector),
+    ]);
+  }
+
+  private async readWsMessage(wsConnector: NicoliveWsServerConnector) {
+    const signal = wsConnector.getAbortController().signal;
+    // MEMO: この while はエラー発生時の再接続用
+    while (!signal.aborted) {
+      try {
+        const iter = wsConnector.getIterator();
+        for await (const message of iter) {
+          // message
+        }
+        // MEMO: イテレーターが終わるのは接続が終了したとき
+        break;
+      } catch (e) {
+        console.warn("readWsMessage", e);
+        if (isAbortError(e, signal)) break;
+        // TODO: エラー通知
+        console.warn("readWsMessage", e);
+        if (!await tryReconnect(wsConnector)) break;
+      }
+    }
+    console.log("readWsMessage closed");
+  }
+
+  private async readServerMessage(serverConnector: NicoliveMessageServerConnector) {
+    const signal = serverConnector.getAbortController().signal;
+    // MEMO: この while はエラー発生時の再接続用
+    while (!signal.aborted) {
+      try {
+        const iter = serverConnector.getIterator();
+        for await (const message of iter) {
+          this.onMessage(message);
+        }
+        // MEMO: イテレーターが終わるのは接続が終了したとき
+        break;
+      } catch (e) {
+        if (isAbortError(e, signal)) break;
+        // TODO: エラー通知
+        console.warn("readServerMessage", e);
+        if (!await tryReconnect(serverConnector)) break;
+      }
+    }
+  }
+
+  /**
+   * `url`を放送IDのみの文字列にします
+   * @returns 正しいURLなら`true`
+   */
+  private fixUrl() {
+    const liveId = getNicoliveId(this.url);
+    if (liveId == null) return false;
+    this.url = liveId;
+    return true;
   }
 
   public getOwner(): NicoliveUser {
-    return Nicolive.users[this.client!.info.provider.id];
+    return Nicolive.users[this.pageData!.nicoliveInfo.provider.id];
   }
 
   public getUser(userId: string | undefined): NicoliveUser | undefined {
     return Nicolive.users[userId!];
-  }
-
-  private cleanup() {
-    for (const cleanupFn of this._cleanupAutoUpdateComentCss) {
-      cleanupFn();
-    }
-
-    MessageStore.cleanup();
-    this.client?.close();
-    this._canSpeak = false;
-    this._cleanupAutoUpdateComentCss = [];
-    this.users = {};
-    this.canFetchBackwaardMessage = true;
-    this.errorMessages = [];
-    this.isFetchingBackwardMessage = false;
   }
 
   private readonly onMessage = (chunkedMessage: dwango.ChunkedMessage) => {
@@ -227,7 +275,10 @@ class _Nicolive {
     if (meta == null) return;
 
     const messageId = meta.id;
-    const time = timeString(timestampToMs(meta.at!) - this.client!.beginTime.getTime());
+    // TODO: beginTime を schedule から取った値を参照する
+    const time = timeString(
+      timestampToMs(meta.at!) - this.pageData!.beginTime * 1e3
+    );
 
     const builder = NicoliveMessage.builder(messageId, this.url, time);
 
@@ -284,8 +335,9 @@ class _Nicolive {
         if (operatorComment == null) return;
         const content = operatorComment.content;
         const user = this.upsertUser(this.getOwner(), content);
+        const name = operatorComment.name;
 
-        return builder.owner(content, user, operatorComment.link);
+        return builder.owner(content, user, name, operatorComment.link);
       } else {
         let content: string;
         let type: SystemMessageType;
@@ -350,12 +402,13 @@ class _Nicolive {
     this._cleanupAutoUpdateComentCss.push(autoUpdateCommentCss(user.storageUser.id));
   }
 
-  private createOwner() {
-    const { id, name } = this.client!.info.provider;
+  private createOwner(pageData: NicolivePageData) {
+    const info = pageData!.nicoliveInfo;
+    const { id, name } = info.provider;
     if (id == null) return;
 
     this.upsertUser(
-      NicoliveUser.create(id, false, name, undefined, this.client!.info.provider.type),
+      NicoliveUser.create(id, false, name, undefined, info.provider.type),
       ""
     );
   }
@@ -388,38 +441,59 @@ function parseKotehanAndYobina(str: string): { kotehan?: string | 0; yobina?: st
 }
 
 
-function setDebug(client: NicoliveClient) {
-  client.onState.on((event, description) => {
-    if (typeof description === "object")
-      console.log(`wsClient: ${event}  desc:${description}  ${NicoliveDisconectReasonDescription[description[1]]}`);
-    else console.log(`wsClient: ${event}  desc:${description}`);
-  });
-  client.onWsState.on(event => { console.log(`wsClient: ${event}`); });
-  client.onWsMessage._debugAllOn(event => { console.log("wsMsg: ", event); });
-  client.onMessageState.on(event => { console.log(`commentClient: ${event}`); });
-  client.onMessageEntry.on(event => { console.log(`commentEntry: ${event}`); });
-  client.onMessage.on(x);
-  client.onMessageOld.on(msgs => { x(...msgs); });
 
-  client.onLog._debugAllOn(event => { console.log("state: ", event.data[0]); });
+async function tryReconnect(connector: INicoliveServerConnector): Promise<boolean> {
+  const callFrom =
+    (new Error()).stack?.split("\n")[2].trim()
+      .split(" ")[1];
+  console.log("tryReconnect from: ", callFrom);
 
-  function x(...messages: dwango.ChunkedMessage[]) {
-    for (const { meta: _meta, payload: { value, case: _case } } of messages) {
-      const meta =
-        _meta == null
-          ? "none"
-          : {
-            ..._meta,
-            "#date": _meta.at == null ? "-" : new Date(timestampToMs(_meta.at)).toLocaleString(),
-          };
-      if (_case === "state") {
-        console.log("###", _case, meta, value);
-      } else if (_case === "signal") {
-        console.log("###", _case, meta, value);
-      } else if (_case === "message") {
-        console.log("###", _case, value.data.case, meta);
-        console.log(value.data.value);
-      }
+  const signal = connector.getAbortController().signal;
+  for (const delaySec of [5, 5, 10]) {
+    try {
+      await connector.reconnect();
+      console.log("sucsess! from: ", callFrom);
+
+      return true;
+    } catch (e) {
+      if (isAbortError(e, signal)) break;
+
+      // TODO: エラー通知
+      console.warn("tryReconnect from: ", callFrom, e);
+      console.log("wait from: ", callFrom, delaySec * 1e3);
+      await sleep(delaySec * 1e3);
     }
+  }
+  console.log("miss! from: ", callFrom);
+  return false;
+}
+
+function show_dbg(message: dwango.ChunkedMessage) {
+  const { meta: _meta, payload: { value, case: _case } } = message;
+
+  const meta =
+    _meta == null
+      ? "none"
+      : {
+        ..._meta,
+        "#date": _meta.at == null ? "-" : new Date(timestampToMs(_meta.at)).toLocaleString(),
+      };
+  if (_case === "state") {
+    console.log("###", _case, meta, value);
+  } else if (_case === "signal") {
+    console.log("###", _case, meta, value);
+  } else if (_case === "message") {
+    console.log("###", _case, value.data.case, meta);
+    console.log(value.data.value);
+  }
+}
+
+
+function* delayMsGenerator(): Generator<number, never, boolean> {
+  const delayMsArray = [5e3, 5e3, 10e3];
+  let index = 0;
+  while (true) {
+    const reset: boolean = yield index <= delayMsArray.length ? -1 : delayMsArray[index++];
+    if (reset) index = 0;
   }
 }

@@ -13,7 +13,6 @@ class _ExtMessenger {
       kind: "system",
       liveId: "extention",
 
-
       content: message,
       iconUrl: undefined,
       // time: new Date().toLocaleTimeString("ja-JP"),
@@ -21,6 +20,7 @@ class _ExtMessenger {
 
       link: undefined,
       includeSharp: false,
+      tempName: undefined,
     });
   }
 }

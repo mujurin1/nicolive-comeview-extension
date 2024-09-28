@@ -4,8 +4,8 @@
   import { SettingStore } from "../store/SettingStore.svelte";
   import { settingViewStore } from "../view/setting/Setting.svelte";
 
-  let isLogined = $state(Nicolive.client?.info?.loginUser != null);
-  let isBroadcaster = $state(Nicolive.client?.info?.loginUser?.isBroadcaster);
+  let isLogined = $state(Nicolive.pageData?.nicoliveInfo?.loginUser != null);
+  let isBroadcaster = $state(Nicolive.pageData?.nicoliveInfo?.loginUser?.isBroadcaster);
 
   let inputCommentArea: HTMLTextAreaElement;
   let comment = $state("");
@@ -28,9 +28,9 @@
 
   function postComment() {
     if (isPostBroadcaster) {
-      void Nicolive.client!.postBroadcasterComment(comment);
+      void Nicolive.postBroadcasterComment(comment);
     } else {
-      Nicolive.client!.postComment(comment, SettingStore.state.nicolive.post184);
+      Nicolive.postComment(comment, SettingStore.state.nicolive.post184);
     }
     comment = "";
   }
@@ -70,7 +70,7 @@
           ? "生主"
           : $settingViewStore.nicolive.post184
             ? "184"
-            : Nicolive.client?.info.loginUser?.name
+            : Nicolive.pageData?.nicoliveInfo.loginUser?.name
       } として投稿\n\n  Enter で投稿  Shift+Enter で改行`}
       bind:value={comment}
       disabled={!canPostComment}

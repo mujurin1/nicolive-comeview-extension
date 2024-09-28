@@ -58,8 +58,8 @@ export const NicoliveMessage = {
   ) => ({
     system: (content: string, systemMessageType: SystemMessageType, link?: string) =>
       NicoliveMessage.system(messageId, liveId, time, content, link, systemMessageType),
-    owner: (content: string, user: NicoliveUser, link?: string) =>
-      NicoliveMessage.owner(messageId, liveId, time, content, link, user),
+    owner: (content: string, user: NicoliveUser, name?: string, link?: string) =>
+      NicoliveMessage.owner(messageId, liveId, time, content, link, user, name),
     user: (content: string, user: NicoliveUser, is184: boolean, no: number | undefined, link?: string) =>
       NicoliveMessage.user(messageId, liveId, time, content, link, user, is184, no),
   }),
@@ -82,6 +82,7 @@ export const NicoliveMessage = {
     systemMessageType,
     iconUrl: undefined,
     includeSharp: false,
+    tempName: undefined,
   }),
   owner: (
     messageId: string,
@@ -90,6 +91,7 @@ export const NicoliveMessage = {
     content: string,
     link: string | undefined,
     extUser: NicoliveUser,
+    name: string | undefined,
   ): NicoliveMessage => ({
     platformId: "nicolive",
     id: `nicolive#${messageId}`,

@@ -55,7 +55,7 @@
   });
 
   let serchOptions = $state({
-    showLiveOnly: { name: "視聴中の放送", checked: Nicolive.state !== "none" },
+    showLiveOnly: { name: "視聴中の放送", checked: Nicolive.state === "opened" },
     "184Only": { name: "184のみ", checked: false },
     rawUserOnly: { name: "生IDのみ", checked: false },
     hasKotehan: { name: "コテハン", checked: false },

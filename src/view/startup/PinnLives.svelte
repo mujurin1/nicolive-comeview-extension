@@ -21,8 +21,6 @@
   }
 
   function connect(id: string) {
-    if (Nicolive.state === "connecting" || Nicolive.state === "opened") return;
-
     Nicolive.url = id;
     Nicolive.connect();
   }
