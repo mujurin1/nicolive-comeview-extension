@@ -15,7 +15,7 @@ class _Nicolive {
   /** 接続開始時の過去コメを読み上げないためのフラグ */
   private _canSpeak = false;
   /** ストアを監視してCSSを更新する機能のクリーンアップ関数 */
-  private _cleanupAutoUpdateComentCss: (() => void)[] = [];
+  private readonly _cleanupAutoUpdateComentCss: (() => void)[] = [];
   // private client: NicoliveClient;
   // private erroredDelayGenerator = delayMsGenerator();
 
@@ -192,10 +192,10 @@ class _Nicolive {
 
   public async postBroadcasterComment(comment: string) {
     if (this.state !== "opened") return;
-    this.pageData!.postBroadcasterComment(comment);
+    await this.pageData!.postBroadcasterComment(comment);
   }
   public async postComment(comment: string, isAnonymous: boolean) {
-    this.wsServerConnector!.postComment(comment, isAnonymous);
+    await this.wsServerConnector!.postComment(comment, isAnonymous);
   }
 
   private async connectReaderWaitAnyClose() {
@@ -212,7 +212,7 @@ class _Nicolive {
       const signal = wsConnector.getAbortController().signal;
       try {
         const iter = wsConnector.getIterator();
-        for await (const message of iter) {
+        for await (const _message of iter) {
           // ウェブソケットのメッセージは今は不要
           // エラーチェックのためにいてレートしている
         }
@@ -235,11 +235,11 @@ class _Nicolive {
   private async readServerMessage(serverConnector: NicoliveMessageServerConnector): Promise<void> {
     // この while はエラー発生時の再接続のため
     while (true) {
-      let signal = serverConnector.getAbortController().signal;
+      const signal = serverConnector.getAbortController().signal;
       try {
         const iter = serverConnector.getIterator();
         for await (const message of iter) {
-          // show_dbg(message);
+          // _show_dbg(message);
           this.onMessage(message);
         }
         // イテレーターが終わるのは接続が終了したとき
@@ -464,6 +464,7 @@ class _Nicolive {
           content += payload.value.enquete.question;
           for (let i = 0; i < payload.value.enquete.choices.length; i++) {
             const choice = payload.value.enquete.choices[i];
+            // eslint-disable-next-line no-irregular-whitespace
             content += `\n　${i}:`;
             if (choice.perMille != null) content += `${choice.perMille / 10}% `;
             content += choice.description;
@@ -554,7 +555,7 @@ function parseKotehanAndYobina(str: string): { kotehan?: string | 0; yobina?: st
   return { kotehan, yobina };
 }
 
-function show_dbg(message: dwango.ChunkedMessage) {
+function _show_dbg(message: dwango.ChunkedMessage) {
   const { meta: _meta, payload: { value, case: _case } } = message;
 
   const meta =

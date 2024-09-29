@@ -102,6 +102,7 @@ export const NicoliveMessage = {
     iconUrl: getNicoliveIconUrl(extUser.storageUser.id, false, extUser.providerType),
     no: undefined,
     includeSharp: false,
+    tempName: name,
   }),
   user: (
     messageId: string,
@@ -126,6 +127,7 @@ export const NicoliveMessage = {
     extUser,
     iconUrl: getNicoliveIconUrl(extUser.storageUser.id, is184),
     includeSharp: testIncludeSharp(content),
+    tempName: undefined,
   })
 } as const;
 

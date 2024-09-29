@@ -23,8 +23,8 @@
           問題が見つかった場合は
           <button
             class="link-button"
-            type="button"
             onclick={() => setting.page.openHilight("フィードバック")}
+            type="button"
           >
             フィードバック
           </button>
@@ -45,7 +45,6 @@
         <div>
           <button
             class="link-button"
-            type="button"
             onclick={() =>
               setting.page.openHilight(
                 "ニコ生",
@@ -53,6 +52,7 @@
                 "nicolive-system-visible",
                 "nicolive-system-yomiage",
               )}
+            type="button"
           >
             ニコ生設定
           </button>
@@ -80,8 +80,8 @@
         <div>
           <button
             class="link-button"
-            type="button"
             onclick={() => setting.page.openHilight("フィードバック")}
+            type="button"
           >
             フィードバック
           </button>
@@ -101,8 +101,8 @@
         <div>
           <button
             class="link-button"
-            type="button"
             onclick={() => setting.page.openHilight("ニコ生", "nicolive-show-post-area")}
+            type="button"
           >
             コメント投稿欄を表示する
           </button>
@@ -118,8 +118,8 @@
           リスナー毎のコメントの見た目を
           <button
             class="link-button"
-            type="button"
             onclick={() => setting.page.openHilight("リスナー")}
+            type="button"
           >
             リスナー設定
           </button>
@@ -137,8 +137,8 @@
           ※
           <button
             class="link-button"
-            type="button"
             onclick={() => setting.page.openHilight("一般", "general-kotehan", "general-yobina")}
+            type="button"
           >
             一般設定
           </button>
@@ -153,8 +153,8 @@
         <div>
           <button
             class="link-button"
-            type="button"
             onclick={() => setting.page.openHilight("読み上げ", "yomiage-type")}
+            type="button"
           >
             読み上げる名前のタイプ
           </button>

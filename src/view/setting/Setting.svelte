@@ -23,13 +23,13 @@
 
   const names = ["一般", "読み上げ", "ニコ生", "リスナー", "コメント表示", "フィードバック", "Advanced"] as const;
   type TabNames = typeof names[number];
-  
+
   let currentTab = $state<TabNames>("一般");
   let show = $state(false);
 
   let dialog = $state<HTMLDialogElement>();
   let highlightItems = $state<string[]>([]);
-    
+
   let serchQuery = $state("");
 
   function switchedTab(_newTab: TabNames) {
@@ -57,10 +57,10 @@
 
 {#if show}
   <dialog bind:this={dialog} class="mordal">
-    <button class="close-btn" onclick={() => switchOpen(false)}>閉じる</button>
+    <button class="close-btn" onclick={() => switchOpen(false)} type="button">閉じる</button>
 
     <div class="mordal-body">
-      <Tab {names} bind:currentTab {switchedTab}>
+      <Tab {names} {switchedTab} bind:currentTab>
         {#snippet content(tabId)}
           <div class="content" data-tabId={tabId}>
             {#if tabId === "一般"}
@@ -190,10 +190,10 @@
   :global(.select-area) {
     display: flex;
     flex-wrap: wrap;
-    
+
     :global(.select-btn) {
       text-wrap: nowrap;
-      
+
       border-radius: 0;
       border: 2px solid black;
       border-color: #f9f9f954;

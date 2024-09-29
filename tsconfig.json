@@ -13,7 +13,8 @@
   },
   "include": [
     "src/**/*.ts",
-    "src/**/*.js",
-    "src/**/*.svelte", "comejene/comejene.ts", "comejene/comejene.ts",
+    "src/**/*.svelte",
+    "comejene/**/*.ts",
+    "comejene/**/*.svelte",
   ]
 }

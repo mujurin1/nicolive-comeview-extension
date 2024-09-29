@@ -1,25 +1,27 @@
 <script lang="ts">
-    import NicolivePostComment from "../components/NicolivePostComment.svelte";
-    import UserSetting from "../components/UserSetting.svelte";
-    import { Nicolive } from "../Platform";
-    import { SettingStore } from "../store/SettingStore.svelte";
+  import NicolivePostComment from "../components/NicolivePostComment.svelte";
+  import UserSetting from "../components/UserSetting.svelte";
+  import { Nicolive } from "../Platform";
+  import { SettingStore } from "../store/SettingStore.svelte";
 
   let userId = $state<string>();
 
   export function openUserSetting(_userId: string) {
     userId = _userId;
   }
+
+  type F = () => void;
 </script>
 
-{#snippet close(onclick: () => void)}
-  <button class="close-btn" type="button" {onclick}>閉じる</button>
+{#snippet close(onclick: F)}
+  <button class="close-btn" {onclick} type="button">閉じる</button>
 {/snippet}
 
 <div class="additional">
   {#if userId != null}
     <div class="format">
       {@render close(() => (userId = undefined))}
-      <UserSetting platformId="nicolive" {userId} noAccordion={true} />
+      <UserSetting noAccordion={true} platformId="nicolive" {userId} />
     </div>
   {:else if (
       SettingStore.state.nicolive.showPostArea &&

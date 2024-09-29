@@ -122,7 +122,7 @@ export interface SettingState {
     showPostArea: boolean,
     post184: boolean;
     visibleAndYomiage: {
-      system: { [K: SystemMessageType[number]]: VisibleSpeachType; };
+      system: Record<SystemMessageType[number], VisibleSpeachType>;
       "184": VisibleSpeachType;
     };
   };

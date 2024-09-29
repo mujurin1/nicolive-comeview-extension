@@ -27,11 +27,11 @@
 
 {#if edit}
   <div class="edit">
-    <button onclick={() => (edit = false)}>保存</button>
-    <input bind:this={inputElement} type="text" bind:value size="13" />
+    <button onclick={() => (edit = false)} type="button">保存</button>
+    <input bind:this={inputElement} size="13" type="text" bind:value />
   </div>
 {:else}
-  <div class="not-edit" bind:this={divElement}>{value}</div>
+  <div bind:this={divElement} class="not-edit">{value}</div>
 {/if}
 
 <style>

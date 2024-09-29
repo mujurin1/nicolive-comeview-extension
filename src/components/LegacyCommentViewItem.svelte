@@ -16,7 +16,7 @@
   <div class="child icon">
     {#if iconUrl != null}
       <!-- svelte-ignore a11y_missing_attribute -->
-      <img src={iconUrl} onerror={onErrorImage} />
+      <img onerror={onErrorImage} src={iconUrl} />
     {/if}
   </div>
   <div class="child name">

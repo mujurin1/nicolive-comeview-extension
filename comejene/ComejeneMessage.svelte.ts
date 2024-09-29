@@ -1,27 +1,27 @@
-
 export const ActionType = ["enter", "stay", "exit"] as const;
 export type ActionType = typeof ActionType[number];
 
 /**
  * コメジェネ内で使うメッセージの形式
  */
-export interface ComejeneMessage {
-  iconUrl: string;
-  name: string;
-  content: string;
-  action: ActionType;
+export interface IComejeneMessage {
+  readonly iconUrl: string;
+  readonly name: string;
+  readonly content: string;
+  readonly action: ActionType;
 
   /**
    * メッセージが生成された時刻
    */
-  time: number;
+  readonly time: number;
 }
 
-export class ComejeneMessage implements ComejeneMessage {
+export class ComejeneMessage implements IComejeneMessage {
   public node = $state<HTMLDivElement>();
   public action = $state<ActionType>("enter");
 
   private intervalId: number | undefined;
+  public time: number;
 
   constructor(
     public iconUrl: string,

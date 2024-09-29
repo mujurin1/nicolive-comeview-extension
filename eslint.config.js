@@ -1,26 +1,33 @@
 import js from "@eslint/js";
+import tsParser from "@typescript-eslint/parser";
 import svelte from "eslint-plugin-svelte";
 import globals from "globals";
 import svelteParser from "svelte-eslint-parser";
 import tsEslint from "typescript-eslint";
 
 const isProduction = () => process.env.NODE_ENV === "production";
+const roots = ["src", "comejene"];
+/**
+ * @param {string[]} pathes 
+ * @returns {string[]}
+ */
+const fixFiles = (...pathes) => pathes
+  .map(s => roots.map(root => s.replace("$", root))).flat();
 
 const defaultConfig = tsEslint.config({
-  files: ["src/**/*.js", "src/**/*.ts", "src/**/*.svelte"],
+  files: fixFiles("$/**/*.ts", "$/**/*.svelte.ts"),
   extends: [
     js.configs.recommended,
     ...tsEslint.configs.strictTypeChecked,
     ...tsEslint.configs.stylisticTypeChecked,
   ],
   languageOptions: {
-    parser: tsEslint.parser,
+    parser: tsParser,
     parserOptions: {
       sourceType: "module",
       ecmaVersion: "latest",
       project: "./tsconfig.json",
       tsconfigRootDir: import.meta.dirname,
-      extraFileExtensions: [".svelte"]
     },
     globals: { ...globals.browser, ...globals.es2021, ...globals.node }
   },
@@ -29,10 +36,6 @@ const defaultConfig = tsEslint.config({
 
     "eqeqeq": ["error", "always", { null: "ignore" }],
     "no-duplicate-imports": ["error", { includeExports: true }],
-    // "no-restricted-imports": [
-    //   "error",
-    //   { patterns: [{ group: ["../*", "src/lib/*"], message: "use `$lib/*` instead" }] }
-    // ],
     "no-trailing-spaces": "off",
     "no-unused-expressions": "error",
     "no-var": "error",
@@ -41,6 +44,7 @@ const defaultConfig = tsEslint.config({
     "prefer-const": "warn",
     "camelcase": "off",
 
+    "no-constant-condition": "off",
     "@typescript-eslint/no-extraneous-class": "off",
     "@typescript-eslint/switch-exhaustiveness-check": "warn",
     "@typescript-eslint/no-unnecessary-type-arguments": "off",
@@ -93,51 +97,55 @@ const defaultConfig = tsEslint.config({
 });
 
 const svelteConfig = tsEslint.config({
-  files: ["src/**/*.svelte"],
+  files: fixFiles("$/**/*.svelte"),
   extends: [
     ...svelte.configs["flat/all"],
     ...svelte.configs["flat/prettier"]
   ],
   languageOptions: {
     parser: svelteParser,
-    parserOptions: { parser: tsEslint.parser }
+    parserOptions: {
+      parser: tsParser,
+    }
   },
   /** @type {import("eslint").Linter.RulesRecord} */
   rules: {
-    "svelte/no-reactive-reassign": ["error", { props: true }],
-    "svelte/block-lang": ["error", { script: "ts", style: null }],
-    "svelte/no-inline-styles": "warn", // off
-    "svelte/no-unused-class-name": "warn",
+    "svelte/prefer-destructured-store-props": "off",
+    "svelte/no-target-blank": "off",
+    "svelte/no-reactive-reassign": "error",
+    "svelte/no-inline-styles": "off",
+    "svelte/no-unused-class-name": "off",
     "svelte/no-useless-mustaches": "warn",
-    "svelte/no-restricted-html-elements": "warn", // off
+    "svelte/no-restricted-html-elements": "off",
+    "svelte/no-trailing-spaces": ["warn", { skipBlankLines: false, ignoreComments: false }],
+    "svelte/block-lang": ["error", { script: "ts", style: null }],
     "svelte/require-optimized-style-attribute": "warn",
     "svelte/sort-attributes": "warn", // off
-    "svelte/experimental-require-slot-types": "warn", // off
-    "svelte/experimental-require-strict-events": "warn", // off
-    "svelte/no-trailing-spaces": ["warn", { skipBlankLines: false, ignoreComments: false }]
+    // "svelte/experimental-require-slot-types": "warn", // off
+    "svelte/experimental-require-strict-events": "off",
   }
 });
 
 /** @typedef {import("@typescript-eslint/utils").TSESLint.FlatConfig.Config} FlatConfig */
 
-/** @type {FlatConfig} */
-const jsConfig = {
-  files: ["src/**/*.js"],
-  rules: { "@typescript-eslint/explicit-function-return-type": "off" }
-};
+// /** @type {FlatConfig} */
+// const jsConfig = {
+//   files: ["src/**/*.js"],
+//   rules: { "@typescript-eslint/explicit-function-return-type": "off" }
+// };
 
-/** @type {FlatConfig} */
-const configConfig = {
-  files: ["**/*.config.*"],
-  rules: { "@typescript-eslint/naming-convention": "off" }
-};
+// /** @type {FlatConfig} */
+// const configConfig = {
+//   files: ["**/*.config.*"],
+//   rules: { "@typescript-eslint/naming-convention": "off" }
+// };
 
 /** @type {FlatConfig[]} */
 export default [
   ...defaultConfig,
   ...svelteConfig,
-  jsConfig,
-  configConfig,
+  // jsConfig,
+  // configConfig,
   { linterOptions: { reportUnusedDisableDirectives: true } },
   {
     ignores: [

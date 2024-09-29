@@ -131,10 +131,10 @@
   function destroyMessage(index: number) {
     const message = messages.splice(index, 1)[0];
     if (setting.direction === "column") {
-      paddingSize += message.node.clientHeight;
+      paddingSize += message.node!.clientHeight;
       padding.style.height = `${paddingSize}px`;
     } else {
-      paddingSize += message.node.clientWidth;
+      paddingSize += message.node!.clientWidth;
       padding.style.width = `${paddingSize}px`;
     }
   }
@@ -162,27 +162,27 @@
   }
 </script>
 
-<div style="position: absolute; right: 0px; bottom: 0px; z-index: 1;">
+<div style:position="absolute" style:right="0px" style:z-index="1" style:bottom="0px">
   <select class="item" bind:value={$settingS.direction}>
     <!-- ３つ目の値が undefined だと初期値が設定されてしまうため null を使う -->
-    {#each ["row", "column"] as value}
-      <option {value} selected={value === $settingS.direction}>{value}</option>
+    {#each ["row", "column"] as value (value)}
+      <option selected={value === $settingS.direction} {value}>{value}</option>
     {/each}
   </select>
 
   <label for="order">reverseOrder</label>
   <input id="order" type="checkbox" bind:checked={$settingS.reverseOrder} />
 
-  <input style="width:40px" type="number" bind:value={$settingS.exitTimeSec} />
+  <input style:width="40px" type="number" bind:value={$settingS.exitTimeSec} />
 
-  <button style="" onclick={() => addMessage(Math.random() + "")}>
+  <button style="" onclick={() => addMessage(Math.random() + "")} type="button">
     追加 {messages.length}
   </button>
 </div>
 
 <div bind:this={mainArea} class="mainArea">
   <div bind:this={scrollArea} class="scrollArea">
-    <div bind:this={padding} style="background-color: red;"></div>
+    <div bind:this={padding} style:background-color="red"></div>
     {#each messages as message (message.content)}
       <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
       <div bind:this={message.node} class={`message ${message.action}`} tabindex="0">

@@ -13,17 +13,17 @@
 <div class="header">
   <div class="left">
     <div class="head-item connect-item">
-      <input type="text" bind:value={Nicolive.url} size="18" placeholder="URL (lv ch user/)" />
+      <input placeholder="URL (lv ch user/)" size="18" type="text" bind:value={Nicolive.url} />
       {#if Nicolive.state === "opened"}
-        <button type="button" onclick={() => Nicolive.close()}>切断</button>
+        <button onclick={() => Nicolive.close()} type="button">切断</button>
       {:else if Nicolive.state == "none" || Nicolive.state === "closed"}
-        <button type="button" onclick={() => Nicolive.connect()}>接続</button>
+        <button onclick={() => Nicolive.connect()} type="button">接続</button>
         {#if Nicolive.state === "closed"}
-          <button type="button" onclick={() => Nicolive.reconnect()}>再接続</button>
+          <button onclick={() => Nicolive.reconnect()} type="button">再接続</button>
         {/if}
       {:else}
-        <button type="button" disabled>接続中</button>
-        <button type="button" onclick={() => Nicolive.close()}>切断</button>
+        <button disabled type="button">接続中</button>
+        <button onclick={() => Nicolive.close()} type="button">切断</button>
       {/if}
     </div>
 
@@ -31,20 +31,20 @@
       <div class="head-item">
         {#if Nicolive.isFetchingBackwardMessage}
           <div title="１セグメント毎の待機時間は１秒">過去コメント取得中‥</div>
-          <button type="button" onclick={() => Nicolive.stopFetchBackward()}> 中断 </button>
+          <button onclick={() => Nicolive.stopFetchBackward()} type="button"> 中断 </button>
         {:else}
           <div>過去コメント</div>
           <button
-            type="button"
-            title="過去コメントを500件ほど取得します"
             onclick={() => Nicolive.fetchBackword(1)}
+            title="過去コメントを500件ほど取得します"
+            type="button"
           >
             少し
           </button>
           <button
-            type="button"
-            title="過去コメントを全て取得します"
             onclick={() => Nicolive.fetchBackword(1e10)}
+            title="過去コメントを全て取得します"
+            type="button"
           >
             全て
           </button>
@@ -54,11 +54,11 @@
 
     <div class="head-item">
       <label for="speak">読み上げ</label>
-      <input type="checkbox" id="speak" bind:checked={$settingViewStore.yomiage.isSpeak} />
+      <input id="speak" type="checkbox" bind:checked={$settingViewStore.yomiage.isSpeak} />
     </div>
   </div>
 
-  <button class="setting-btn" type="button" onclick={() => settingPage?.switchOpen(true)}>
+  <button class="setting-btn" onclick={() => settingPage?.switchOpen(true)} type="button">
     設定
   </button>
 </div>

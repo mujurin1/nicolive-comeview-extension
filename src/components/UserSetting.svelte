@@ -37,7 +37,7 @@
 
 {#snippet header()}
   <!-- svelte-ignore a11y_missing_attribute -->
-  <img class="header-icon" src={getNicoliveIconUrl($userS.id)} onerror={onErrorImage} />
+  <img class="header-icon" onerror={onErrorImage} src={getNicoliveIconUrl($userS.id)} />
   <div class="header-title">
     {#if typeof $userS.id === "number"}
       <div class="user-raw-id">{`${$userS.id}`}</div>
@@ -48,67 +48,68 @@
       <div class="user-name">{$userS.name}</div>
     {/if}
     {#if $userS.kotehan}
-      <div style="color: green;" title="コテハン">{`@${$userS.kotehan}`}</div>
+      <div style:color="green" title="コテハン">{`@${$userS.kotehan}`}</div>
     {/if}
     {#if $userS.yobina}
-      <div style="color: blue;" title="呼び名">{`@${$userS.yobina}`}</div>
+      <div style:color="blue" title="呼び名">{`@${$userS.yobina}`}</div>
     {/if}
     {#if hasFormat}
-      <div style="color: orange;" title="フォーマットが設定されています">★</div>
+      <div style:color="orange" title="フォーマットが設定されています">★</div>
     {/if}
   </div>
 {/snippet}
 
 {#snippet content()}
-<div class="content">
-  <div class="grid-row">
-    <fieldset>
-      <legend>コテハン</legend>
-      <input type="text" placeholder="コテハン" bind:value={$userS.kotehan} />
-    </fieldset>
+  <div class="content">
+    <div class="grid-row">
+      <fieldset>
+        <legend>コテハン</legend>
+        <input placeholder="コテハン" type="text" bind:value={$userS.kotehan} />
+      </fieldset>
 
-    <fieldset>
-      <legend>呼び名</legend>
-      <input type="text" placeholder="呼び名" bind:value={$userS.yobina} />
-    </fieldset>
-  </div>
-
-  <div class="content-format">
-    <div class="title">コメントフォーマット</div>
-
-    {#if $userS.format != null}
-      <FormatSetting bind:format={$userS.format} />
-      <br />
-    {/if}
-
-    <div class="content-bottom">
-      {#if $userS.format == null}
-        <button
-          type="button"
-          style="color: royalblue;"
-          onclick={() => ($userS.format = CommentFormat.new())}
-        >
-          コメントフォーマットの作成
-        </button>
-      {:else}
-        <button class="warning" type="button" onclick={() => ($userS.format = undefined)}>
-          コメントフォーマットの削除
-        </button>
-      {/if}
-
-      {#if hasStored}
-        <button
-          class="delete-user warning"
-          title="ユーザーデータを削除します"
-          onclick={removeUser}
-        >
-          ユーザーデータの削除
-        </button>
-      {/if}
+      <fieldset>
+        <legend>呼び名</legend>
+        <input placeholder="呼び名" type="text" bind:value={$userS.yobina} />
+      </fieldset>
     </div>
 
+    <div class="content-format">
+      <div class="title">コメントフォーマット</div>
+
+      {#if $userS.format != null}
+        <FormatSetting bind:format={$userS.format} />
+        <br />
+      {/if}
+
+      <div class="content-bottom">
+        {#if $userS.format == null}
+          <button
+            style:color="royalblue"
+            onclick={() => ($userS.format = CommentFormat.new())}
+            type="button"
+          >
+            コメントフォーマットの作成
+          </button>
+        {:else}
+          <button class="warning" onclick={() => ($userS.format = undefined)} type="button">
+            コメントフォーマットの削除
+          </button>
+        {/if}
+
+        {#if hasStored}
+          <button
+            class="delete-user warning"
+            onclick={removeUser}
+            title="ユーザーデータを削除します"
+            type="button"
+          >
+            ユーザーデータの削除
+          </button>
+        {/if}
+      </div>
+
+    </div>
   </div>
-</div>
 {/snippet}
 
 {#if noAccordion}
@@ -193,7 +194,7 @@
         display: flex;
         justify-content: space-between;
         white-space: nowrap;
-        
+
         & > .delete-user {
           font-weight: bold;
         }

@@ -7,15 +7,15 @@
 </script>
 
 <div class="line">
-  <div class="explanation no-share" style="font-size: 0.7rem;">
+  <div style:font-size="0.7rem" class="explanation no-share">
     ←このアイコンのある項目を変更しても同時に開いているウィンドウには反映されません
   </div>
 </div>
 
 <div class="line" class:highlight={highlightItems.includes("nicolive-show-post-area")}>
   <input
-    type="checkbox"
     id="show-post-area"
+    type="checkbox"
     bind:checked={$settingViewStore.nicolive.showPostArea}
   />
   <label class="explanation no-share" for="show-post-area">コメント投稿欄を表示する</label>
@@ -23,7 +23,7 @@
 </div>
 
 <div class="line" class:highlight={highlightItems.includes("nicolive-post-184")}>
-  <input type="checkbox" id="post-184" bind:checked={$settingViewStore.nicolive.post184} />
+  <input id="post-184" type="checkbox" bind:checked={$settingViewStore.nicolive.post184} />
   <label class="explanation no-share" for="post-184">184でコメント投稿する</label>
 </div>
 
@@ -42,7 +42,7 @@
 
 <div class="line">
   <div></div>
-  <div style="font-weight: bold; margin-top: 10px;">
+  <div style:font-weight="bold" style:margin-top="10px">
     システムメッセージの表示/読み上げを個別に設定できます
   </div>
   <div class="hint">表示しない項目は読み上げられません</div>
@@ -52,7 +52,7 @@
   <fieldset class:highlight={highlightItems.includes("nicolive-system-visible")}>
     <legend>表示するシステムメッセージ</legend>
 
-    <div class="select-area" style="flex-wrap: wrap;">
+    <div style:flex-wrap="wrap" class="select-area">
       {#each SystemMessageType as systemMessageType (systemMessageType)}
         {@const selected =
           0 !==
@@ -61,10 +61,10 @@
         <button
           class="select-btn"
           data-selected={selected}
-          type="button"
           onclick={() =>
             ($settingViewStore.nicolive.visibleAndYomiage.system[systemMessageType] ^=
               VisibleSpeachType.visible)}
+          type="button"
         >
           {SystemMessageTypeDisplayName[systemMessageType]}
         </button>
@@ -77,7 +77,7 @@
   <fieldset class:highlight={highlightItems.includes("nicolive-system-yomiage")}>
     <legend>読み上げるシステムメッセージ</legend>
 
-    <div class="select-area" style="flex-wrap: wrap;">
+    <div style:flex-wrap="wrap" class="select-area">
       {#each SystemMessageType as systemMessageType (systemMessageType)}
         {@const selected =
           0 !==
@@ -90,12 +90,12 @@
         <button
           class="select-btn"
           data-selected={selected}
-          type="button"
+          {disabled}
           onclick={() =>
             ($settingViewStore.nicolive.visibleAndYomiage.system[systemMessageType] ^=
               VisibleSpeachType.yomiage)}
           title={disabled ? "表示しない項目は読み上げません" : ""}
-          {disabled}
+          type="button"
         >
           {SystemMessageTypeDisplayName[systemMessageType]}
         </button>

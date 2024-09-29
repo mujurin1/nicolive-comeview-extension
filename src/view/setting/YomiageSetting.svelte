@@ -6,17 +6,17 @@
 </script>
 
 <div class="line">
-  <div class="explanation no-share" style="font-size: 0.7rem;">
+  <div style:font-size="0.7rem" class="explanation no-share">
     ←このアイコンのある項目を変更しても同時に開いているウィンドウには反映されません
   </div>
 </div>
 
 <div
+  style:margin-bottom="30px"
   class="line"
   class:highlight={highlightItems.includes("yomiage-speach")}
-  style="margin-bottom: 30px;"
 >
-  <input type="checkbox" id="is-speach" bind:checked={$settingViewStore.yomiage.isSpeak} />
+  <input id="is-speach" type="checkbox" bind:checked={$settingViewStore.yomiage.isSpeak} />
   <label class="explanation no-share" for="is-speach">コメントを読み上げる</label>
 </div>
 
@@ -42,8 +42,8 @@
           <button
             class="select-btn"
             data-selected={selected}
-            type="button"
             onclick={() => ($settingViewStore.yomiage.speachNames[speachNameType] = !selected)}
+            type="button"
           >
             {speachNameType}
           </button>
@@ -51,9 +51,9 @@
         <button
           class="select-btn"
           data-selected={$settingViewStore.general.useYobina}
-          type="button"
-          title="「一般 > 呼び名機能を使う」で変更できます"
           disabled
+          title="「一般 > 呼び名機能を使う」で変更できます"
+          type="button"
         >
           呼び名
         </button>
@@ -77,22 +77,22 @@
 
 <div class="line">
   <div>
-    <h3 style="margin-bottom: 0;">使用する読み上げ</h3>
+    <h3 style:margin-bottom="0">使用する読み上げ</h3>
     <div class="hint">VOICEVOX は対応予定。現在は利用不可です</div>
   </div>
 
-  <div style="display: flex;" class:highlight={highlightItems.includes("yomiage-use")}>
+  <div style:display="flex" class:highlight={highlightItems.includes("yomiage-use")}>
     {#each YomiageTypes as yomi (yomi)}
       {@const selected = $settingViewStore.yomiage.useYomiage === yomi}
       {@const disabled = yomi === "VOICEVOX"}
       <input
-        type="radio"
         id={yomi}
         name="contact"
-        value={yomi}
-        onclick={() => ($settingViewStore.yomiage.useYomiage = yomi)}
         checked={selected}
         {disabled}
+        onclick={() => ($settingViewStore.yomiage.useYomiage = yomi)}
+        type="radio"
+        value={yomi}
       />
       <label class:disabled for={yomi}>{yomi}</label>
     {/each}

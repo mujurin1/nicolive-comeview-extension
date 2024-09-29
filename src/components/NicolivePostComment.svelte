@@ -41,9 +41,9 @@
     <div class="line">
       <input
         id="is184"
+        disabled={isPostBroadcaster}
         type="checkbox"
         bind:checked={$settingViewStore.nicolive.post184}
-        disabled={isPostBroadcaster}
       />
       <label class:disabled={isPostBroadcaster} for="is184">184</label>
     </div>
@@ -51,9 +51,9 @@
     <div class="line">
       <input
         id="isBroadcaster"
+        disabled={!isBroadcaster}
         type="checkbox"
         bind:checked={isPostBroadcaster}
-        disabled={!isBroadcaster}
       />
       <label class:disabled={!isBroadcaster} for="isBroadcaster">主コメ</label>
     </div>
@@ -64,7 +64,7 @@
       bind:this={inputCommentArea}
       class="input-comment"
       class:broadcaster={isPostBroadcaster}
-      rows="3"
+      disabled={!canPostComment}
       placeholder={`${
         isPostBroadcaster
           ? "生主"
@@ -72,13 +72,13 @@
             ? "184"
             : Nicolive.pageData?.nicoliveInfo.loginUser?.name
       } として投稿\n\n  Enter で投稿  Shift+Enter で改行`}
+      rows="3"
       bind:value={comment}
-      disabled={!canPostComment}
     ></textarea>
   </div>
 
   <div class="send-button-area">
-    <button type="button" onclick={postComment} disabled={!canPostComment}>送信</button>
+    <button disabled={!canPostComment} onclick={postComment} type="button">送信</button>
   </div>
 </div>
 

@@ -10,7 +10,7 @@
   });
 </script>
 
-<h2 style="font-size: 1.3rem; margin: 0 0 10px 0; text-align: center;">コメントフォーマット設定</h2>
+<h2 style:font-size="1.3rem" style:margin="0 0 10px 0" style:text-align="center">コメントフォーマット設定</h2>
 
 <div class="content">
   <details class="item" bind:open={tabOpened.default}>
@@ -50,7 +50,7 @@
   </details>
 </div>
 
-<div style="font-size: 10px; color: #999">
+<div style:font-size="10px" style:color="#999">
   ※コメントビューの詳細な見た目の設定は対応予定
   （アイコンや名前など項目の並び替えや非表示。枠線の色の変更など）
 </div>

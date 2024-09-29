@@ -1,6 +1,6 @@
 <script lang="ts" module>
   import { additional } from "../view/view";
-  
+
   export function openUserSetting(user: ExtUserType) {
     additional.page.openUserSetting(user.storageUser.id);
   }
@@ -64,11 +64,11 @@
   {@const hideSharp = SettingStore.state.general.hideSharp && message.includeSharp}
   <div
     class={`cm-default ${getCssClassNameFromMessage(message)}`}
-    class:cm-owner={message.kind === "owner"}
     class:cm-first={isFirst}
+    class:cm-owner={message.kind === "owner"}
   >
     {#if hideSharp}
-      <LegacyCommentViewItem no={message.no} time={message.time} content={"#シャープ#"} />
+      <LegacyCommentViewItem content="#シャープ#" no={message.no} time={message.time} />
     {:else if message.kind === "system"}
       <LegacyCommentViewItem name={message.tempName} time={message.time}>
         {#snippet content()}
@@ -78,18 +78,18 @@
     {:else}
       {@const user = message.extUser}
       <LegacyCommentViewItem
-        no={message.no}
         iconUrl={message.iconUrl}
+        no={message.no}
         time={message.time}
       >
         {#snippet name()}
-          {@const name = getNicoliveUserName(user)}
+          {@const name = message.tempName ?? getNicoliveUserName(user)}
           <!-- svelte-ignore a11y_click_events_have_key_events -->
           <div
-            title={user.storageUser.name ?? user.storageUser.id}
+            onclick={() => openUserSetting(user)}
             role="button"
             tabindex="-1"
-            onclick={() => openUserSetting(user)}
+            title={user.storageUser.name ?? user.storageUser.id}
           >
             <!-- svelte の不具合でこれがないと name が変わっても更新されない -->
             {#key name}
@@ -107,19 +107,19 @@
 
 {#snippet ExtentionMessageView(message: ExtentionMessage)}
   <div class="cm-default cm-system">
-    <LegacyCommentViewItem time={message.time} name={message.tempName}>
+    <LegacyCommentViewItem name={message.tempName} time={message.time}>
       {#snippet content()}
         {#if message.expandMessage == null}
           {message.content}
           {#if message.button != null}
-            <button type="button" onclick={message.button.func}>{message.button.text}</button>
+            <button onclick={message.button.func} type="button">{message.button.text}</button>
           {/if}
         {:else}
           <details class="extension-details">
             <summary>
               {message.content}
               {#if message.button != null}
-                <button type="button" onclick={message.button.func}>{message.button.text}</button>
+                <button onclick={message.button.func} type="button">{message.button.text}</button>
               {/if}
             </summary>
             {message.expandMessage}

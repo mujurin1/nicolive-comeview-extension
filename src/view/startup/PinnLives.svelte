@@ -51,30 +51,30 @@
 <div class="title">ピン留めした放送</div>
 <div class="pinns">
   {#each $settingViewStore.nicolive.pinnLives as pinn (pinn)}
-    <button type="button" onclick={() => connect(pinn.id)}>接続</button>
+    <button onclick={() => connect(pinn.id)} type="button">接続</button>
     <input type="text" bind:value={pinn.id} />
-    <input type="text" bind:value={pinn.description} size="10" />
-    <button type="button" onclick={() => remove(pinn.id)}>削除</button>
+    <input size="10" type="text" bind:value={pinn.description} />
+    <button onclick={() => remove(pinn.id)} type="button">削除</button>
   {/each}
 
-  <button type="button" onclick={() => add()}>追加</button>
-  <input type="text" bind:value={newPinn.id} placeholder="放送ID lv ch user/" />
+  <button onclick={() => add()} type="button">追加</button>
+  <input placeholder="放送ID lv ch user/" type="text" bind:value={newPinn.id} />
   <input
-    type="text"
-    bind:value={newPinn.description}
     placeholder="メモ欄 (放送者名など)"
     size="1"
+    type="text"
+    bind:value={newPinn.description}
   />
   <div></div>
 </div>
 
-<div class="title" style="display: flex;">
-  <div style="margin-right: 20px;">視聴中の放送</div>
-  <button style="height: 25px;" onclick={updateOpenTabs}>更新</button>
+<div style:display="flex" class="title">
+  <div style:margin-right="20px">視聴中の放送</div>
+  <button style:height="25px" onclick={updateOpenTabs} type="button">更新</button>
 </div>
 <div class="open-tabs">
   {#each openTabs as tab (tab)}
-    <button type="button" onclick={() => connect(tab.id)}>接続</button>
+    <button onclick={() => connect(tab.id)} type="button">接続</button>
     <div>{tab.id}</div>
     <div>{tab.title}</div>
   {/each}

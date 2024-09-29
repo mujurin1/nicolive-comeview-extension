@@ -1,4 +1,4 @@
-<script lang="ts" generics="Name extends string">
+<script generics="Name extends string" lang="ts">
   import type { Snippet } from "svelte";
 
   type NameDisplay = readonly (readonly [Name, string])[];
@@ -27,7 +27,7 @@
   <div class="tab-header" role="tablist">
     {#each _names as [name, displayName] (name)}
       {@const selected = name === currentTab}
-      <button class={`tab-name ${name}`} class:selected={selected} type="button" onclick={() => tabSwitch(name)}>
+      <button class={`tab-name ${name}`} class:selected={selected} onclick={() => tabSwitch(name)} type="button">
         {displayName}
       </button>
     {/each}
@@ -55,7 +55,7 @@
 
       & > .tab-name {
         height: 26px;
-      
+
         font-size: 16px;
         color: #3d3d3d;
         background-color: #e2e2e2;

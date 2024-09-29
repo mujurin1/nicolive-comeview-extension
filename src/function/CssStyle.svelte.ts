@@ -71,7 +71,7 @@ function clearClass(styleName: StyleNames, className: string) {
   style.element.sheet!.insertRule(`.${className} {}`, cssRuleIndex);
 }
 
-function deleteClass(styleName: StyleNames, className: string) {
+function _deleteClass(styleName: StyleNames, className: string) {
   const style = styles[styleName];
   const cssRuleIndex = style.map.get(className);
   if (cssRuleIndex != null) style.element.sheet!.deleteRule(cssRuleIndex);

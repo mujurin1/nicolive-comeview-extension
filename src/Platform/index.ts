@@ -77,15 +77,15 @@ export type ExtMessageType<
      * シャープを含むコメントか
      */
     includeSharp: boolean;
+    /**
+     * コメントに固有な表示名\
+     * これが`undefined`ならユーザー名などのユーザーに固有な名前が表示される
+     */
+    tempName: string | undefined;
   } & (
     UserKind extends "system" ? {
       kind: UserKind;
       includeSharp: false;
-      /**
-       * コメントに固有な表示名\
-       * これが`undefined`ならユーザー名などのユーザーに固有な名前が表示される
-       */
-      tempName: string | undefined;
     }
     : UserKind extends "owner" ? {
       kind: UserKind;

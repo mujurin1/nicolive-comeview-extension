@@ -72,18 +72,18 @@
   }
 </script>
 
-<div style="margin-bottom: 10px;">
-  <h2 style="margin: 0 0 5px 0; text-align: center;">ユーザー設定</h2>
+<div style:margin-bottom="10px">
+  <h2 style:margin="0 0 5px 0" style:text-align="center">ユーザー設定</h2>
   <div class="hint">コメビュでユーザー名をクリックするとユーザー設定を開けます</div>
 </div>
 
-<div class="serch" style="margin-bottom: 10px;">
-  <div class="line" style="margin-bottom: 5px;">
-    <button onclick={clearSerchOption}>クリア</button>
+<div style:margin-bottom="10px" class="serch">
+  <div style:margin-bottom="5px" class="line">
+    <button onclick={clearSerchOption} type="button">クリア</button>
     <input
-      type="text"
       class="serch-query"
       placeholder="検索　ユーザー名　id:ユーザーID（または184ID）"
+      type="text"
       bind:value={serchQuery}
     />
   </div>
@@ -95,6 +95,7 @@
         class="select-btn"
         data-selected={option.checked}
         onclick={() => (serchOptions[key as keyof typeof serchOptions].checked = !option.checked)}
+        type="button"
       >
         {option.name}
       </button>
@@ -104,7 +105,7 @@
 
 <div class="user-list">
   {#each hitUsers as userId (userId)}
-    <UserSetting platformId="nicolive" {userId} noAccordion={hitUsers.length === 1} />
+    <UserSetting noAccordion={hitUsers.length === 1} platformId="nicolive" {userId} />
   {/each}
 </div>
 
