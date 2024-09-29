@@ -44,8 +44,10 @@
     id="fetch-connecting-backward"
     bind:checked={$settingViewStore.general.fetchConnectingBackward}
   />
-  <label class="explanation" for="fetch-connecting-backward">接続時に過去コメントを取得する</label>
-  <div class="hint">OFFの場合でも少しだけ過去コメントを取得する場合があります</div>
+  <label class="explanation" for="fetch-connecting-backward">
+    接続時に過去コメントを取得する (リアルタイム時)
+  </label>
+  <div class="hint">タイムシフト接続時はこの設定に関わらず過去コメントを取得します</div>
 </div>
 
 <div class="line" class:highlight={highlightItems.includes("general-url")}>

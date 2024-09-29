@@ -107,7 +107,21 @@
 
 {#snippet ExtentionMessageView(message: ExtentionMessage)}
   <div class="cm-default cm-system">
-    <LegacyCommentViewItem time={message.time} content={message.content} />
+    <LegacyCommentViewItem time={message.time} name={message.tempName}>
+      {#snippet content()}
+        {#if message.expandMessage == null}
+          {message.content}
+          {#if message.button != null}
+            <button type="button" onclick={message.button.func}>{message.button.text}</button>
+          {/if}
+        {:else}
+          <details class="extension-details">
+            <summary>{message.content}</summary>
+            {message.expandMessage}
+          </details>
+        {/if}
+      {/snippet}
+    </LegacyCommentViewItem>
   </div>
 {/snippet}
 
@@ -139,10 +153,13 @@
     display: none;
   }
 
+  .extension-details {
+    white-space-collapse: preserve-breaks;
+  }
+
   @layer {
-    :global(div[role="button"]) {
+    div[role="button"] {
       cursor: pointer;
     }
-
   }
 </style>

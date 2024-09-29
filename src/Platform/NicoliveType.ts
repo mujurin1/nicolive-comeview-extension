@@ -2,7 +2,7 @@ import type { NicoliveInfoProviderType } from "@mujurin/nicolive-api-ts";
 import { PlatformsId, type ExtMessageType, type ExtUserType } from "./index";
 
 /**
- * MEMO: 元々は`"rankingIn"` `"rankingUpdated"`があるが冗長なのでどちらも`"ranking"`として扱う
+ * MEMO: `"rankingIn"` `"rankingUpdated"` は冗長なのでどちらも`"ranking"`として扱う
  */
 export const SystemMessageType = [
   "nicoad", "gift", "enquete",
@@ -30,16 +30,13 @@ export type NicoliveMessage =
   | ExtMessageType<"nicolive", "system"> & {
     systemMessageType: SystemMessageType;
   }
-  | ExtMessageType<"nicolive", "owner"> &
-  {
+  | ExtMessageType<"nicolive", "owner"> & {
     no: undefined;
   }
-  | (
-    ExtMessageType<"nicolive", "user"> &
-    {
-      no: number | undefined;
-      is184: boolean;
-    });
+  | ExtMessageType<"nicolive", "user"> & {
+    no: number | undefined;
+    is184: boolean;
+  };
 
 export interface NicoliveUser extends ExtUserType<"nicolive"> {
   providerType: NicoliveInfoProviderType;

@@ -8,7 +8,7 @@ import type { NicoliveMessage, NicoliveUser } from "./Nicolive.svelte";
 
 /**
  * 放送サイトの一覧\
- * MEMO: このIDに `"%"` を使ってはダメ
+ * このIDに `"%"` を使ってはダメ
  */
 export const PlatformsId = {
   /**

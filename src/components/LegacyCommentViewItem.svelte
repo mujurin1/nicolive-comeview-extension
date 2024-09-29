@@ -1,4 +1,3 @@
-
 <script lang="ts">
   import type { Snippet } from "svelte";
   import { onErrorImage } from "../Platform";
@@ -43,6 +42,7 @@
   @layer {
     .comment {
       display: flex;
+      column-gap: 3px;
       min-height: 30px;
 
       border-top: 1px solid black;
@@ -54,7 +54,6 @@
         sans-serif;
 
       & > .child {
-        margin-right: 3px;
         display: flex;
         align-items: center;
       }

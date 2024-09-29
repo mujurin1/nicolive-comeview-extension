@@ -10,7 +10,7 @@
 </script>
 
 <div class="main">
-  <Tab {names} currentTab="pinned">
+  <Tab {names} currentTab="pinned">  <!-- このエラーは svelte の不具合ぽいので無視する -->
     {#snippet content(tabId)}
       <div class="content">
         {#if tabId === "pinned"}

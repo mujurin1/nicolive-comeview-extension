@@ -241,7 +241,7 @@
 //           user = NicoliveUser.create(userId, is184, is184 ? undefined : data.value.name, data.value.no);
 //         }
 
-//         // MEMO: この代入は svelte の更新のルールに従うため
+//         // この代入は svelte の更新のルールに従うため
 //         user = this.upsertUser(user, data.value.content, data.value.no);
 //         return builder.user(data.value.content, user, is184, data.value.no);
 //       } else {

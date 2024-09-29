@@ -1,12 +1,20 @@
 import type { ExtMessageType } from ".";
 import { MessageStore } from "../store/MessageStore.svelte";
 
+export interface ExtentionMessageOption {
+  expandMessage?: string;
+  button?: {
+    text: string;
+    func: (() => void);
+  };
+}
+export type ExtentionMessage = ExtMessageType<"extention", "system"> & ExtentionMessageOption;
 
-export type ExtentionMessage = ExtMessageType<"extention">;
-
-class _ExtMessenger {
-  public add(message: string) {
+export const ExtMessenger = {
+  add: (message: string, opsions?: ExtentionMessageOption) => {
     MessageStore.messages.push({
+      ...opsions,
+
       id: `extention#${MessageStore.messages.length + 1}`,
       platformId: "extention",
       messageId: (MessageStore.messages.length + 1) + "",
@@ -20,9 +28,10 @@ class _ExtMessenger {
 
       link: undefined,
       includeSharp: false,
-      tempName: undefined,
+      tempName: "ｼｽﾃﾑ",
     });
-  }
-}
-
-export const ExtMessenger = new _ExtMessenger();
+  },
+  addMessage: (message: string, expandMessage?: string) => {
+    ExtMessenger.add(message, { expandMessage });
+  },
+} as const;

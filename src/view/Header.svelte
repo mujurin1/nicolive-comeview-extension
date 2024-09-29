@@ -27,7 +27,7 @@
       {/if}
     </div>
 
-    {#if Nicolive.canFetchBackwaardMessage}
+    {#if Nicolive.canFetchBackwardMessage}
       <div class="head-item">
         {#if Nicolive.isFetchingBackwardMessage}
           <div title="１セグメント毎の待機時間は１秒">過去コメント取得中‥</div>

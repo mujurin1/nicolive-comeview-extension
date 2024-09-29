@@ -3,10 +3,9 @@
 
   type NameDisplay = readonly (readonly [Name, string])[];
 
-  let { names, currentTab = $bindable(), header, content, switchedTab }: {
+  let { names, currentTab = $bindable(), content, switchedTab }: {
     names: readonly Name[] | NameDisplay;
     currentTab: Name;
-    header?: Snippet;
     content: Snippet<[Name]>;
     switchedTab?: (newTab: Name) => void;
   } = $props();
