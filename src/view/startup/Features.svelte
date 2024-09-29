@@ -12,18 +12,30 @@
 
 <div class="content-box">
   <div class="content bug-fix">
-    <div class="title">既知の不具合 (2024.9.20 ~ )</div>
+    <div class="title">不具合情報 （～2024.10.1 v0.3）</div>
 
     <div class="section">
-      <div class="section-title">(修正済み) コテハン・呼び名が正常に登録出来ない不具合修正</div>
-      <div class="section-title">
-        (調査中) 再接続後に過去コメントの取得をすると拡張機能毎停止する事がある
+      <div class="section-title">既知の問題はありません</div>
+      <div class="section-content">
+        <div>通信部分を全て作り直したため通信に関わる不具合は解消されました</div>
+        <div>接続中に問題が発生した場合は自動で再接続されます</div>
+        <div>
+          問題が見つかった場合は
+          <button
+            class="link-button"
+            type="button"
+            onclick={() => setting.page.openHilight("フィードバック")}
+          >
+            フィードバック
+          </button>
+          から報告をお願いします
+        </div>
       </div>
     </div>
   </div>
 
   <div class="content new-features">
-    <div class="title">新機能 (2024.9.20)</div>
+    <div class="title">新機能 （2024.9.20 v0.2.9.1）</div>
 
     <div class="section">
       <div class="section-title feadback-request">

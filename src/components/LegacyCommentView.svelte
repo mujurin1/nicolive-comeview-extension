@@ -116,7 +116,12 @@
           {/if}
         {:else}
           <details class="extension-details">
-            <summary>{message.content}</summary>
+            <summary>
+              {message.content}
+              {#if message.button != null}
+                <button type="button" onclick={message.button.func}>{message.button.text}</button>
+              {/if}
+            </summary>
             {message.expandMessage}
           </details>
         {/if}

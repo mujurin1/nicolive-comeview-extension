@@ -1,6 +1,6 @@
 export * from "./NicoliveType";
 
-import { abortErrorWrap, type dwango, getNicoliveId, type INicoliveServerConnector, isAbortError, type NicoliveMessageServerConnector, type NicolivePageData, NicoliveUtility, type NicoliveWsServerConnector, sleep, timestampToMs } from "@mujurin/nicolive-api-ts";
+import { abortErrorWrap, type dwango, getNicoliveId, type INicoliveServerConnector, isAbortError, type NicoliveMessageServerConnector, type NicolivePageData, NicoliveUtility, NicoliveWebSocketReconnectError, type NicoliveWsServerConnector, sleep, timestampToMs } from "@mujurin/nicolive-api-ts";
 import { BouyomiChan } from "../function/BouyomiChan";
 import { autoUpdateCommentCss } from "../function/CssStyle.svelte";
 import { MessageStore } from "../store/MessageStore.svelte";
@@ -78,7 +78,7 @@ class _Nicolive {
     } catch (e) {
       ExtMessenger.addMessage("エラーが発生したので接続を終了します", `${e}`);
     } finally {
-      ExtMessenger.addMessage("接続を終了しました");
+      ExtMessenger.add("接続を終了しました");
       this.close();
     }
   }
@@ -102,13 +102,13 @@ class _Nicolive {
       this.connectingAbort = undefined;
 
       await this.opened(false);
-      ExtMessenger.addMessage("再接続しました");
+      ExtMessenger.add("再接続しました");
 
       await this.connectReaderWaitAnyClose();
     } catch (e) {
       ExtMessenger.addMessage("エラーが発生したので接続を終了します", `${e}`);
     } finally {
-      ExtMessenger.addMessage("接続を終了しました");
+      ExtMessenger.add("接続を終了しました");
       this.connectingAbort = undefined;
       this.close();
     }
@@ -207,29 +207,34 @@ class _Nicolive {
   }
 
   private async readWsMessage(wsConnector: NicoliveWsServerConnector): Promise<void> {
-    // この do-while はエラー発生時の再接続のため
-    do {
+    // この while はエラー発生時の再接続のため
+    while (true) {
       const signal = wsConnector.getAbortController().signal;
       try {
         const iter = wsConnector.getIterator();
         for await (const message of iter) {
           // ウェブソケットのメッセージは今は不要
-          // エラーチェックのために使わなくてもイテレーターは必要
+          // エラーチェックのためにいてレートしている
         }
         // イテレーターが終わるのは接続が終了したとき
       } catch (e) {
         if (isAbortError(e, signal)) break;
-        ExtMessenger.addMessage(`エラー 発生元:ウェブソケット接続`, `${e}`);
-        if (await this.tryReconnect(wsConnector)) continue;
+
+        if (e instanceof NicoliveWebSocketReconnectError) {
+          if (await this.wsReconnect(wsConnector, e)) continue;
+        } else {
+          ExtMessenger.addMessage(`エラー 発生元:ウェブソケット接続`, `${e}`);
+          if (await this.tryReconnect(wsConnector)) continue;
+        }
       }
 
       break;
-    } while (true);
+    }
   }
 
   private async readServerMessage(serverConnector: NicoliveMessageServerConnector): Promise<void> {
-    // この do-while はエラー発生時の再接続のため
-    do {
+    // この while はエラー発生時の再接続のため
+    while (true) {
       let signal = serverConnector.getAbortController().signal;
       try {
         const iter = serverConnector.getIterator();
@@ -245,7 +250,38 @@ class _Nicolive {
       }
 
       break;
-    } while (true);
+    }
+  }
+
+  private async wsReconnect(wsConnector: NicoliveWsServerConnector, e: NicoliveWebSocketReconnectError): Promise<boolean> {
+    const abort = new AbortController();
+    let reconnecting = true;
+    ExtMessenger.add(`再接続要求を受け取ったためウェブソケットの再接続中です。${e.data.waitTimeSec}秒待機中`, {
+      expandMessage: `【お願い】このエラーについて制作者は動作確認出来ていないため再接続が成功したかどうかフィードバックで教えていただけると助かります
+再接続要求内容${JSON.stringify(e.data)}`,
+      button: {
+        text: "中断する",
+        func: () => {
+          if (reconnecting) abort.abort();
+        }
+      }
+    });
+
+    try {
+      await wsConnector.reconnect(abort, e.reconnectTime).promise;
+      ExtMessenger.add("再接続に成功しました");
+      return true;
+    } catch (e) {
+      if (isAbortError(e, abort.signal)) {
+        ExtMessenger.add("再接続を中断しました");
+      } else {
+        ExtMessenger.addMessage("再接続に失敗しました", `${e}`);
+      }
+    } finally {
+      reconnecting = false;
+    }
+
+    return false;
   }
 
   private async tryReconnect(connector: INicoliveServerConnector): Promise<boolean> {
@@ -265,21 +301,21 @@ class _Nicolive {
         await promiseSet.promise;
 
         this.state = "opened";
-        ExtMessenger.addMessage(`再接続: 成功. 接続を再開します`);
+        ExtMessenger.add(`再接続: 成功. 接続を再開します`);
         return true;
       } catch (e) {
         if (isAbortError(e, abort.signal)) {
-          ExtMessenger.addMessage(`再接続: キャンセルしました`);
+          ExtMessenger.add(`再接続: キャンセルしました`);
           break;
         }
 
         if (delaySec === -1) {
-          ExtMessenger.addMessage(`再接続: 試行回数の上限に達したため終了します`, `${e}`);
+          ExtMessenger.addMessage(`再接続: 終了. 試行回数の上限に達しました`, `${e}`);
           break;
         }
-        ExtMessenger.addMessage(`再接続: 失敗. 次の再試行まで待機中… ${delaySec}秒`, `${e}`);
+        ExtMessenger.addMessage(`再接続: 失敗. 次の再試行まであと ${delaySec}秒`, `${e}`);
         if (await abortErrorWrap(sleep(delaySec * 1e3, abort.signal), abort.signal)) {
-          ExtMessenger.addMessage(`再接続: キャンセルしました`);
+          ExtMessenger.add(`再接続: キャンセルしました`);
           break;
         }
       } finally {
@@ -315,7 +351,7 @@ class _Nicolive {
 
     this.speach(message);
 
-    MessageStore.messages.push(message);
+    MessageStore.add(message);
   };
 
   private speach(message: NicoliveMessage) {
