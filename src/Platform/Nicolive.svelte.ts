@@ -239,7 +239,7 @@ class _Nicolive {
       try {
         const iter = serverConnector.getIterator();
         for await (const message of iter) {
-          show_dbg(message);
+          // show_dbg(message);
           this.onMessage(message);
         }
         // イテレーターが終わるのは接続が終了したとき
@@ -555,7 +555,6 @@ function parseKotehanAndYobina(str: string): { kotehan?: string | 0; yobina?: st
 }
 
 function show_dbg(message: dwango.ChunkedMessage) {
-
   const { meta: _meta, payload: { value, case: _case } } = message;
 
   const meta =
@@ -571,6 +570,6 @@ function show_dbg(message: dwango.ChunkedMessage) {
     console.log("###", _case, meta, value);
   } else if (_case === "message") {
     console.log("###", _case, value.data.case, meta);
-    // console.log(value.data.value);
+    console.log(value.data.value);
   }
 }
