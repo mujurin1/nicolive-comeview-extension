@@ -26,36 +26,32 @@
 <style>
   .main {
     box-sizing: border-box;
-    margin-top: 5px;
     height: 100%;
 
     .content {
-      margin-top: 5px;
       padding: 5px 5px 50px 5px;
       overflow-y: auto;
     }
 
     :global(.tab-header) {
-      background-color: #eee;
-
       :global(& > .tab-name) {
         flex: 1;
         height: auto;
-        background-color: rgb(228, 228, 228);
+        background-color: hsl(0, 0%, 95%);
         font-size: 18px;
 
         :global(&:not(.selected):hover) {
-          background-color: rgb(223, 223, 223);
+          background-color: hsl(0, 0%, 95%);
           box-shadow: 1px 1px 1px #aaa;
         }
         :global(&.selected) {
-          background-color: rgb(245, 245, 245);
+          background-color: hsl(0, 0%, 96%);
           box-shadow: 1px 1px 1px #aaa;
         }
 
         :global(&.feature) {
           background-color: hsl(100, 70%, 94%);
-            :global(&:not(.selected):hover) {
+          :global(&:not(.selected):hover) {
             background-color: hsl(100, 70%, 92%);
           }
           :global(&.selected) {
