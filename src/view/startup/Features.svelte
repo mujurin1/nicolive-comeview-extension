@@ -39,7 +39,7 @@ CONTENT
         <div>接続中に問題が発生した場合は自動で再接続されます</div>
         <div>
           問題が見つかった場合は
-          {@render Link("フィードバック", "リスナー")}
+          {@render Link("フィードバック", "フィードバック")}
           から報告をお願いします
         </div>
       </div>
@@ -111,7 +111,7 @@ CONTENT
       <div class="section-content">
         <div>ブラウザでログインしているアカウントで投稿します</div>
         <div>
-          {@render Link("コメント投稿欄を表示する", "リスナー", ["nicolive-show-post-area"])}
+          {@render Link("コメント投稿欄を表示する", "ニコ生", ["nicolive-show-post-area"])}
           から表示/非表示を変更できます
         </div>
       </div>
