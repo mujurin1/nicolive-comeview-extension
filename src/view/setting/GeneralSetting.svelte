@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { settingViewStore } from "./Setting.svelte";
+  import { settingViewStore } from "../view";
 
   let { highlightItems = $bindable() }: { highlightItems: string[] } = $props();
 </script>

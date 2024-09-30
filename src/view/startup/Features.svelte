@@ -1,18 +1,36 @@
 <script lang="ts">
   import { setting } from "../view";
 
-  /*
-   * 更新履歴を書きたいわけではない
-   * * 不具合
-   * * 新機能
-   * * 変更
-   * * その他
-   */
+  type TabName = Parameters<typeof setting.page.openHilight>[0];
 </script>
 
+<!--
+div:content-box
+  div:content issue > CONTENT
+  div:content new-features > CONTENT
+  div:content features > CONTENT
+
+CONTENT
+  div:title
+  div:section +
+    div:section-title
+    div:section-content
+      div +
+ -->
+
+{#snippet Link(name: string, tab: TabName, items?: string[])}
+  <button
+    class="link-button"
+    onclick={() => setting.page.openHilight(tab, items)}
+    type="button"
+  >
+    {name}
+  </button>
+{/snippet}
+
 <div class="content-box">
-  <div class="content bug-fix">
-    <div class="title">不具合情報 （～2024.10.1 v0.3）</div>
+  <div class="content issue">
+    <div class="title">不具合情報 （2024.10.1 v0.3）</div>
 
     <div class="section">
       <div class="section-title">既知の問題はありません</div>
@@ -21,13 +39,7 @@
         <div>接続中に問題が発生した場合は自動で再接続されます</div>
         <div>
           問題が見つかった場合は
-          <button
-            class="link-button"
-            onclick={() => setting.page.openHilight("フィードバック")}
-            type="button"
-          >
-            フィードバック
-          </button>
+          {@render Link("フィードバック", "リスナー")}
           から報告をお願いします
         </div>
       </div>
@@ -35,7 +47,7 @@
   </div>
 
   <div class="content new-features">
-    <div class="title">新機能 （2024.9.20 v0.2.9.1）</div>
+    <div class="title">新機能（2024.9.20 v0.2.9.1）</div>
 
     <div class="section">
       <div class="section-title feadback-request">
@@ -47,10 +59,10 @@
             class="link-button"
             onclick={() =>
               setting.page.openHilight(
-                "ニコ生",
+                "ニコ生",[
                 "nicolive-184-visible",
                 "nicolive-system-visible",
-                "nicolive-system-yomiage",
+                "nicolive-system-yomiage",]
               )}
             type="button"
           >
@@ -99,13 +111,7 @@
       <div class="section-content">
         <div>ブラウザでログインしているアカウントで投稿します</div>
         <div>
-          <button
-            class="link-button"
-            onclick={() => setting.page.openHilight("ニコ生", "nicolive-show-post-area")}
-            type="button"
-          >
-            コメント投稿欄を表示する
-          </button>
+          {@render Link("コメント投稿欄を表示する", "リスナー", ["nicolive-show-post-area"])}
           から表示/非表示を変更できます
         </div>
       </div>
@@ -116,13 +122,7 @@
       <div class="section-content">
         <div>
           リスナー毎のコメントの見た目を
-          <button
-            class="link-button"
-            onclick={() => setting.page.openHilight("リスナー")}
-            type="button"
-          >
-            リスナー設定
-          </button>
+          {@render Link("リスナー設定", "リスナー")}
           から変更出来ます
         </div>
         <div>コメビュでユーザー名をクリックでも開きます</div>
@@ -135,13 +135,7 @@
         <div>＠を含むコメントでコテハンや呼び名を設定できます</div>
         <div>
           ※
-          <button
-            class="link-button"
-            onclick={() => setting.page.openHilight("一般", "general-kotehan", "general-yobina")}
-            type="button"
-          >
-            一般設定
-          </button>
+          {@render Link("一般設定", "一般", ["general-kotehan", "general-yobina"])}
           からコテハン・呼び名を有効化する必要があります
         </div>
       </div>
@@ -151,13 +145,7 @@
       <div class="section-title">呼び名</div>
       <div class="section-content">
         <div>
-          <button
-            class="link-button"
-            onclick={() => setting.page.openHilight("読み上げ", "yomiage-type")}
-            type="button"
-          >
-            読み上げる名前のタイプ
-          </button>
+          {@render Link("読み上げる名前のタイプ", "読み上げ", ["yomiage-type"])}
           を 呼び名 のみ有効化すると呼び名が設定されたユーザーのみ名前を読み上げます
         </div>
         <div>
@@ -172,7 +160,7 @@
   .content-box {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 10px;
     font-size: 1rem;
     color: #313338;
   }
@@ -205,7 +193,7 @@
     }
   }
 
-  .bug-fix {
+  .issue {
     background-color: #e5e8f5;
     font-size: 0.85em;
 

@@ -1,6 +1,6 @@
 <script lang="ts">
   import FormatSetting from "../../components/FormatSetting.svelte";
-  import { settingViewStore } from "./Setting.svelte";
+  import { settingViewStore } from "../view";
 
   let tabOpened = $state({
     default: true,
@@ -10,7 +10,9 @@
   });
 </script>
 
-<h2 style:font-size="1.3rem" style:margin="0 0 10px 0" style:text-align="center">コメントフォーマット設定</h2>
+<h2 style:font-size="1.3rem" style:margin="0 0 10px 0" style:text-align="center">
+  コメントフォーマット設定
+</h2>
 
 <div class="content">
   <details class="item" bind:open={tabOpened.default}>

@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import { Nicolive } from "../Platform";
   import { SettingStore } from "../store/SettingStore.svelte";
-  import { settingViewStore } from "../view/setting/Setting.svelte";
+  import { settingViewStore } from "../view/view";
 
   let isLogined = $state(Nicolive.pageData?.nicoliveInfo?.loginUser != null);
   let isBroadcaster = $state(Nicolive.pageData?.nicoliveInfo?.loginUser?.isBroadcaster);

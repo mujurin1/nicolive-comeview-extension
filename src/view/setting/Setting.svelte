@@ -1,16 +1,3 @@
-<script lang="ts" module>
-  import { notifierStore } from "../../lib/CustomStore.svelte";
-  import { type SettingState, SettingStore } from "../../store/SettingStore.svelte";
-  import type { DeepMutable } from "../../utils";
-
-  export const settingViewStore = notifierStore(
-    SettingStore.state as DeepMutable<SettingState>,
-    () => {
-      SettingStore.save();
-    }
-  );
-</script>
-
 <script lang="ts">
   import { tick } from "svelte";
   import Tab from "../../components/Tab.svelte";
@@ -21,7 +8,7 @@
   import ViewSetting from "./ViewSetting.svelte";
   import YomiageSetting from "./YomiageSetting.svelte";
 
-  const names = ["一般", "読み上げ", "ニコ生", "リスナー", "コメント表示", "フィードバック", "Advanced"] as const;
+  export const names = ["一般", "読み上げ", "ニコ生", "リスナー", "コメント表示", "フィードバック", "Advanced"] as const;
   type TabNames = typeof names[number];
 
   let currentTab = $state<TabNames>("一般");
@@ -49,9 +36,9 @@
     }
   }
 
-  export async function openHilight(tab: TabNames, ...items: string[]) {
+  export async function openHilight(tab: TabNames, items?: string[]) {
     await switchOpen(true, tab);
-    highlightItems = items;
+    highlightItems = items ?? [];
   }
 </script>
 

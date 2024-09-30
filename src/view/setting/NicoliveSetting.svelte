@@ -1,7 +1,7 @@
 <script lang="ts">
   import { SystemMessageType, SystemMessageTypeDisplayName } from "../../Platform";
   import { VisibleSpeachType } from "../../store/SettingStore.svelte";
-  import { settingViewStore } from "./Setting.svelte";
+  import { settingViewStore } from "../view";
 
   let { highlightItems = $bindable() }: { highlightItems: string[] } = $props();
 </script>

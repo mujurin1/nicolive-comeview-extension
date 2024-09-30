@@ -1,6 +1,6 @@
 <script lang="ts">
   import { SpeachNameItems, YomiageTypes } from "../../store/SettingStore.svelte";
-  import { settingViewStore } from "./Setting.svelte";
+  import { settingViewStore } from "../view";
 
   let { highlightItems = $bindable() }: { highlightItems: string[] } = $props();
 </script>

@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { Nicolive } from "../Platform";
-  import Setting, { settingViewStore } from "./setting/Setting.svelte";
-  import { setting } from "./view";
+  import Setting from "./setting/Setting.svelte";
+  import { setting, settingViewStore } from "./view";
 
   let settingPage = $state<Setting>();
   onMount(() => {
