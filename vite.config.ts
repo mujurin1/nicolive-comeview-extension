@@ -7,7 +7,7 @@ import zipPack from "vite-plugin-zip-pack";
 const manifest = defineManifest({
   manifest_version: 3,
   name: "ニコ生コメビュ",
-  version: "0.3",
+  version: "0.3.1",
   icons: {
     128: "assets/128x128.png",
   },
@@ -57,7 +57,8 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: "./index.html",
-        comejene: "./comejene/index.html",
+        // comejene: "./comejene/index.html",
+        // comejene: "./comejene.html",
       }
     },
   },

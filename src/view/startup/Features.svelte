@@ -30,7 +30,7 @@ CONTENT
 
 <div class="content-box">
   <div class="content issue">
-    <div class="title">不具合情報 （2024.10.1 v0.3）</div>
+    <div class="title">不具合情報 （2024.10.1 v0.3.1）</div>
 
     <div class="section">
       <div class="section-title">既知の問題はありません</div>
@@ -44,6 +44,19 @@ CONTENT
         </div>
       </div>
     </div>
+
+    <details class="section">
+      <summary class="section-title">v0.3.1で修正された不具合</summary>
+      <div class="section-content">
+        <div>放送終了後にウェブソケットが再接続をしてしまう（フィードバックありがとうございます m(_ _)m）</div>
+        <div>ウェブソケットが終了メッセージを受信する前に切断された場合に自動再接続されなかった</div>
+        <div>
+          再接続時に以下の条件を満たしていた時にエラーが出る（可能性があった）<br>
+          ・接続後にリアルタイムコメントを受信する前に切断していた時<br>
+          ・最後にコメントを取得してから数十秒経過後に切断していた時
+        </div>
+      </div>
+    </details>
   </div>
 
   <div class="content new-features">
