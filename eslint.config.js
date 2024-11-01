@@ -123,6 +123,7 @@ const svelteConfig = tsEslint.config({
     "svelte/sort-attributes": "warn", // off
     // "svelte/experimental-require-slot-types": "warn", // off
     "svelte/experimental-require-strict-events": "off",
+    "svelte/valid-compile": "off",
   }
 });
 

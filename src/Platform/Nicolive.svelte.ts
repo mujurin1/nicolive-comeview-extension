@@ -1,10 +1,10 @@
 export * from "./NicoliveType";
 
-import { abortErrorWrap, type dwango, getNicoliveId, type INicoliveServerConnector, isAbortError, type NicoliveMessageServerConnector, type NicolivePageData, NicoliveUtility, NicoliveWebSocketReconnectError, type NicoliveWsServerConnector, sleep, timestampToMs } from "@mujurin/nicolive-api-ts";
+import { type AbortAndPromise, type INicoliveServerConnector, type NicoliveMessageServerConnector, type NicolivePageData, NicoliveUtility, NicoliveWebSocketReconnectError, type NicoliveWsServerConnector, abortErrorWrap, type dwango, getNicoliveId, isAbortError, sleep, timestampToMs } from "@mujurin/nicolive-api-ts";
 import { BouyomiChan } from "../function/BouyomiChan";
 import { autoUpdateCommentCss } from "../function/CssStyle.svelte";
 import { MessageStore } from "../store/MessageStore.svelte";
-import { checkVisibleSpeachType_Speach, SettingStore } from "../store/SettingStore.svelte";
+import { SettingStore, checkVisibleSpeachType_Speach } from "../store/SettingStore.svelte";
 import { StorageUserStore } from "../store/StorageUserStore.svelte";
 import { timeString } from "../utils";
 import { ExtMessenger } from "./Extention.svelte";
@@ -71,9 +71,8 @@ class _Nicolive {
 
     try {
       await this.setupConnector();
-
+      this.createOwner(this.pageData!);
       await this.opened(true);
-
       await this.connectReaderWaitAnyClose();
     } catch (e) {
       ExtMessenger.addMessage("エラーが発生したので接続を終了します", `${e}`);
@@ -127,26 +126,21 @@ class _Nicolive {
 
   private async setupConnector() {
     try {
-      const pageDataSet = NicoliveUtility.fetchNicolivePageData(this.url);
-      this.connectingAbort = pageDataSet.abortController;
-      const pageData = await pageDataSet.promise;
-      this.pageData = pageData;
-
-      this.createOwner(this.pageData);
-
-      const wsConnectorSet = NicoliveUtility.createWsServerConnector(pageData);
-      this.connectingAbort = wsConnectorSet.abortController;
-      this.wsServerConnector = await wsConnectorSet.promise;
+      this.pageData = await this.setAbort(NicoliveUtility.fetchNicolivePageData(this.url));
+      this.wsServerConnector = await this.setAbort(NicoliveUtility.createWsServerConnector(this.pageData));
       const msgServerData = await this.wsServerConnector.getMessageServerData();
-      const msgConnectorSet = NicoliveUtility.createMessageServerConnector(msgServerData);
-      this.connectingAbort = msgConnectorSet.abortController;
-      this.msgServerConnector = await msgConnectorSet.promise;
+      this.msgServerConnector = await this.setAbort(NicoliveUtility.createMessageServerConnector(msgServerData));
     } catch (e) {
       if (isAbortError(e, this.connectingAbort?.signal)) return;
       throw e;
     } finally {
       this.connectingAbort = undefined;
     }
+  }
+
+  private setAbort<T extends AbortAndPromise<any>>(value: T): T["promise"] {
+    this.connectingAbort = value.abortController;
+    return value.promise;
   }
 
   public close() {
@@ -214,7 +208,7 @@ class _Nicolive {
         const iter = wsConnector.getIterator();
         for await (const _message of iter) {
           // ウェブソケットのメッセージは今は不要
-          // エラーチェックのためにいてレートしている
+          // エラーチェックのためにイテレートしている
         }
         // イテレーターが終わるのは接続が終了したとき
       } catch (e) {

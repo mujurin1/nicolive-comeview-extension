@@ -56,6 +56,8 @@
       <label for="speak">読み上げ</label>
       <input id="speak" type="checkbox" bind:checked={$settingViewStore.yomiage.isSpeak} />
     </div>
+
+    <!-- <a href="./comejene.html" target="_blank">コメジェネXXXXXXXXXXXXXXXXXX</a> -->
   </div>
 
   <button class="setting-btn" onclick={() => settingPage?.switchOpen(true)} type="button">

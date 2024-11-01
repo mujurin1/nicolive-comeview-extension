@@ -1,7 +1,7 @@
 import { mount } from "svelte";
-import Comejene from "./Comejene.svelte";
+import App from "./App.svelte";
 import "./style.css";
 
-export default mount(Comejene, {
+export default mount(App, {
   target: document.getElementById("app")!,
-}) as Comejene;
+}) as App;

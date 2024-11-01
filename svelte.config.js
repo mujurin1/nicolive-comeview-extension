@@ -6,6 +6,6 @@ export default {
   // for more information about preprocessors
   preprocess: vitePreprocess(),
   compilerOptions: {
-    runes: true
+    // runes: true
   },
 };

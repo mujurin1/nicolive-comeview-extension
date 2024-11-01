@@ -41,6 +41,7 @@ export function notifierStore<T>(
           untrack(() => {
             state = newState;
             w.set(newState);
+            changeBind();
           });
         });
       }

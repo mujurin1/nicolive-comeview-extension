@@ -1,0 +1,21 @@
+:root,
+body,
+main,
+#app {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+
+label[for]:not([for=""]),
+input[type=checkbox],
+input[type=radio],
+button,
+select {
+  cursor: pointer;
+
+  &:disabled {
+    cursor: not-allowed !important;
+  }
+}
