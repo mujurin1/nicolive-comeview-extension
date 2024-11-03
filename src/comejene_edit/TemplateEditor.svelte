@@ -20,7 +20,7 @@
   import { getDummyComment } from "./utils";
 
   let previewIsLocal = $state(true);
-  let localPreview = $state<LocalPreview>();
+  let localPreview = $state<ReturnType<typeof LocalPreview>>();
   let refreshKey = $state(0);
 
   let selectTemplate = notifierStore<TemplateName>("stackA", () => {

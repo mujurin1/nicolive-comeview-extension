@@ -4,15 +4,15 @@ import type { DeepMutable } from "../utils";
 import type Additional from "./Additional.svelte";
 import type Setting from "./setting/Setting.svelte";
 
-let additionalPage: Additional;
+let additionalPage: ReturnType<typeof Additional>;
 export const additional = {
-  set page(page: Additional) { additionalPage = page; },
+  set page(page: typeof additionalPage) { additionalPage = page; },
   get page() { return additionalPage; },
 } as const;
 
-let settingPage: Setting;
+let settingPage: ReturnType<typeof Setting>;
 export const setting = {
-  set page(page: Setting) { settingPage = page; },
+  set page(page: typeof settingPage) { settingPage = page; },
   get page() { return settingPage; },
 } as const;
 

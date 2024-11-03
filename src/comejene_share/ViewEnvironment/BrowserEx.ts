@@ -5,6 +5,7 @@ export interface WindowSenderOptions {
   wsUrl: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 let iteratorSet: AsyncIteratorSet<ComejeneEvent> | undefined;
 
 /**

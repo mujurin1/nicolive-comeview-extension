@@ -4,7 +4,7 @@
   import Setting from "./setting/Setting.svelte";
   import { setting, settingViewStore } from "./view";
 
-  let settingPage = $state<Setting>();
+  let settingPage = $state<ReturnType<typeof Setting>>();
   onMount(() => {
     setting.page = settingPage!;
   });

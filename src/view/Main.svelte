@@ -13,7 +13,7 @@
   import Startup from "./startup/Startup.svelte";
   import { additional } from "./view";
 
-  let additionalPage = $state<Additional>();
+  let additionalPage = $state<ReturnType<typeof Additional>>();
 
   onMount(() => {
     if (additionalPage == null) return;
