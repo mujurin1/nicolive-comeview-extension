@@ -31,7 +31,7 @@
     display: flex;
     align-items: center;
     padding: 0 5px;
-    gap: 5px;
+    gap: 15px;
     background-color: #d9e2fb;
 
     & > .setting-area-header-title {
@@ -39,12 +39,12 @@
       font-size: 1.2em;
     }
     & > .setting-area-header-item {
-      flex: 1 1 0;
+      flex: 1 1 100%;
     }
   }
 
   .setting-area-content {
     background-color: #e1eaff;
-    padding: 0 5px;
+    padding: 3px 5px;
   }
 </style>

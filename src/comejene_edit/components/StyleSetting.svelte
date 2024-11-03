@@ -23,7 +23,6 @@
   )
 </script>
 
-
 {#each Object.keys(definition) as key (key)}
   {@const column: StyleColumn = definition[key]}
   {#if column === "number"}
@@ -64,9 +63,9 @@
     <div class="setting-block-label">{key}</div>
     <div style:--indent={`${indent}em`} class="setting-block-indent">
       <Self
-        bind:style={$style[key] as Setting}
         definition={column as Definition}
         indent={indent+1}
+        bind:style={$style[key] as Setting}
       />
     </div>
   {/if}

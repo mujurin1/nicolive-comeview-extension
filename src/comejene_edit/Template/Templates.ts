@@ -1,5 +1,5 @@
-import { type MessageFrameStyle, type MotionNames, type MotionSetting, MessageContentsStyle } from "../../comejene_share";
-import type { MessageContainerTemplateNames } from "./MessageContainer_Templates";
+import { MessageContentsStyle, type MessageStyle, type MotionNames, type MotionSetting } from "../../comejene_share";
+import { MessageContainerTemplates } from "./MessageContainer_Templates";
 
 
 
@@ -8,11 +8,11 @@ export interface Template {
     name: MotionNames;
     setting: MotionSetting;
   };
-  containerTemplateName: typeof MessageContainerTemplateNames[number];
-  style: {
-    frame: MessageFrameStyle;
-    contents: MessageContentsStyle;
-  };
+  style: MessageStyle,
+  // style: {
+  //   frame: MessageFrameStyle;
+  //   contents: MessageContentsStyle;
+  // };
 }
 
 export const Templates = {
@@ -21,12 +21,14 @@ export const Templates = {
       name: "sample",
       setting: {},
     },
-    containerTemplateName: "L:I-N-C",
-    style: Templates.stackA().style,
+    style: {
+      ...Templates.stackA().style,
+      containerLayout: MessageContainerTemplates["L:I-N-C"](),
+    },
   }),
   stackB: (): Template => {
     const v = Templates.stackA();
-    v.containerTemplateName = "L:I-N-C";
+    v.style.containerLayout = MessageContainerTemplates["L:I-N-C"]();
     return v;
   },
   stackA: (): Template => ({
@@ -39,16 +41,16 @@ export const Templates = {
         reverseMargine: false,
       },
     },
-    containerTemplateName: "L:I-{N_C}",
     style: {
-      frame: {
+      frameStyle: {
         backColor: "#aaffcc",
         size: {
           x: "FULL",
           y: "FULL",
         },
       },
-      contents: MessageContentsStyle.new(
+      containerLayout: MessageContainerTemplates["L:I-{N_C}"](),
+      contentsStyle: MessageContentsStyle.new(
         {
           position: { x: "center", y: "center" },
           imgSize: { width: 30, height: 30 }

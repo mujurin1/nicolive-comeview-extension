@@ -36,6 +36,14 @@
 </SettingArea>
 
 <SettingArea title="メッセージ枠">
+  <!-- <SettingColumn name="コンテナタイプ">
+    <select id="コンテナタイプ">
+      {#each MessageContainerTemplateNames as key (key)}
+        <option value={key}>{key}</option>
+      {/each}
+    </select>
+  </SettingColumn> -->
+
   <StyleSetting definition={MessageFrameStyleDefinition} bind:style={$messageStyle.frameStyle as any} />
 </SettingArea>
 

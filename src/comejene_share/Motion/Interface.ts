@@ -11,21 +11,6 @@ export type AsMotionSetting<T extends MotionSettingDefinition> = {
   T[K] extends "boolean" ? boolean :
   T[K] extends readonly string[] ? T[K][number] : never;
 };
-// export type MotionSetting = Record<string, string | number | boolean | { [K in string]: string | number | boolean } | undefined>;
-// export type MotionSettingDefinitionColumn = "string" | "number" | "boolean" | "color" | readonly string[] | MotionSettingDefinition;
-// export type MotionSettingDefinition = { readonly [K in string]: MotionSettingDefinitionColumn };
-
-// export type AsMotionSetting<T extends MotionSettingDefinition> = {
-//   -readonly [K in keyof T]:
-//   T[K] extends "string" ? string :
-//   T[K] extends "number" ? number :
-//   T[K] extends "boolean" ? boolean :
-//   // T[K] extends readonly string[] ? T[K][number] : never;
-//   T[K] extends "color" ? `#${string}` | undefined :
-//   T[K] extends readonly string[] ? T[K][number] :
-//   T[K] extends MotionSettingDefinition ? ExpandRecursively<AsMotionSetting<T[K]>> : never;
-// };
-
 
 export interface MotionSettingStyle<Definition extends MotionSettingDefinition> {
   definition: Definition & typeof MotionSettingDefinitionDefault,

@@ -8,13 +8,9 @@
     type MotionNames,
   } from "../comejene_share";
   import { notifierStore } from "../lib/CustomStore.svelte";
-  import {
-    MessageContainerTemplateNames,
-    MessageContainerTemplates,
-  } from "./Template/MessageContainer_Templates";
   import { TemplateNames, Templates, type Template, type TemplateName } from "./Template/Templates";
+  import EditorProps from "./components/EditorProps.svelte";
   import LocalPreview from "./components/LocalPreview.svelte";
-  import Setting from "./components/Setting.svelte";
   import SettingArea from "./components/SettingArea.svelte";
   import SettingColumn from "./components/SettingColumn.svelte";
   import { getDummyComment } from "./utils";
@@ -23,74 +19,28 @@
   let localPreview = $state<ReturnType<typeof LocalPreview>>();
   let refreshKey = $state(0);
 
-  let selectTemplate = notifierStore<TemplateName>("stackA", () => {
-    template = Templates[selectTemplate.state]();
-    refreshKey++;
-    sendMessage_Reset();
-  });
+  let templateName = $state<TemplateName>("stackA");
 
-  let template = $state<Template>(Templates[selectTemplate.state]());
-  let motionDefinition = $derived<MotionDefinition<MotionNames>>(
-    MotionDefinitions[template.motion.name],
-  );
   //svelte-ignore state_referenced_locally
-  let containerTemplateName = notifierStore(
-    template.containerTemplateName,
-    () => {},
-    () => template.containerTemplateName,
-  );
-
-  let motionName = $derived(template.motion.name);
-  // let motionSetting = $derived(template.motion.setting);
-  //svelte-ignore state_referenced_locally
-  let motionSetting = notifierStore(
-    template.motion.setting,
+  let template = notifierStore<Template>(
+    Templates[templateName](),
     () => {
-      console.log("changed  motionSetting");
-      localPreview?.setMotionSetting(motionSetting.state);
-      sendMessage_MotionSetting();
+      console.log(refreshKey);
+
+      refreshKey++;
+      sendMessage_Reset();
     },
-    () => template.motion.setting,
-  );
-  // let messageStyle = $derived<MessageStyle>({
-  //   containerLayout: MessageContainerTemplates[containerTemplateName.state],
-  //   contentsStyle: template.style.contents,
-  //   frameStyle: template.style.frame,
-  // });
-  //svelte-ignore state_referenced_locally
-  let messageStyle = notifierStore(
-    {
-      containerLayout: MessageContainerTemplates[containerTemplateName.state],
-      contentsStyle: template.style.contents,
-      frameStyle: template.style.frame,
-    },
-    () => {
-      localPreview?.setMessageStyle(messageStyle.state);
-      sendMessage_MessageStyle();
-    },
-    () => ({
-      containerLayout: MessageContainerTemplates[containerTemplateName.state],
-      contentsStyle: template.style.contents,
-      frameStyle: template.style.frame,
-    }),
+    () => Templates[templateName](),
   );
 
-  // $effect(() => {
-  //   // Effect を発生させるためのチェック
-  //   JSON.stringify(motionSetting);
-  //   untrack(() => {
-  //     localPreview?.setMotionSetting(motionSetting);
-  //     sendMessage_MotionSetting();
-  //   });
-  // });
-  // $effect(() => {
-  //   // Effect を発生させるためのチェック
-  //   JSON.stringify(messageStyle);
-  //   untrack(() => {
-  //     localPreview?.setMessageStyle(messageStyle);
-  //     sendMessage_MessageStyle();
-  //   });
-  // });
+  function resetMotionSetting() {
+    localPreview?.setMotionSetting($template.motion.setting);
+    sendMessage_MotionSetting();
+  }
+  function resetMessageStyle() {
+    localPreview?.setMessageStyle($template.style);
+    sendMessage_MessageStyle();
+  }
 
   //
   //
@@ -123,9 +73,9 @@
     for (const sender of senders) {
       sender.send({
         type: "comejene-reset",
-        motionName,
-        motionSetting: motionSetting.state,
-        messageStyle: messageStyle.state,
+        motionName: $template.motion.name,
+        motionSetting: $template.motion.setting,
+        messageStyle: $template.style,
       });
     }
   }
@@ -134,7 +84,7 @@
     for (const sender of senders) {
       sender.send({
         type: "change-motion-setting",
-        motionSetting: motionSetting.state,
+        motionSetting: $template.motion.setting,
       });
     }
   }
@@ -142,10 +92,14 @@
     for (const sender of senders) {
       sender.send({
         type: "change-message-style",
-        messageStyle: messageStyle.state,
+        messageStyle: $template.style,
       });
     }
   }
+
+  let motionDefinition = $derived<MotionDefinition<MotionNames>>(
+    MotionDefinitions[$template.motion.name],
+  );
 </script>
 
 <div class="editor-container">
@@ -155,7 +109,7 @@
 
     <SettingArea title="テンプレート">
       <SettingColumn name="タイプ">
-        <select id="タイプ" bind:value={$selectTemplate}>
+        <select id="タイプ" bind:value={templateName}>
           {#each TemplateNames as value (value)}
             <option {value}>{value}</option>
           {/each}
@@ -165,33 +119,25 @@
       <SettingColumn name="モーション" noLabelFor>
         <div>{motionDefinition.name}</div>
       </SettingColumn>
-
-      <SettingColumn name="コンテナタイプ">
-        <select id="コンテナタイプ" bind:value={$containerTemplateName}>
-          {#each MessageContainerTemplateNames as key (key)}
-            <option value={key}>{key}</option>
-          {/each}
-        </select>
-      </SettingColumn>
     </SettingArea>
+
+    {#key refreshKey}
+      <EditorProps {resetMessageStyle} {resetMotionSetting} bind:template={$template} />
+    {/key}
 
     <SettingArea title="コメントテスト">
       <button onclick={() => dbg_add()} type="button">コメントテスト</button>
     </SettingArea>
-
-    <!-- eslint-disable-next-line svelte/sort-attributes -->
-    <Setting {motionName} bind:motionSetting={$motionSetting} bind:messageStyle={$messageStyle} />
   </div>
 
   <div class="preview">
     {#if previewIsLocal}
       {#key refreshKey}
-        <!-- eslint-disable-next-line svelte/sort-attributes -->
         <LocalPreview
           bind:this={localPreview}
-          {motionName}
-          motionSetting={$motionSetting}
-          messageStyle={$messageStyle}
+          messageStyle={$template.style}
+          motionName={$template.motion.name}
+          motionSetting={$template.motion.setting}
         />
       {/key}
     {:else}
