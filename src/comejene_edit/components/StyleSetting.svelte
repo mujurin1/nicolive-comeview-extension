@@ -1,34 +1,42 @@
-<script lang="ts">
+<script generics="Definition extends StyleDefinition, Setting extends AsStyleSetting<Definition>" lang="ts">
   import ColorPicker from "svelte-awesome-color-picker";
-  import { type StyleColumn, type StyleDefinition, type StyleSetting } from "../../comejene_share";
+  import { type AsStyleSetting, type StyleColumn, type StyleDefinition } from "../../comejene_share";
+  import { notifierStore } from "../../lib/CustomStore.svelte";
   import SettingColumn from "./SettingColumn.svelte";
   import Self from "./StyleSetting.svelte";
 
   let {
-    contents,
+    style: _style = $bindable(),
     definition,
     indent = 1,
   }: {
-    contents: StyleSetting;
-    definition: StyleDefinition;
+    style: Setting;
+    definition: Definition;
     indent?: number;
   } = $props();
+
+  let style = notifierStore(
+    _style,
+    () => {
+      _style = style.state;
+    }
+  )
 </script>
 
 
 {#each Object.keys(definition) as key (key)}
-{@const column: StyleColumn = definition[key]}
+  {@const column: StyleColumn = definition[key]}
   {#if column === "number"}
     <SettingColumn name={key}>
-      <input id={key} type="number" bind:value={contents[key]}>
+      <input id={key} type="number" bind:value={$style[key]}>
     </SettingColumn>
   {:else if column === "string"}
     <SettingColumn name={key}>
-      <input id={key} type="text" bind:value={contents[key]}>
+      <input id={key} type="text" bind:value={$style[key]}>
     </SettingColumn>
   {:else if column === "boolean"}
     <SettingColumn name={key}>
-      <input id={key} type="checkbox" bind:checked={contents[key] as boolean}>
+      <input id={key} type="checkbox" bind:checked={$style[key] as boolean}>
     </SettingColumn>
   {:else if column === "color"}
     <SettingColumn name={key} noLabelFor>
@@ -38,15 +46,15 @@
           --picker-height="150px"
           --picker-width="150px"
           isTextInput={false}
-          label={contents[key] as string ?? "透明"}
+          label={$style[key] as string ?? "透明"}
           nullable
-          bind:hex={contents[key] as string}
+          bind:hex={$style[key] as string}
         />
       </div>
     </SettingColumn>
   {:else if Array.isArray(column)}
     <SettingColumn name={key}>
-      <select id={key} bind:value={contents[key]}>
+      <select id={key} bind:value={$style[key]}>
         {#each column as value (value)}
           <option {value}>{value}</option>
         {/each}
@@ -56,8 +64,8 @@
     <div class="setting-block-label">{key}</div>
     <div style:--indent={`${indent}em`} class="setting-block-indent">
       <Self
-        contents={contents[key] as StyleSetting}
-        definition={column as StyleDefinition}
+        bind:style={$style[key] as Setting}
+        definition={column as Definition}
         indent={indent+1}
       />
     </div>

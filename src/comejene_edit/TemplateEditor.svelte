@@ -1,9 +1,7 @@
 <script lang="ts">
-  import { untrack } from "svelte";
   import App from "../comejene/App.svelte";
   import {
     comejeneEnvs,
-    MessageStyle,
     MotionDefinitions,
     type ComejeneSender,
     type MotionDefinition,
@@ -43,29 +41,56 @@
   );
 
   let motionName = $derived(template.motion.name);
-  let motionSetting = $derived(template.motion.setting);
-  let messageStyle = $derived<MessageStyle>({
-    containerLayout: MessageContainerTemplates[containerTemplateName.state],
-    contentsStyle: template.style.contents,
-    frameStyle: template.style.frame,
-  });
-
-  $effect(() => {
-    // Effect を発生させるためのチェック
-    JSON.stringify(motionSetting);
-    untrack(() => {
-      localPreview?.setMotionSetting(motionSetting);
+  // let motionSetting = $derived(template.motion.setting);
+  //svelte-ignore state_referenced_locally
+  let motionSetting = notifierStore(
+    template.motion.setting,
+    () => {
+      console.log("changed  motionSetting");
+      localPreview?.setMotionSetting(motionSetting.state);
       sendMessage_MotionSetting();
-    });
-  });
-  $effect(() => {
-    // Effect を発生させるためのチェック
-    JSON.stringify(messageStyle);
-    untrack(() => {
-      localPreview?.setMessageStyle(messageStyle);
+    },
+    () => template.motion.setting,
+  );
+  // let messageStyle = $derived<MessageStyle>({
+  //   containerLayout: MessageContainerTemplates[containerTemplateName.state],
+  //   contentsStyle: template.style.contents,
+  //   frameStyle: template.style.frame,
+  // });
+  //svelte-ignore state_referenced_locally
+  let messageStyle = notifierStore(
+    {
+      containerLayout: MessageContainerTemplates[containerTemplateName.state],
+      contentsStyle: template.style.contents,
+      frameStyle: template.style.frame,
+    },
+    () => {
+      localPreview?.setMessageStyle(messageStyle.state);
       sendMessage_MessageStyle();
-    });
-  });
+    },
+    () => ({
+      containerLayout: MessageContainerTemplates[containerTemplateName.state],
+      contentsStyle: template.style.contents,
+      frameStyle: template.style.frame,
+    }),
+  );
+
+  // $effect(() => {
+  //   // Effect を発生させるためのチェック
+  //   JSON.stringify(motionSetting);
+  //   untrack(() => {
+  //     localPreview?.setMotionSetting(motionSetting);
+  //     sendMessage_MotionSetting();
+  //   });
+  // });
+  // $effect(() => {
+  //   // Effect を発生させるためのチェック
+  //   JSON.stringify(messageStyle);
+  //   untrack(() => {
+  //     localPreview?.setMessageStyle(messageStyle);
+  //     sendMessage_MessageStyle();
+  //   });
+  // });
 
   //
   //
@@ -89,7 +114,7 @@
 
   async function resetSender() {
     senders = await Promise.all([
-      comejeneEnvs.obs.createSender({ wsUrl: `ws://localhost:${4455}` }),
+      // comejeneEnvs.obs.createSender({ wsUrl: `ws://localhost:${4455}` }),
       comejeneEnvs.browserEx.createSender(),
     ]);
   }
@@ -99,8 +124,8 @@
       sender.send({
         type: "comejene-reset",
         motionName,
-        motionSetting,
-        messageStyle,
+        motionSetting: motionSetting.state,
+        messageStyle: messageStyle.state,
       });
     }
   }
@@ -109,7 +134,7 @@
     for (const sender of senders) {
       sender.send({
         type: "change-motion-setting",
-        motionSetting,
+        motionSetting: motionSetting.state,
       });
     }
   }
@@ -117,7 +142,7 @@
     for (const sender of senders) {
       sender.send({
         type: "change-message-style",
-        messageStyle,
+        messageStyle: messageStyle.state,
       });
     }
   }
@@ -155,13 +180,19 @@
     </SettingArea>
 
     <!-- eslint-disable-next-line svelte/sort-attributes -->
-    <Setting {motionName} {motionSetting} {messageStyle} />
+    <Setting {motionName} bind:motionSetting={$motionSetting} bind:messageStyle={$messageStyle} />
   </div>
 
   <div class="preview">
     {#if previewIsLocal}
       {#key refreshKey}
-        <LocalPreview bind:this={localPreview} {messageStyle} {motionName} {motionSetting} />
+        <!-- eslint-disable-next-line svelte/sort-attributes -->
+        <LocalPreview
+          bind:this={localPreview}
+          {motionName}
+          motionSetting={$motionSetting}
+          messageStyle={$messageStyle}
+        />
       {/key}
     {:else}
       <App />

@@ -1,29 +1,42 @@
 <script lang="ts">
   import { MessageContentFrames, MessageContentStyleDefinitionSet, MessageContentToStyleType, MessageFrameStyleDefinition, MessageStyle, MotionDefinitions, type MessageContentFrame, type MotionDefinition, type MotionNames, type MotionSetting } from "../../comejene_share";
+  import { notifierStore } from "../../lib/CustomStore.svelte";
   import SettingArea from "./SettingArea.svelte";
   import StyleSetting from "./StyleSetting.svelte";
 
   let {
     motionName,
-    messageStyle,
-    motionSetting,
+    messageStyle: _messageStyle = $bindable(),
+    motionSetting: _motionSetting = $bindable(),
   }: {
     motionName: MotionNames;
     messageStyle: MessageStyle;
     motionSetting: MotionSetting;
   } = $props();
 
+  let messageStyle = notifierStore(
+    _messageStyle,
+    () => {
+      _messageStyle = messageStyle.state;
+    }
+  )
+  let motionSetting = notifierStore(
+    _motionSetting,
+    () => {
+      _motionSetting = motionSetting.state;
+    }
+  )
 
   let motionDefinition = $derived<MotionDefinition<MotionNames>>(MotionDefinitions[motionName]);
   let selectContent = $state<MessageContentFrame>("message");
 </script>
 
 <SettingArea title="モーション設定">
-  <StyleSetting contents={motionSetting} definition={motionDefinition.css.definition} />
+  <StyleSetting definition={motionDefinition.css.definition} bind:style={$motionSetting} />
 </SettingArea>
 
 <SettingArea title="メッセージ枠">
-  <StyleSetting contents={messageStyle.frameStyle} definition={MessageFrameStyleDefinition} />
+  <StyleSetting definition={MessageFrameStyleDefinition} bind:style={$messageStyle.frameStyle as any} />
 </SettingArea>
 
 <SettingArea title="コンテンツ">
@@ -36,10 +49,12 @@
   {/snippet}
 
   {@const fr = selectContent}
-  {#if messageStyle.contentsStyle[fr] == null}
-    <div>noen</div>
-  {:else}
-    {@const definition = MessageContentStyleDefinitionSet[MessageContentToStyleType[fr]]}
-    <StyleSetting contents={messageStyle.contentsStyle[fr]} {definition} />
-  {/if}
+  {#key fr}
+    {#if $messageStyle.contentsStyle[fr] == null}
+      <div>noen</div>
+    {:else}
+      {@const definition = MessageContentStyleDefinitionSet[MessageContentToStyleType[fr]]}
+      <StyleSetting {definition} bind:style={$messageStyle.contentsStyle[fr] as any} />
+    {/if}
+  {/key}
 </SettingArea>

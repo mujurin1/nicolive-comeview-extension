@@ -2,7 +2,7 @@ import { checkComejeneEnvType, comejeneEnvs, type ComejeneEnvTypes, type Comejen
 import { ComejeneViewState } from "./ComejeneViewState.svelte";
 
 export class ComejeneState {
-  private readonly env: ComejeneEnvTypes;
+  public readonly env: ComejeneEnvTypes;
   private readonly receiver: ComejeneReceiver;
 
   private motionName: MotionNames | undefined;

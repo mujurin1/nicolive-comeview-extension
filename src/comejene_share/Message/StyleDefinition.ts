@@ -1,9 +1,9 @@
 import type { ExpandRecursively } from "../Motion";
 
+export type StyleSetting = Record<string, string | number | boolean | { [K in string]: string | number | boolean } | undefined>;
 export type StyleColumn = "string" | "number" | "boolean" | "color" | readonly string[] | StyleDefinition;
 export type StyleDefinition = { readonly [K in string]: StyleColumn };
 
-export type StyleSetting = Record<string, string | number | boolean | { [K in string]: string | number | boolean } | undefined>;
 export type AsStyleSetting<T extends StyleDefinition> = {
   -readonly [K in keyof T]:
   T[K] extends "string" ? string :

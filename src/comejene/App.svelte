@@ -6,7 +6,10 @@
 </script>
 
 {#if comejeneState.viewState == null}
-  <div class="initialize-message">コメントビューアで「初期化」をして下さい</div>
+  <div class="initialize-message">
+    <div>実行環境:{comejeneState.env}</div>
+    <div>コメントビューアで「初期化」をして下さい</div>
+  </div>
 {:else}
   {#key comejeneState.viewState}
     <ComejeneView comejeneState={comejeneState.viewState} />
