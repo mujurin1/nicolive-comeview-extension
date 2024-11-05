@@ -1,3 +1,4 @@
+import type { CustomCss } from "../func";
 import { MessageContainerLayout } from "./MessageContainerLayout";
 import { MessageContentsStyle } from "./MessageContentsStyle";
 import { MessageFrameStyle } from "./MessageFrameStyle";
@@ -30,12 +31,9 @@ export interface MessageStyle {
   contentsStyle: MessageContentsStyle;
 }
 export const MessageStyle = {
-  toCss: (style: MessageStyle): string => {
-    return [
-      MessageFrameStyle.toCss(style.frameStyle),
-      MessageContainerLayout.toCss(style.containerLayout),
-      MessageContentsStyle.toCss(style.contentsStyle),
-    ]
-      .join(" ");
+  updateCss: (customCss: CustomCss, style: MessageStyle): void => {
+    MessageFrameStyle.updateCss(customCss, style.frameStyle);
+    MessageContainerLayout.updateCss(customCss, style.containerLayout);
+    MessageContentsStyle.updateCss(customCss, style.contentsStyle);
   },
 } as const;

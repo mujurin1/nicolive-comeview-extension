@@ -1,4 +1,3 @@
-import { css } from "@emotion/css";
 import type { CSSObject } from "@emotion/css/create-instance";
 import { tick } from "svelte";
 import type { ReceiveContents } from "../../type";
@@ -31,14 +30,8 @@ export const StackMotionSettingStyle = MotionSettingStyle.create(
     reverseMargine: "boolean",
   } as const,
 
-  setting => {
+  (cssObject, setting) => {
     const cssObj: CSSObject = {
-      ".main-area": {
-        overflow: "clip",
-        width: "100%",
-        height: "100%",
-      },
-
       ".message-area": {
         position: "relative",
         display: "flex",
@@ -63,7 +56,7 @@ export const StackMotionSettingStyle = MotionSettingStyle.create(
       },
     };
 
-    return css(cssObj);
+    cssObject.updateCss("StackMotionSettingStyle", cssObj);
   },
 );
 
@@ -74,7 +67,7 @@ export class StackMotionState implements MotionState<
 > {
   private paddingSize: number = 0;
 
-  public mainAreaDiv: HTMLDivElement = null!;
+  public comejeneContainerDiv: HTMLDivElement = null!;
   public messageAreaDiv: HTMLDivElement = null!;
   public paddingDiv: HTMLDivElement = null!;
 
@@ -89,7 +82,7 @@ export class StackMotionState implements MotionState<
 
   public onMount() {
     const resizeObserver = new ResizeObserver(() => this.updateMessageAreaStyle());
-    resizeObserver.observe(this.mainAreaDiv);
+    resizeObserver.observe(this.comejeneContainerDiv);
     void this.resetMotionLayout(this.setting);
 
     return () => {
@@ -180,7 +173,7 @@ export class StackMotionState implements MotionState<
         this.messageAreaDiv.style.top = `${-this.messageAreaDiv.clientHeight}px`;
         this.messageAreaDiv.style.transform = `translateY(${this.messageAreaDiv.clientHeight}px)`;
       } else {
-        const scrollY = this.messageAreaDiv.clientHeight - this.mainAreaDiv.clientHeight;
+        const scrollY = this.messageAreaDiv.clientHeight - this.comejeneContainerDiv.clientHeight;
         this.messageAreaDiv.style.transform = `translateY(${-scrollY}px)`;
       }
     } else {
@@ -188,7 +181,7 @@ export class StackMotionState implements MotionState<
         this.messageAreaDiv.style.left = `${-this.messageAreaDiv.clientWidth}px`;
         this.messageAreaDiv.style.transform = `translateX(${this.messageAreaDiv.clientWidth}px)`;
       } else {
-        const scrollX = this.messageAreaDiv.clientWidth - this.mainAreaDiv.clientWidth;
+        const scrollX = this.messageAreaDiv.clientWidth - this.comejeneContainerDiv.clientWidth;
         this.messageAreaDiv.style.transform = `translateX(${-scrollX}px)`;
       }
     }

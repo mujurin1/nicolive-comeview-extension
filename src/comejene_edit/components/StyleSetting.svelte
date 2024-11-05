@@ -92,6 +92,11 @@
   .color-picker-wrap {
     display: flex;
 
+    /* #7桁以外の値をいれると重くなる対策 */
+    :global(& input[type="color"]) {
+      display: none;
+    }
+
     :global(& > * .color-picker > label) {
       display: flex;
       align-items: center;

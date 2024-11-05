@@ -1,4 +1,3 @@
-import { css } from "@emotion/css";
 import type { CSSObject } from "@emotion/css/create-instance";
 import { tick } from "svelte";
 import type { ReceiveContents } from "../../type";
@@ -9,14 +8,10 @@ import { SampleMotionMessage } from "./SampleMotionMessage.svelte";
 export type SampleMotionSetting = AsMotionSetting<typeof SampleMotionSettingStyle.definition>;
 export const SampleMotionSettingStyle = MotionSettingStyle.create(
   {} as const,
-  () => {
-    const cssObj: CSSObject = {
-      overflow: "clip",
-      width: "100%",
-      height: "100%",
-    };
+  (customCss, _) => {
+    const cssObj: CSSObject = {};
 
-    return css(cssObj);
+    customCss.updateCss("SampleMotionSettingStyle", cssObj);
   }
 );
 

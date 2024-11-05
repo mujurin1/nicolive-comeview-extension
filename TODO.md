@@ -1,8 +1,39 @@
-## コメジェネ機能のTODO
-* [ ] テンプレート一覧画面の作成
-* [ ] コンテナレイアウトエディタの作成
-* [ ] プロパティの追加
-* [ ] 配信ツールと連携するサービスの作成
+## コメジェネのTODO
+* 画面
+  * [ ] テンプレート一覧
+  * [ ] コンテナレイアウトエディタ
+* モーション
+  * [ ] アニメーション
+  * [ ] プロパティの追加
+* コンテンツ
+  * [ ] プロパティの追加
+* 機能
+  * [ ] テンプレートの保存・読み込み
+  * [ ] 配信ツールと連携するサービス
+* 問題
+  * [x] emotion/css だとStyleが増えまくるのでなんとかする
+
+
+```javascript
+// OBS 内でイベントリスナーにカスタムイベントを登録する
+window.addEventListener("nicolive-comeview-extention", event => { });
+
+// OBS 外でOBSのウェブソケットに向けてメッセージを送信する
+const obsws = new OBSWebSocket();
+await obsws.connect("ws://localhost:4455","PASSWARD");
+obsws.call(
+  "CallVendorRequest",
+  {
+    vendorName: "obs-browser",
+    requestType: "emit_event",
+    requestData: {
+      event_name: "nicolive-comeview-extention",  // イベントリスナーに登録する名前と同じにする
+      // jsonとして正しく変換されるはずのオブジェクトでもたまに正しく変換されない(空になる)ことがある
+      event_data: { },
+    },
+  }
+);
+```
 
 
 
@@ -60,30 +91,3 @@
   * [ ] paddingSize をたまに０に戻す (名前も padding より dummy のほうがいい？)
 * おみくじ的な機能とか面白そうなので入れたい
 
-
-## コメジェネ
-* 上下/左右に並ぶ形のコメジェネをとりあえず作る
-* 他に面白そうなデザイン
-  * 画面下部からアイコンが出現して、上に吹き出しが出る
-  * 
-
-「ブラウザ拡張機能 - OBS内ブラウザ」で通信するのはWebSocketを使う
-```javascript
-// OBS 内でイベントリスナーにカスタムイベントを登録する
-window.addEventListener("nicolive-comeview-extention", event => { });
-
-// OBS 外でOBSのウェブソケットに向けてメッセージを送信する
-const obsws = new OBSWebSocket();
-await obsws.connect("ws://localhost:4455","PASSWARD");
-obsws.call(
-  "CallVendorRequest",
-  {
-    vendorName: "obs-browser",
-    requestType: "emit_event",
-    requestData: {
-      event_name: "nicolive-comeview-extention",  // イベントリスナーに登録する名前と同じにする
-      event_data: { },  // json-data
-    },
-  }
-);
-```

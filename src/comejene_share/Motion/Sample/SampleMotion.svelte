@@ -16,7 +16,7 @@
   });
 </script>
 
-<div class="main-area">
+<div class="comejene-container">
   {#each state.messages as message (message)}
     <MessageContainer {message} />
   {/each}

@@ -13,27 +13,20 @@
     resetMessageStyle: () => void;
   } = $props();
 
-  let editTemplate = notifierStore(
-    template,
-    () => {
-      template = editTemplate.state;
-    },
-    // () => template
-  );
+  let editTemplate = notifierStore(template, () => {
+    template = editTemplate.state;
+  });
 
-  let motionSetting = notifierStore(
-    $editTemplate.motion.setting,
-    resetMotionSetting,
-    () => $editTemplate.motion.setting,
-  );
-  let messageStyle = notifierStore(
-    $editTemplate.style,
-    resetMessageStyle,
-    () => $editTemplate.style,
-  );
+  let motionSetting = notifierStore($editTemplate.motion.setting, () => {
+    editTemplate.state.motion.setting = motionSetting.state;
+    resetMotionSetting();
+  });
+  let messageStyle = notifierStore($editTemplate.style, () => {
+    editTemplate.state.style = messageStyle.state;
+    resetMessageStyle();
+  });
 </script>
 
-<!-- eslint-disable-next-line svelte/sort-attributes -->
 <Setting
   motionName={$editTemplate.motion.name}
   bind:motionSetting={$motionSetting}

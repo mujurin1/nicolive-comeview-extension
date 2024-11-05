@@ -1,6 +1,7 @@
 import { css } from "@emotion/css";
 import type { CSSObject } from "@emotion/css/create-instance";
 import type { MessageContentFrame } from ".";
+import type { CustomCss } from "../func";
 
 export interface MessageContainerLayout {
   rows: ContainerGridSize[];
@@ -17,24 +18,24 @@ export const MessageContainerLayout = {
     cols,
     contents,
   }),
-  toCss: ({ rows, cols, contents }: MessageContainerLayout): string => {
+  updateCss: (customCss: CustomCss, { rows, cols, contents }: MessageContainerLayout): void => {
     const cssObj: CSSObject = {
-      height: "100%",
-      width: "100%",
+      ".comejene-container": {
+        overflow: "clip",
+        width: "100%",
+        height: "100%",
+      },
 
       ".motion": {},
-      // .message-container は下で追加する
       ".content-frame": {
         display: "flex",
         flexWrap: "wrap",
       },
 
       ".message-container": {
-        // flex: "1 0 0",
-        // width: "100%",
         display: "grid",
-        gridTemplateRows: rows.map(ContainerGridSize.toCss).join(" "),
-        gridTemplateColumns: cols.map(ContainerGridSize.toCss).join(" "),
+        gridTemplateRows: rows.map(ContainerGridSize.asCss).join(" "),
+        gridTemplateColumns: cols.map(ContainerGridSize.asCss).join(" "),
       },
       // .content-frame.フレーム名 は下で追加する
     };
@@ -44,13 +45,14 @@ export const MessageContainerLayout = {
         cssObj[`.content-frame.${frameName}`] = { display: "none" };
       } else {
         cssObj[`.content-frame.${frameName}`] = {
-          gridRow: GridPoint.toCss(content.row),
-          gridColumn: GridPoint.toCss(content.col),
+          gridRow: GridPoint.asCss(content.row),
+          gridColumn: GridPoint.asCss(content.col),
         };
       }
     }
 
-    return css(cssObj);
+    css(cssObj);
+    customCss.updateCss("MessageContainerLayout", cssObj);
   }
 } as const;
 
@@ -63,7 +65,7 @@ export interface MessageContainerGrid {
 /** number:*px FIT:auto FLEX:1fr */
 export type ContainerGridSize = number | "FIT" | "FLEX";
 export const ContainerGridSize = {
-  toCss: (size: ContainerGridSize): string => {
+  asCss: (size: ContainerGridSize): string => {
     if (typeof size === "number") return `${size}px`;
     return size === "FIT" ? "auto" : "1fr";
   },
@@ -83,5 +85,5 @@ export interface GridPoint {
 }
 export const GridPoint = {
   // css では半開区間 (終わりを含まない) ので +1 する
-  toCss: (point: GridPoint): string => `${point.start} / ${point.end + 1}`,
+  asCss: (point: GridPoint): string => `${point.start} / ${point.end + 1}`,
 } as const;

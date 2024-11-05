@@ -46,6 +46,7 @@
   "dependencies": {
     "@bufbuild/buf": "^1.38.0",
     "@emotion/css": "^11.13.4",
+    "@types/stylis": "^4.2.6",
     "obs-websocket-js": "^5.0.6",
     "svelte-awesome-color-picker": "^3.1.4"
   }

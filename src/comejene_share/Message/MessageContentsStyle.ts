@@ -1,6 +1,6 @@
-import { css } from "@emotion/css";
 import type { CSSObject } from "@emotion/css/create-instance";
 import { MessageContentToStyleType, type MessageContentFrame, type MessageContentType } from ".";
+import type { CustomCss } from "../func";
 import type { ExpandRecursively } from "../Motion";
 import { FlexPosition, FlexPositions, type AsStyleSetting, type StyleDefinition } from "./StyleDefinition";
 
@@ -47,19 +47,19 @@ export const MessageContentStyleDefinitionSet = {
 } as const satisfies Record<MessageContentType, StyleDefinition>;
 
 export const MessageContentStyle = {
-  toCss: (type: MessageContentType, style: MessageContentStyle): CSSObject => {
-    if (type === "img") return MessageContentStyle.toCss_Img(style as MessageContentStyle_Img);
+  asCss: (type: MessageContentType, style: MessageContentStyle): CSSObject => {
+    if (type === "img") return MessageContentStyle.asCss_Img(style as MessageContentStyle_Img);
     // else if(type === "text")
-    return MessageContentStyle.toCss_Text(style as MessageContentStyle_Text);
+    return MessageContentStyle.asCss_Text(style as MessageContentStyle_Text);
   },
-  toCss_Base: (style: MessageContentStyle_Base): CSSObject => {
+  asCss_Base: (style: MessageContentStyle_Base): CSSObject => {
     return {
-      justifyContent: FlexPosition.toCss(style.position.x),
-      alignItems: FlexPosition.toCss(style.position.y),
+      justifyContent: FlexPosition.asCss(style.position.x),
+      alignItems: FlexPosition.asCss(style.position.y),
     };
   },
-  toCss_Text: (style: MessageContentStyle_Text): CSSObject => {
-    const cssObj = MessageContentStyle.toCss_Base(style);
+  asCss_Text: (style: MessageContentStyle_Text): CSSObject => {
+    const cssObj = MessageContentStyle.asCss_Base(style);
 
     cssObj[".content"] = {
       fontSize: style.textSize,
@@ -68,8 +68,8 @@ export const MessageContentStyle = {
     };
     return cssObj;
   },
-  toCss_Img: (style: MessageContentStyle_Img): CSSObject => {
-    const cssObj = MessageContentStyle.toCss_Base(style);
+  asCss_Img: (style: MessageContentStyle_Img): CSSObject => {
+    const cssObj = MessageContentStyle.asCss_Base(style);
     cssObj[".content"] = {
       width: `${style.imgSize.width}px`,
       height: `${style.imgSize.height}px`,
@@ -100,7 +100,7 @@ export const MessageContentsStyle = {
     name,
     message,
   }),
-  toCss: (style: MessageContentsStyle): string => {
+  updateCss: (customCss: CustomCss, style: MessageContentsStyle): void => {
     const cssObj: CSSObject = {};
 
     for (const [frameName_, content] of Object.entries(style)) {
@@ -108,13 +108,13 @@ export const MessageContentsStyle = {
       if (content == null) {
         cssObj[`.content-frame.${frameName}`] = { display: "none" };
       } else {
-        cssObj[`.content-frame.${frameName}`] = MessageContentStyle.toCss(
+        cssObj[`.content-frame.${frameName}`] = MessageContentStyle.asCss(
           MessageContentToStyleType[frameName],
           content,
         );
       }
     }
 
-    return css(cssObj);
+    customCss.updateCss("MessageContentsStyle", cssObj);
   },
 } as const;

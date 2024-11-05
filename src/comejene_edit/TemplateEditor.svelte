@@ -17,28 +17,20 @@
 
   let previewIsLocal = $state(true);
   let localPreview = $state<ReturnType<typeof LocalPreview>>();
-  let refreshKey = $state(0);
 
-  let templateName = $state<TemplateName>("stackA");
+  let templateName = notifierStore<TemplateName>("stackA", () => {
+    sendMessage_Reset();
+    template = Templates[$templateName]();
+  });
 
-  //svelte-ignore state_referenced_locally
-  let template = notifierStore<Template>(
-    Templates[templateName](),
-    () => {
-      console.log(refreshKey);
-
-      refreshKey++;
-      sendMessage_Reset();
-    },
-    () => Templates[templateName](),
-  );
+  let template = $state<Template>(Templates[$templateName]());
 
   function resetMotionSetting() {
-    localPreview?.setMotionSetting($template.motion.setting);
+    localPreview?.setMotionSetting(template.motion.setting);
     sendMessage_MotionSetting();
   }
   function resetMessageStyle() {
-    localPreview?.setMessageStyle($template.style);
+    localPreview?.setMessageStyle(template.style);
     sendMessage_MessageStyle();
   }
 
@@ -73,9 +65,9 @@
     for (const sender of senders) {
       sender.send({
         type: "comejene-reset",
-        motionName: $template.motion.name,
-        motionSetting: $template.motion.setting,
-        messageStyle: $template.style,
+        motionName: template.motion.name,
+        motionSetting: template.motion.setting,
+        messageStyle: template.style,
       });
     }
   }
@@ -84,7 +76,7 @@
     for (const sender of senders) {
       sender.send({
         type: "change-motion-setting",
-        motionSetting: $template.motion.setting,
+        motionSetting: template.motion.setting,
       });
     }
   }
@@ -92,13 +84,13 @@
     for (const sender of senders) {
       sender.send({
         type: "change-message-style",
-        messageStyle: $template.style,
+        messageStyle: template.style,
       });
     }
   }
 
   let motionDefinition = $derived<MotionDefinition<MotionNames>>(
-    MotionDefinitions[$template.motion.name],
+    MotionDefinitions[template.motion.name],
   );
 </script>
 
@@ -109,7 +101,7 @@
 
     <SettingArea title="テンプレート">
       <SettingColumn name="タイプ">
-        <select id="タイプ" bind:value={templateName}>
+        <select id="タイプ" bind:value={$templateName}>
           {#each TemplateNames as value (value)}
             <option {value}>{value}</option>
           {/each}
@@ -121,8 +113,8 @@
       </SettingColumn>
     </SettingArea>
 
-    {#key refreshKey}
-      <EditorProps {resetMessageStyle} {resetMotionSetting} bind:template={$template} />
+    {#key template}
+      <EditorProps {resetMessageStyle} {resetMotionSetting} bind:template />
     {/key}
 
     <SettingArea title="コメントテスト">
@@ -132,12 +124,12 @@
 
   <div class="preview">
     {#if previewIsLocal}
-      {#key refreshKey}
+      {#key template}
         <LocalPreview
           bind:this={localPreview}
-          messageStyle={$template.style}
-          motionName={$template.motion.name}
-          motionSetting={$template.motion.setting}
+          messageStyle={template.style}
+          motionName={template.motion.name}
+          motionSetting={template.motion.setting}
         />
       {/key}
     {:else}

@@ -17,7 +17,7 @@ export type AsStyleSetting<T extends StyleDefinition> = {
 export const FlexPositions = ["start", "center", "end"] as const;
 export type FlexPosition = typeof FlexPositions[number];
 export const FlexPosition = {
-  toCss: (position: FlexPosition): string => {
+  asCss: (position: FlexPosition): string => {
     if (position === "center") return position;
     return `flex-${position}`;
   }

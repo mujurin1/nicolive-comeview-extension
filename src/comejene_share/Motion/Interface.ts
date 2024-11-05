@@ -1,3 +1,4 @@
+import type { CustomCss } from "../func";
 import type { ReceiveContents } from "../type";
 
 export type MotionSetting = Record<string, string | number | boolean>;
@@ -14,16 +15,16 @@ export type AsMotionSetting<T extends MotionSettingDefinition> = {
 
 export interface MotionSettingStyle<Definition extends MotionSettingDefinition> {
   definition: Definition & typeof MotionSettingDefinitionDefault,
-  toCss: (setting: ExpandRecursively<AsMotionSetting<Definition & typeof MotionSettingDefinitionDefault>>) => string,
+  updateCss: (customCss: CustomCss, setting: ExpandRecursively<AsMotionSetting<Definition & typeof MotionSettingDefinitionDefault>>) => void,
 }
 
 export const MotionSettingStyle = {
   create: <Definition extends MotionSettingDefinition>(
     definition: Definition,
-    toCss: (setting: ExpandRecursively<AsMotionSetting<Definition>>) => string,
+    updateCss: (customCss: CustomCss, setting: ExpandRecursively<AsMotionSetting<Definition>>) => void,
   ): MotionSettingStyle<Definition> => ({
     definition,
-    toCss,
+    updateCss,
   })
 } as const;
 

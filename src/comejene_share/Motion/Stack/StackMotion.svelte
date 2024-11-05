@@ -16,7 +16,7 @@
   });
 </script>
 
-<div bind:this={state.mainAreaDiv} class="main-area">
+<div bind:this={state.comejeneContainerDiv} class="comejene-container">
   <div bind:this={state.messageAreaDiv} class="message-area">
     <div bind:this={state.paddingDiv} class="padding"></div>
     <!-- TODO: each-key を正しい値に設定する -->

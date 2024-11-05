@@ -1,6 +1,9 @@
 import { MessageStyle, MotionDefinitions, type MotionComponent, type MotionDefinition, type MotionNames, type MotionSetting, type MotionState, type ReceiveContents } from "../comejene_share";
+import { createCustomCss } from "../comejene_share/func";
 
 export class ComejeneViewState<Setting extends MotionSetting, State extends MotionState> {
+  private readonly _customCss = createCustomCss();
+
   public readonly motionDefinition: MotionDefinition<MotionNames>;
 
   public get Component(): MotionComponent<Setting, State> {
@@ -10,13 +13,9 @@ export class ComejeneViewState<Setting extends MotionSetting, State extends Moti
   public component = $state<ReturnType<MotionComponent<Setting, State>>>(null!);
   private _motionSetting = $state<Setting>(null!);
   private _messageStyle = $state<MessageStyle>(null!);
-  private _messageCssNames = $state<string>(null!);
-  private _motionCssName = $state<string>(null!);
 
   public get motionSetting() { return this._motionSetting; }
   public get messageStyle() { return this._messageStyle; }
-  public get messageCssNames() { return this._messageCssNames; }
-  public get motionCssName() { return this._motionCssName; }
 
   public constructor(
     motionName: MotionNames,
@@ -28,21 +27,25 @@ export class ComejeneViewState<Setting extends MotionSetting, State extends Moti
     this.setMessageStyle(messageStyle);
   }
 
-  public addContents(contents: ReceiveContents) {
+  public reset(): void {
+    this._customCss.removeAll();
+  }
+
+  public addContents(contents: ReceiveContents): void {
     if (this.component == null) return;
     void this.component.state.addMessage(contents);
   }
 
   public setMotionSetting(motionSetting: Setting): void {
     this._motionSetting = motionSetting;
-    this._motionCssName = this.motionDefinition.css.toCss(this._motionSetting as any);
+    this.motionDefinition.css.updateCss(this._customCss, this._motionSetting as any);
     if (this.component == null) return;
     void this.component.state.resetMotionLayout(this._motionSetting);
   }
 
   public setMessageStyle(messageStyle: MessageStyle): void {
     this._messageStyle = messageStyle;
-    this._messageCssNames = MessageStyle.toCss(this._messageStyle);
+    MessageStyle.updateCss(this._customCss, this._messageStyle);
     if (this.component == null) return;
     void this.component.state.resetLayout();
   }
