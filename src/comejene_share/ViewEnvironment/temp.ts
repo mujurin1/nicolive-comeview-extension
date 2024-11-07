@@ -25,6 +25,9 @@ export class ComejeneSender_Dbg {
   }
 
   public sendReset(motionName: MotionNames, motionSetting: MotionSetting, messageStyle: MessageStyle) {
+    this._sendMotionSettingController.reset();
+    this._sendMessageStyleController.reset();
+
     this.send({
       type: "comejene-reset",
       motionName,
@@ -45,19 +48,10 @@ export class ComejeneSender_Dbg {
 
   public sendMotionSetting(motionSetting: MotionSetting) {
     this._sendMotionSettingController.do(motionSetting);
-
-    // this.send({
-    //   type: "change-motion-setting",
-    //   motionSetting,
-    // });
   }
 
   public sendMessageStyle(messageStyle: MessageStyle) {
     this._sendMessageStyleController.do(messageStyle);
-    // this.send({
-    //   type: "change-message-style",
-    //   messageStyle,
-    // });
   }
 }
 
@@ -67,6 +61,7 @@ function timeFlowController<T>(
 ) {
   let locked = false;
   let cached: T | undefined;
+  let timerId: number;
 
   return {
     locked,
@@ -78,14 +73,18 @@ function timeFlowController<T>(
 
       fn(value);
       lock();
-    }
+    },
+    reset: () => {
+      clearTimeout(timerId);
+    },
   };
 
   function lock() {
     locked = true;
-    setTimeout(() => {
+    timerId = setTimeout(() => {
       locked = false;
       if (cached != null) fn(cached);
+      cached = undefined;
     }, ms);
   }
 }
