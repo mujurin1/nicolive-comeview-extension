@@ -5,8 +5,6 @@ import type { ComejeneEvent, ComejeneSender } from "./type";
 
 
 export class ComejeneSender_Dbg {
-  private _sendTimeLocker = false;
-
   public senders: ComejeneSender[] = [];
 
   public async initialize(...senderPromises: Promise<ComejeneSender>[]) {
@@ -35,17 +33,59 @@ export class ComejeneSender_Dbg {
     });
   }
 
+  private readonly LOCK_TIME_MS = 100;
+  private readonly _sendMotionSettingController = timeFlowController<MotionSetting>(
+    this.LOCK_TIME_MS,
+    motionSetting => this.send({ type: "change-motion-setting", motionSetting }),
+  );
+  private readonly _sendMessageStyleController = timeFlowController<MessageStyle>(
+    this.LOCK_TIME_MS,
+    messageStyle => this.send({ type: "change-message-style", messageStyle }),
+  );
+
   public sendMotionSetting(motionSetting: MotionSetting) {
-    this.send({
-      type: "change-motion-setting",
-      motionSetting,
-    });
+    this._sendMotionSettingController.do(motionSetting);
+
+    // this.send({
+    //   type: "change-motion-setting",
+    //   motionSetting,
+    // });
   }
 
   public sendMessageStyle(messageStyle: MessageStyle) {
-    this.send({
-      type: "change-message-style",
-      messageStyle,
-    });
+    this._sendMessageStyleController.do(messageStyle);
+    // this.send({
+    //   type: "change-message-style",
+    //   messageStyle,
+    // });
+  }
+}
+
+function timeFlowController<T>(
+  ms: number,
+  fn: (value: T) => void,
+) {
+  let locked = false;
+  let cached: T | undefined;
+
+  return {
+    locked,
+    do: (value: T) => {
+      if (locked) {
+        cached = value;
+        return;
+      }
+
+      fn(value);
+      lock();
+    }
+  };
+
+  function lock() {
+    locked = true;
+    setTimeout(() => {
+      locked = false;
+      if (cached != null) fn(cached);
+    }, ms);
   }
 }
