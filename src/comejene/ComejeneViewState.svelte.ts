@@ -27,7 +27,7 @@ export class ComejeneViewState<Setting extends MotionSetting, State extends Moti
     this.setMessageStyle(messageStyle);
   }
 
-  public reset(): void {
+  public dispose(): void {
     this._customCss.removeAll();
   }
 
@@ -45,6 +45,7 @@ export class ComejeneViewState<Setting extends MotionSetting, State extends Moti
 
   public setMessageStyle(messageStyle: MessageStyle): void {
     this._messageStyle = messageStyle;
+
     MessageStyle.updateCss(this._customCss, this._messageStyle);
     if (this.component == null) return;
     void this.component.state.resetLayout();

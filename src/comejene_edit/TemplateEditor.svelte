@@ -3,101 +3,53 @@
   import {
     comejeneEnvs,
     MotionDefinitions,
-    type ComejeneSender,
     type MotionDefinition,
     type MotionNames,
   } from "../comejene_share";
+  import { ComejeneSender_Dbg } from "../comejene_share/ViewEnvironment/temp";
   import { notifierStore } from "../lib/CustomStore.svelte";
   import { TemplateNames, Templates, type Template, type TemplateName } from "./Template/Templates";
   import EditorProps from "./components/EditorProps.svelte";
-  import LocalPreview from "./components/LocalPreview.svelte";
   import SettingArea from "./components/SettingArea.svelte";
   import SettingColumn from "./components/SettingColumn.svelte";
   import { getDummyComment } from "./utils";
 
-  let previewIsLocal = $state(true);
-  let localPreview = $state<ReturnType<typeof LocalPreview>>();
-
   let templateName = notifierStore<TemplateName>("stackA", () => {
-    sendMessage_Reset();
     template = Templates[$templateName]();
+    senderReset();
   });
 
   let template = $state<Template>(Templates[$templateName]());
 
-  function resetMotionSetting() {
-    localPreview?.setMotionSetting(template.motion.setting);
-    sendMessage_MotionSetting();
-  }
-  function resetMessageStyle() {
-    localPreview?.setMessageStyle(template.style);
-    sendMessage_MessageStyle();
-  }
-
-  //
-  //
-  //
-
-  function dbg_add(icon = "", name = "name", message = getDummyComment()) {
-    const contents = { icon, name, message };
-    localPreview?.addContents(contents);
-
-    for (const sender of senders) {
-      sender.send({
-        type: "content",
-        contents,
-      });
-    }
-  }
-
-  let senders: ComejeneSender[] = [];
-
-  void resetSender();
-
-  async function resetSender() {
-    senders = await Promise.all([
-      // comejeneEnvs.obs.createSender({ wsUrl: `ws://localhost:${4455}` }),
-      comejeneEnvs.browserEx.createSender(),
-    ]);
-  }
-
-  function sendMessage_Reset() {
-    for (const sender of senders) {
-      sender.send({
-        type: "comejene-reset",
-        motionName: template.motion.name,
-        motionSetting: template.motion.setting,
-        messageStyle: template.style,
-      });
-    }
-  }
-
-  function sendMessage_MotionSetting() {
-    for (const sender of senders) {
-      sender.send({
-        type: "change-motion-setting",
-        motionSetting: template.motion.setting,
-      });
-    }
-  }
-  function sendMessage_MessageStyle() {
-    for (const sender of senders) {
-      sender.send({
-        type: "change-message-style",
-        messageStyle: template.style,
-      });
-    }
-  }
-
   let motionDefinition = $derived<MotionDefinition<MotionNames>>(
     MotionDefinitions[template.motion.name],
   );
+
+  let senders = new ComejeneSender_Dbg();
+  void senders.initialize(
+    // comejeneEnvs.obs.createSender({ wsUrl: `ws://localhost:${4455}` }),
+    comejeneEnvs.browserEx.createSender(),
+  );
+
+  function senderReset() {
+    senders.sendReset(template.motion.name, template.motion.setting, template.style);
+  }
+  function resetMotionSetting() {
+    senders.sendMotionSetting(template.motion.setting);
+  }
+  function resetMessageStyle() {
+    senders.sendMessageStyle(template.style);
+  }
+
+  function dbg_add(icon = "", name = "name", message = getDummyComment()) {
+    const contents = { icon, name, message };
+    senders.sendComment(contents);
+  }
 </script>
 
 <div class="editor-container">
   <div class="setting-container">
-    <button onclick={sendMessage_Reset} type="button">初期化</button>
-    <input type="checkbox" bind:checked={previewIsLocal} />
+    <button onclick={senderReset} type="button">初期化</button>
 
     <SettingArea title="テンプレート">
       <SettingColumn name="タイプ">
@@ -123,18 +75,7 @@
   </div>
 
   <div class="preview">
-    {#if previewIsLocal}
-      {#key template}
-        <LocalPreview
-          bind:this={localPreview}
-          messageStyle={template.style}
-          motionName={template.motion.name}
-          motionSetting={template.motion.setting}
-        />
-      {/key}
-    {:else}
-      <App />
-    {/if}
+    <App />
   </div>
 </div>
 

@@ -18,6 +18,11 @@ export class ComejeneState {
     void this.start();
   }
 
+  /** MEMO:現在はどこからも呼び出していない */
+  public close() {
+    this.receiver.close();
+  }
+
   private async start() {
     for await (const event of this.receiver.iterator) {
       if (event.type === "comejene-reset") {
@@ -28,10 +33,10 @@ export class ComejeneState {
         this.resetViewState();
       } else if (event.type === "change-motion-setting") {
         this.motionSetting = event.motionSetting;
-        this.setMotionSetting(this.motionSetting);
+        this.viewState?.setMotionSetting(this.motionSetting);
       } else if (event.type === "change-message-style") {
         this.messageStyle = event.messageStyle;
-        this.setMessageStyle(this.messageStyle);
+        this.viewState?.setMessageStyle(this.messageStyle);
       } else if (event.type === "content") {
         if (this.viewState == null) continue;
 
@@ -47,13 +52,7 @@ export class ComejeneState {
       this.messageStyle == null
     ) return;
 
+    this.viewState?.dispose();
     this.viewState = new ComejeneViewState(this.motionName, this.motionSetting, this.messageStyle);
-  }
-
-  private setMotionSetting(motionSetting: MotionSetting): void {
-    this.viewState?.setMotionSetting(motionSetting);
-  }
-  private setMessageStyle(messageStyle: MessageStyle): void {
-    this.viewState?.setMessageStyle(messageStyle);
   }
 }

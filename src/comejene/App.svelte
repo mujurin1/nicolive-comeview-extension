@@ -12,7 +12,7 @@
   </div>
 {:else}
   {#key comejeneState.viewState}
-    <ComejeneView comejeneState={comejeneState.viewState} />
+    <ComejeneView viewState={comejeneState.viewState} />
   {/key}
 {/if}
 

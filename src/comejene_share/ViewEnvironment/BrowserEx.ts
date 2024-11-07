@@ -5,8 +5,10 @@ export interface WindowSenderOptions {
   wsUrl: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 let iteratorSet: AsyncIteratorSet<ComejeneEvent> | undefined;
+function send(message: ComejeneEvent) {
+  iteratorSet?.enqueue(JSON.parse(JSON.stringify(message)));
+}
 
 /**
  * 拡張機能内 (デバッグ用)\
@@ -27,9 +29,5 @@ export const ComejeneEnv_BrowserEx: ComejeneEnv<never> = {
       send,
       close: () => { },
     });
-
-    function send(message: ComejeneEvent) {
-      iteratorSet?.enqueue(JSON.parse(JSON.stringify(message)));
-    }
   },
 };
