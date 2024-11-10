@@ -28,6 +28,9 @@ export const StackMotionSettingStyle = MotionSettingStyle.create(
      * 余白を標準(右/上)と逆にするか
      */
     reverseMargine: "boolean",
+
+    // TODO: ここに説明用の属性を付けたい
+    listAnimation: "number",
   } as const,
 
   (cssObject, setting) => {
@@ -36,24 +39,36 @@ export const StackMotionSettingStyle = MotionSettingStyle.create(
         position: "relative",
         display: "flex",
         flexDirection: `${setting.direction}${setting.reverseOrder ? "-reverse" : ""}`,
-        // alignItems: "flex-start",
-        // alignItems: "stretch",
         width: setting.direction === "column" ? "100%" : "max-content",
         height: "max-content",
+
+        // willChange: "transform",
+        transition: "transform 0.3s ease",
 
         "&::-webkit-scrollbar": {
           display: "none",
         },
 
         // ".message-container": {
-        //   width: "fit-content",
-        // }
+        //   // transformOrigin: "top",
+        //   animation: "enter-message 1s ease-out",
+        //   // width: "fit-content",
+        // },
       },
 
       ".padding": {
         /* DEBUG: 確認用の強調色 */
         backgroundColor: "#f6b7b7",
       },
+
+      // "@keyframes enter-message": {
+      //   from: {
+      //     transform: "translateX(100%)",
+      //   },
+      //   to: {
+      //     transform: "translateX(0)",
+      //   },
+      // },
     };
 
     cssObject.updateCss("StackMotionSettingStyle", cssObj);
