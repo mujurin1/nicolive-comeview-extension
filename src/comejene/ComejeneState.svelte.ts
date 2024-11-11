@@ -1,4 +1,4 @@
-import { checkComejeneEnvType, comejeneEnvs, type ComejeneEnvTypes, type ComejeneReceiver, type MessageStyle, type MotionNames, type MotionSetting, type MotionState } from "../comejene_share";
+import { checkComejeneEnvType, comejeneEnvs, type ComejeneEnvTypes, type ComejeneReceiver, type MessageStyle, type MotionNames, type MotionSettingModel, type MotionState } from "../comejene_share";
 import { ComejeneViewState } from "./ComejeneViewState.svelte";
 
 export class ComejeneState {
@@ -6,10 +6,10 @@ export class ComejeneState {
   private readonly receiver: ComejeneReceiver;
 
   private motionName: MotionNames | undefined;
-  private motionSetting: MotionSetting | undefined;
+  private motionSetting: MotionSettingModel | undefined;
   private messageStyle: MessageStyle | undefined;
 
-  public viewState = $state<ComejeneViewState<MotionSetting, MotionState>>();
+  public viewState = $state<ComejeneViewState<MotionSettingModel, MotionState>>();
 
   public constructor() {
     this.env = checkComejeneEnvType();

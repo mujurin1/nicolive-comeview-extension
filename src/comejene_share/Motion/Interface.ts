@@ -1,38 +1,33 @@
+import { my, type Ignore, type ZodDefinition, type ZodModel, type ZodRaw } from "../../function/MyZod";
 import type { CustomCss } from "../func";
 import type { ReceiveContents } from "../type";
 
-export type MotionSetting = Record<string, string | number | boolean>;
-export type MotionSettingDefinitionColumn = "string" | "number" | "boolean" | readonly string[];
-export type MotionSettingDefinition = { readonly [K in string]: MotionSettingDefinitionColumn };
+export type MotionSettingDefinition<R extends ZodRaw = ZodRaw> = ZodDefinition<R & Default_Raw>;
+export type MotionSettingModel<D extends MotionSettingDefinition = MotionSettingDefinition> = ZodModel<D>;
 
-export type AsMotionSetting<T extends MotionSettingDefinition> = {
-  -readonly [K in keyof T]:
-  T[K] extends "string" ? string :
-  T[K] extends "number" ? number :
-  T[K] extends "boolean" ? boolean :
-  T[K] extends readonly string[] ? T[K][number] : never;
-};
+/** 全モーション共通で定義したい設定がある時に備えて */
+const Default_Raw = {
+  // d: my.boolean(),
+} as const satisfies ZodRaw;
+type Default_Raw = typeof Default_Raw;
 
 export interface MotionSettingStyle<Definition extends MotionSettingDefinition> {
-  definition: Definition & typeof MotionSettingDefinitionDefault,
-  updateCss: (customCss: CustomCss, setting: ExpandRecursively<AsMotionSetting<Definition & typeof MotionSettingDefinitionDefault>>) => void,
+  definition: Definition,
+  updateCss: (customCss: CustomCss, setting: MotionSettingModel<Definition>) => void,
 }
 
 export const MotionSettingStyle = {
-  create: <Definition extends MotionSettingDefinition>(
-    definition: Definition,
-    updateCss: (customCss: CustomCss, setting: ExpandRecursively<AsMotionSetting<Definition>>) => void,
-  ): MotionSettingStyle<Definition> => ({
-    definition,
+  create: <Raw extends Ignore<ZodRaw, Default_Raw>>(
+    raw: Raw,
+    updateCss: (customCss: CustomCss, setting: MotionSettingModel<MotionSettingDefinition<Raw>>) => void,
+  ): MotionSettingStyle<MotionSettingDefinition<Raw>> => ({
+    definition: my.object({
+      ...Default_Raw,
+      ...raw,
+    }),
     updateCss,
   })
 } as const;
-
-/** 全モーション共通で定義したい設定がある時に備えて */
-export const MotionSettingDefinitionDefault = {
-  // default: "boolean"
-} as const satisfies MotionSettingDefinition;
-
 
 
 /**
@@ -47,7 +42,7 @@ export interface MotionMessage {
  * モーションの状態
  */
 export interface MotionState<
-  Setting extends MotionSetting = MotionSetting,
+  Setting extends MotionSettingModel = MotionSettingModel,
   Message extends MotionMessage = MotionMessage,
 > {
   readonly setting: Setting;
@@ -76,10 +71,3 @@ export interface MotionState<
    */
   addMessage(contents: ReceiveContents): Promise<void>;
 }
-
-
-
-/** 完全に展開された型を得るためのヘルパー型 */
-export type ExpandRecursively<T> = T extends object
-  ? T extends infer O ? { [K in keyof O]: O[K] }
-  : never : T;

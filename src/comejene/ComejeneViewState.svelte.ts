@@ -1,7 +1,7 @@
-import { MessageStyle, MotionDefinitions, type MotionComponent, type MotionDefinition, type MotionNames, type MotionSetting, type MotionState, type ReceiveContents } from "../comejene_share";
+import { MessageStyle, MotionDefinitions, type MotionComponent, type MotionDefinition, type MotionNames, type MotionSettingModel, type MotionState, type ReceiveContents } from "../comejene_share";
 import { createCustomCss } from "../comejene_share/func";
 
-export class ComejeneViewState<Setting extends MotionSetting, State extends MotionState> {
+export class ComejeneViewState<Setting extends MotionSettingModel, State extends MotionState> {
   private readonly _customCss = createCustomCss();
 
   public readonly motionDefinition: MotionDefinition<MotionNames>;

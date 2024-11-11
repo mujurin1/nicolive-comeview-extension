@@ -1,16 +1,16 @@
-import type { MessageStyle, MotionNames, MotionSetting, ReceiveContents } from "..";
+import type { MessageStyle, MotionNames, MotionSettingModel, ReceiveContents } from "..";
 
 export type ComejeneEvent = ComejeneReset | ChangeMotionSetting | ChangeMessageStyle | NewContent;
 
 export interface ComejeneReset {
   type: "comejene-reset";
   motionName: MotionNames;
-  motionSetting: MotionSetting;
+  motionSetting: MotionSettingModel;
   messageStyle: MessageStyle;
 }
 export interface ChangeMotionSetting {
   type: "change-motion-setting";
-  motionSetting: MotionSetting;
+  motionSetting: MotionSettingModel;
 }
 export interface ChangeMessageStyle {
   type: "change-message-style";

@@ -2,6 +2,7 @@
   import App from "../comejene/App.svelte";
   import {
     comejeneEnvs,
+    MessageFrameStyle,
     MotionDefinitions,
     type MotionDefinition,
     type MotionNames,
@@ -45,6 +46,11 @@
     const contents = { icon, name, message };
     senders.sendComment(contents);
   }
+
+  let __style = $state<MessageFrameStyle>({
+    backColor: "#aaaaaa",
+    size: { x: "FIT", y: "FULL" },
+  });
 </script>
 
 <div class="editor-container">

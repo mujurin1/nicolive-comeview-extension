@@ -1,5 +1,5 @@
 import type { MessageStyle } from "../Message";
-import type { MotionNames, MotionSetting } from "../Motion";
+import type { MotionNames, MotionSettingModel } from "../Motion";
 import type { ReceiveContents } from "../type";
 import type { ComejeneEvent, ComejeneSender } from "./type";
 
@@ -24,7 +24,7 @@ export class ComejeneSender_Dbg {
     });
   }
 
-  public sendReset(motionName: MotionNames, motionSetting: MotionSetting, messageStyle: MessageStyle) {
+  public sendReset(motionName: MotionNames, motionSetting: MotionSettingModel, messageStyle: MessageStyle) {
     this._sendMotionSettingController.reset();
     this._sendMessageStyleController.reset();
 
@@ -37,7 +37,7 @@ export class ComejeneSender_Dbg {
   }
 
   private readonly LOCK_TIME_MS = 100;
-  private readonly _sendMotionSettingController = timeFlowController<MotionSetting>(
+  private readonly _sendMotionSettingController = timeFlowController<MotionSettingModel>(
     this.LOCK_TIME_MS,
     motionSetting => this.send({ type: "change-motion-setting", motionSetting }),
   );
@@ -46,7 +46,7 @@ export class ComejeneSender_Dbg {
     messageStyle => this.send({ type: "change-message-style", messageStyle }),
   );
 
-  public sendMotionSetting(motionSetting: MotionSetting) {
+  public sendMotionSetting(motionSetting: MotionSettingModel) {
     this._sendMotionSettingController.do(motionSetting);
   }
 

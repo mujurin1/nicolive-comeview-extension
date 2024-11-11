@@ -1,49 +1,26 @@
 import type { CSSObject } from "@emotion/css/create-instance";
 import { MessageContentToStyleType, type MessageContentFrame, type MessageContentType } from ".";
+import { my, type ExpandRecursively } from "../../function/MyZod";
 import type { CustomCss } from "../func";
-import type { ExpandRecursively } from "../Motion";
-import { FlexPosition, FlexPositions, type AsStyleSetting, type StyleDefinition } from "./StyleDefinition";
+import { FlexPosition, MessageContentStyleDefinition, type StyleDefinition, type StyleSettingModel } from "./MessageContainerDefinition";
 
-const MessageContentStyleDefinition = {
-  create: <Definition extends StyleDefinition>(definition: Definition): Definition & typeof MessageContentStyleDefinition_Base => ({
-    ...MessageContentStyleDefinition_Base,
-    ...definition,
-  }),
-} as const;
-
-/**
- * 全タイプのメッセージの持つ属性
- */
-const MessageContentStyleDefinition_Base = {
-  /** X,Y 軸上の位置 */
-  position: {
-    x: FlexPositions,
-    y: FlexPositions,
-  },
-} as const satisfies StyleDefinition;
-/**
- * テキストタイプのメッセージの持つ属性
- */
-export const MessageContentStyleDefinition_Text = MessageContentStyleDefinition.create({
-  textSize: "number",
-  textColor: "color",
-  noNewLine: "boolean",
-  backColor: "color",
-} as const);
-/**
- * 画像タイプのメッセージの持つ属性
- */
-export const MessageContentStyleDefinition_Img = MessageContentStyleDefinition.create({
-  /** 画像のサイズ. 未指定時:枠全体を使う */
-  imgSize: { width: "number", height: "number", },
-} as const);
-
-
-
+type MessageContentStyle = MessageContentStyle_Text | MessageContentStyle_Img;
+type MessageContentStyle_Text = ExpandRecursively<StyleSettingModel<typeof MessageContentStyleDefinitionSet.text>>;
+type MessageContentStyle_Img = ExpandRecursively<StyleSettingModel<typeof MessageContentStyleDefinitionSet.img>>;
 
 export const MessageContentStyleDefinitionSet = {
-  img: MessageContentStyleDefinition_Img,
-  text: MessageContentStyleDefinition_Text,
+  /** テキストタイプのメッセージの持つ属性 */
+  text: MessageContentStyleDefinition.create({
+    textSize: my.number(),
+    textColor: my.color(),
+    noNewLine: my.boolean(),
+    backColor: my.color(),
+  }),
+  /** 画像タイプのメッセージの持つ属性 */
+  img: MessageContentStyleDefinition.create({
+    /** 画像のサイズ */
+    imgSize: my.object({ width: my.number(), height: my.number() }),
+  }),
 } as const satisfies Record<MessageContentType, StyleDefinition>;
 
 export const MessageContentStyle = {
@@ -52,7 +29,7 @@ export const MessageContentStyle = {
     // else if(type === "text")
     return MessageContentStyle.asCss_Text(style as MessageContentStyle_Text);
   },
-  asCss_Base: (style: MessageContentStyle_Base): CSSObject => {
+  asCss_Base: (style: StyleSettingModel): CSSObject => {
     return {
       justifyContent: FlexPosition.asCss(style.position.x),
       alignItems: FlexPosition.asCss(style.position.y),
@@ -79,17 +56,12 @@ export const MessageContentStyle = {
 } as const;
 
 
-export type MessageContentStyle = MessageContentStyle_Text | MessageContentStyle_Img;
-type MessageContentStyle_Base = AsStyleSetting<typeof MessageContentStyleDefinition_Base>;
-export type MessageContentStyle_Text = ExpandRecursively<AsStyleSetting<typeof MessageContentStyleDefinition_Text>>;
-export type MessageContentStyle_Img = ExpandRecursively<AsStyleSetting<typeof MessageContentStyleDefinition_Img>>;
-
-// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-export type MessageContentsStyle = {
+export interface MessageContentsStyle {
   icon: MessageContentStyle_Img | undefined;
   name: MessageContentStyle_Text | undefined;
   message: MessageContentStyle_Text | undefined;
-};
+}
+
 export const MessageContentsStyle = {
   new: (
     icon: MessageContentStyle_Img | undefined,

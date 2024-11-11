@@ -1,36 +1,37 @@
 import type { CSSObject } from "@emotion/css/create-instance";
 import { tick } from "svelte";
+import { my } from "../../../function/MyZod";
 import type { ReceiveContents } from "../../type";
-import { MotionSettingStyle, type AsMotionSetting, type MotionState } from "../Interface";
+import { MotionSettingStyle, type MotionSettingModel, type MotionState } from "../Interface";
 import { StackMotionMessage } from "./StackMotionMessage.svelte";
 
 
-export type StackMotionSetting = AsMotionSetting<typeof StackMotionSettingStyle.definition>;
+export type StackMotionSetting = MotionSettingModel<typeof StackMotionSettingStyle.definition>;
 export const StackMotionSettingStyle = MotionSettingStyle.create(
   {
     /**
      * メッセージの並ぶ方向\
      * row:縦並び column:横並び
      */
-    direction: ["row", "column"],
+    direction: my.list("row", "column"),
 
     /**
      * メッセージの順序(最新→古い)を標準(上/左が新しい)と逆にするか
      */
-    reverseOrder: "boolean",
+    reverseOrder: my.boolean(),
     /**
      * **TODO: 現在未対応**\
      * メッセージの詰める方向を標準(下/右に詰める)と逆にするか
      */
-    reverseGap: "boolean",
+    reverseGap: my.boolean(),
     /**
      * **TODO: 現在未対応**\
      * 余白を標準(右/上)と逆にするか
      */
-    reverseMargine: "boolean",
+    reverseMargine: my.boolean(),
 
     // TODO: ここに説明用の属性を付けたい
-    listAnimation: "number",
+    listAnimation: my.number(),
   } as const,
 
   (cssObject, setting) => {

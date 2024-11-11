@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { MessageContentFrames, MessageContentStyleDefinitionSet, MessageContentToStyleType, MessageFrameStyleDefinition, MessageStyle, MotionDefinitions, type MessageContentFrame, type MotionDefinition, type MotionNames, type MotionSetting } from "../../comejene_share";
+  import { MessageContentFrames, MessageContentStyleDefinitionSet, MessageContentToStyleType, MessageFrameStyleDefinition, MessageStyle, MotionDefinitions, type MessageContentFrame, type MotionDefinition, type MotionNames, type MotionSettingModel } from "../../comejene_share";
   import { notifierStore } from "../../lib/CustomStore.svelte";
   import SettingArea from "./SettingArea.svelte";
   import StyleSetting from "./StyleSetting.svelte";
@@ -11,7 +11,7 @@
   }: {
     motionName: MotionNames;
     messageStyle: MessageStyle;
-    motionSetting: MotionSetting;
+    motionSetting: MotionSettingModel;
   } = $props();
 
   let messageStyle = notifierStore(

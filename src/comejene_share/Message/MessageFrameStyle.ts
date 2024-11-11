@@ -1,10 +1,9 @@
 import type { CSSObject } from "@emotion/css/create-instance";
+import { my, type ZodModel } from "../../function/MyZod";
 import type { CustomCss } from "../func";
-import type { ExpandRecursively } from "../Motion";
-import type { AsStyleSetting, StyleDefinition } from "./StyleDefinition";
 
 
-export type MessageFrameStyle = ExpandRecursively<AsStyleSetting<typeof MessageFrameStyleDefinition>>;
+export type MessageFrameStyle = ZodModel<typeof MessageFrameStyleDefinition>;
 export const MessageFrameStyle = {
   updateCss: (customCss: CustomCss, style: MessageFrameStyle): void => {
     const cssObj: CSSObject = {
@@ -17,10 +16,10 @@ export const MessageFrameStyle = {
   }
 } as const;
 
-export const MessageFrameStyleDefinition = {
-  backColor: "color",
-  size: {
-    x: ["FIT", "FULL"],
-    y: ["FIT", "FULL"],
-  }
-} as const satisfies StyleDefinition;
+export const MessageFrameStyleDefinition = my.object({
+  backColor: my.color(),
+  size: my.object({
+    x: my.list("FIT", "FULL"),
+    y: my.list("FIT", "FULL"),
+  }),
+});

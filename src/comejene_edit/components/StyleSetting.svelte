@@ -1,6 +1,6 @@
-<script generics="Definition extends StyleDefinition, Setting extends AsStyleSetting<Definition>" lang="ts">
+<script generics="Definition extends ZodDefinition, Setting extends ZodModel<Definition>" lang="ts">
   import ColorPicker from "svelte-awesome-color-picker";
-  import { type AsStyleSetting, type StyleColumn, type StyleDefinition } from "../../comejene_share";
+  import { type MyZodTypes, type z, type ZodDefinition, type ZodModel } from "../../function/MyZod";
   import { notifierStore } from "../../lib/CustomStore.svelte";
   import SettingColumn from "./SettingColumn.svelte";
   import Self from "./StyleSetting.svelte";
@@ -20,11 +20,11 @@
     () => {
       _style = style.state;
     }
-  )
+  );
 </script>
 
-{#each Object.keys(definition) as key (key)}
-  {@const column: StyleColumn = definition[key]}
+{#each Object.keys(definition.shape) as key (key)}
+  {@const column: MyZodTypes = definition.shape[key].type}
   {#if column === "number"}
     <SettingColumn name={key}>
       <input id={key} type="number" bind:value={$style[key]}>
@@ -51,21 +51,23 @@
         />
       </div>
     </SettingColumn>
-  {:else if Array.isArray(column)}
+  {:else if column === "list"}
+    {@const newDefinition = definition.shape[key] as z.ZodUnion<z.ZodUnionOptions>}
     <SettingColumn name={key}>
       <select id={key} bind:value={$style[key]}>
-        {#each column as value (value)}
+        {#each newDefinition.selectors as value (value)}
           <option {value}>{value}</option>
         {/each}
       </select>
     </SettingColumn>
+  <!-- {:else if column === "object"} -->
   {:else}
     <div class="setting-block-label">{key}</div>
     <div style:--indent={`${indent}em`} class="setting-block-indent">
       <Self
-        definition={column as Definition}
+        definition={definition.shape[key] as any}
         indent={indent+1}
-        bind:style={$style[key] as Setting}
+        bind:style={$style[key] as any}
       />
     </div>
   {/if}

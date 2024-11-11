@@ -4,10 +4,10 @@ import { MessageContentsStyle } from "./MessageContentsStyle";
 import { MessageFrameStyle } from "./MessageFrameStyle";
 
 export * from "./MessageContainer.svelte";
+export * from "./MessageContainerDefinition";
 export * from "./MessageContainerLayout";
 export * from "./MessageContentsStyle";
 export * from "./MessageFrameStyle";
-export * from "./StyleDefinition";
 
 /** コメジェネで表示するコンテンツの種類 */
 export const MessageContentFrames = ["icon", "name", "message"] as const;

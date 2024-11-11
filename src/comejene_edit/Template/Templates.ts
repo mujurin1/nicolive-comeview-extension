@@ -1,4 +1,4 @@
-import { MessageContentsStyle, type MessageStyle, type MotionNames, type MotionSetting } from "../../comejene_share";
+import { MessageContentsStyle, type MessageStyle, type MotionNames, type MotionSettingModel } from "../../comejene_share";
 import { MessageContainerTemplates } from "./MessageContainer_Templates";
 
 
@@ -6,7 +6,7 @@ import { MessageContainerTemplates } from "./MessageContainer_Templates";
 export interface Template {
   motion: {
     name: MotionNames;
-    setting: MotionSetting;
+    setting: MotionSettingModel;
   };
   style: MessageStyle,
   // style: {
