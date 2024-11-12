@@ -10,17 +10,29 @@ type MessageContentStyle_Img = ExpandRecursively<StyleSettingModel<typeof Messag
 
 export const MessageContentStyleDefinitionSet = {
   /** テキストタイプのメッセージの持つ属性 */
-  text: MessageContentStyleDefinition.create({
-    textSize: my.number(),
-    textColor: my.color(),
-    noNewLine: my.boolean(),
-    backColor: my.color(),
-  }),
+  text: MessageContentStyleDefinition.create(
+    {},
+    {
+      textSize: my.number({
+        display: "文字サイズ",
+      })(),
+      textColor: my.color({
+        display: "文字色",
+      })(),
+      backColor: my.color({
+        display: "背景色",
+      })(),
+      noNewLine: my.boolean({
+        display: "改行文字無視",
+      })(),
+    }),
   /** 画像タイプのメッセージの持つ属性 */
-  img: MessageContentStyleDefinition.create({
-    /** 画像のサイズ */
-    imgSize: my.object({ width: my.number(), height: my.number() }),
-  }),
+  img: MessageContentStyleDefinition.create(
+    {},
+    {
+      /** 画像のサイズ */
+      imgSize: my.object({})({ width: my.number({})(), height: my.number({})() }),
+    }),
 } as const satisfies Record<MessageContentType, StyleDefinition>;
 
 export const MessageContentStyle = {

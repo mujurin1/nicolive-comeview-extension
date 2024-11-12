@@ -7,11 +7,15 @@ export type MyZodTypes = "string" | "number" | "boolean" | "color" | "list" | "o
 export type ZodDefinition<R extends ZodRaw = ZodRaw> = z.ZodObject<R>;
 export type ZodModel<D extends ZodDefinition = ZodDefinition> = z.infer<D>;
 
+export interface ZodMeta {
+  readonly type: MyZodTypes;
+  readonly display?: string;
+  readonly desc?: string;
+}
+
 declare module "zod" {
   interface ZodType {
-    readonly type: MyZodTypes;
-    readonly display?: string;
-    readonly desc?: string;
+    readonly meta: ZodMeta;
   }
 
   interface ZodUnion<T extends z.ZodUnionOptions> {
@@ -19,59 +23,60 @@ declare module "zod" {
   }
 }
 
-export const my = {
-  object: <T extends ZodRaw>(args: T): z.ZodObject<T> => {
-    const obj = z.object<T>(args);
-    setType(obj, "object");
-    return obj;
-  },
-  string: (...args: Parameters<typeof z.string>): z.ZodString => {
-    const obj = z.string(...args);
-    setType(obj, "string");
-    return obj;
-  },
-  number: (...args: Parameters<typeof z.number>): z.ZodNumber => {
-    const obj = z.number(...args);
-    setType(obj, "number");
-    return obj;
-  },
-  // bigint: (...args: Parameters<typeof z.bigint>): z.ZodBigInt => {
-  //   const obj = z.bigint(...args);
-  //   setType(obj, "bigint");
-  //   return obj;
-  // },
-  boolean: (...args: Parameters<typeof z.boolean>): z.ZodBoolean => {
-    const obj = z.boolean(...args);
-    setType(obj, "boolean");
-    return obj;
-  },
-  // date: (...args: Parameters<typeof z.date>): z.ZodDate => {
-  //   const obj = z.date(...args);
-  //   setType(obj, "date");
-  //   return obj;
-  // },
-  // symbol: (...args: Parameters<typeof z.symbol>): z.ZodSymbol => {
-  //   const obj = z.symbol(...args);
-  //   setType(obj, "symbol");
-  //   return obj;
-  // },
+type MyParams = Omit<ZodMeta, "type">;
 
-  color: (...args: Parameters<typeof z.string>): z.ZodOptional<z.ZodString> => {
-    const obj = z.string(...args).optional();
-    setType(obj, "color");
-    return obj;
+export const my = {
+  object: (myParams: MyParams): <T extends ZodRaw>(params: T) => z.ZodObject<T> => {
+    return <T extends ZodRaw>(params: T) => {
+      const obj = z.object<T>(params);
+      setMeta(obj, "object", myParams);
+      return obj;
+    };
   },
-  list: <T extends [string, string, ...string[]]>(...types: T): z.ZodUnion<ToZodLiterals<T>> => {
-    const x = types.map(t => z.literal(t)) as ToZodLiterals<T>;
-    const obj: Readable<z.ZodUnion<ToZodLiterals<T>>> = z.union(x);
-    obj.type = "list";
-    obj.selectors = types;
-    return obj;
+  string: (myParams: MyParams): (params?: Parameters<typeof z.string>[0]) => z.ZodString => {
+    return params => {
+      const obj = z.string(params);
+      setMeta(obj, "string", myParams);
+      return obj;
+    };
+  },
+  number: (myParams: MyParams): (params?: Parameters<typeof z.number>[0]) => z.ZodNumber => {
+    return params => {
+      const obj = z.number(params);
+      setMeta(obj, "number", myParams);
+      return obj;
+    };
+  },
+  boolean: (myParams: MyParams): (params?: Parameters<typeof z.boolean>[0]) => z.ZodBoolean => {
+    return params => {
+      const obj = z.boolean(params);
+      setMeta(obj, "boolean", myParams);
+      return obj;
+    };
+  },
+  color: (myParams: MyParams): (params?: Parameters<typeof z.string>[0]) => z.ZodOptional<z.ZodString> => {
+    return params => {
+      const obj = z.string(params).optional();
+      setMeta(obj, "color", myParams);
+      return obj;
+    };
+  },
+  list: (myParams: MyParams): <T extends [string, string, ...string[]]>(...types: T) => (params?: Parameters<typeof z.string>[0]) => z.ZodUnion<ToZodLiterals<T>> => {
+    return <T extends [string, string, ...string[]]>(...types: T) => params => {
+      const x = types.map(t => z.literal(t)) as ToZodLiterals<T>;
+      const obj: Readable<z.ZodUnion<ToZodLiterals<T>>> = z.union(x, params);
+      setMeta(obj, "list", myParams);
+      obj.selectors = types;
+      return obj;
+    };
   },
 } as const;
 
-function setType(obj: z.ZodType, type: MyZodTypes) {
-  (<Readable<z.ZodType>>obj).type = type;
+function setMeta(obj: z.ZodType, type: MyZodTypes, myParams: MyParams) {
+  (<Readable<z.ZodType>>obj).meta = {
+    ...myParams,
+    type,
+  };
 }
 
 type ToZodLiterals<T extends readonly any[]> = {

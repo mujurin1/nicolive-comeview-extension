@@ -16,10 +16,14 @@ export const MessageFrameStyle = {
   }
 } as const;
 
-export const MessageFrameStyleDefinition = my.object({
-  backColor: my.color(),
+export const MessageFrameStyleDefinition = my.object({})({
+  backColor: my.color({
+    display: "背景色",
+  })(),
   size: my.object({
-    x: my.list("FIT", "FULL"),
-    y: my.list("FIT", "FULL"),
+    display: "サイズ",
+  })({
+    x: my.list({})("FIT", "FULL")(),
+    y: my.list({})("FIT", "FULL")(),
   }),
 });

@@ -58,16 +58,16 @@ export const Templates = {
         {
           position: { x: "center", y: "center" },
           textSize: 13,
-          noNewLine: true,
           textColor: "#000000",
           backColor: "#000000",
+          noNewLine: true,
         },
         {
           position: { x: "center", y: "center" },
           textSize: 13,
-          noNewLine: true,
           textColor: "#000000",
           backColor: "#000000",
+          noNewLine: true,
         },
       ),
     }

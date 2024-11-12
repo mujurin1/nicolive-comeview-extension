@@ -14,8 +14,9 @@ export const FlexPosition = {
 
 export const MessageContentStyleDefinition = {
   create: <Raw extends Ignore<ZodRaw, Default_Raw>>(
+    myParams: Parameters<typeof my.object>[0],
     raw: Raw,
-  ): StyleDefinition<Raw> => my.object({
+  ): StyleDefinition<Raw> => my.object(myParams)({
     ...Default_Raw,
     ...raw,
   }),
@@ -28,8 +29,10 @@ export const MessageContentStyleDefinition = {
 const Default_Raw = {
   /** X,Y 軸上の位置 */
   position: my.object({
-    x: my.list(...FlexPositions),
-    y: my.list(...FlexPositions),
+    display: "位置",
+  })({
+    x: my.list({})(...FlexPositions)(),
+    y: my.list({})(...FlexPositions)(),
   }),
 } as const satisfies ZodRaw;
 type Default_Raw = typeof Default_Raw;

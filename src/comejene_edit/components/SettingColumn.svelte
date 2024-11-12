@@ -1,17 +1,20 @@
 <script lang="ts">
-    import type { Snippet } from "svelte";
+  import type { Snippet } from "svelte";
+  import type { ZodMeta } from "../../function/MyZod";
 
-  let { name, noLabelFor, children }: {
+  let { name, meta, noLabelFor, children }: {
     name: string;
+    meta: Partial<ZodMeta>;
     noLabelFor?: boolean;
     children: Snippet;
-  } = $props()
+  } = $props();
 </script>
 
 <div class="setting-content">
-  <label class="setting-label" for={noLabelFor ? "" : name}>{name}</label>
+  <label class="setting-label" for={noLabelFor ? "" : name} title={meta.desc}>
+    {meta.display ?? name}
+  </label>
   <div class="setting-input">
-    <!-- <input id={name} type="number" bind:value={contents[key]}> -->
      {@render children()}
   </div>
 </div>

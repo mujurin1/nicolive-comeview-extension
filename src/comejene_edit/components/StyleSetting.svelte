@@ -1,6 +1,6 @@
 <script generics="Definition extends ZodDefinition, Setting extends ZodModel<Definition>" lang="ts">
   import ColorPicker from "svelte-awesome-color-picker";
-  import { type MyZodTypes, type z, type ZodDefinition, type ZodModel } from "../../function/MyZod";
+  import { type z, type ZodDefinition, type ZodModel } from "../../function/MyZod";
   import { notifierStore } from "../../lib/CustomStore.svelte";
   import SettingColumn from "./SettingColumn.svelte";
   import Self from "./StyleSetting.svelte";
@@ -24,21 +24,21 @@
 </script>
 
 {#each Object.keys(definition.shape) as key (key)}
-  {@const column: MyZodTypes = definition.shape[key].type}
-  {#if column === "number"}
-    <SettingColumn name={key}>
+  {@const meta = definition.shape[key].meta}
+  {#if meta.type === "number"}
+    <SettingColumn name={key} {meta}>
       <input id={key} type="number" bind:value={$style[key]}>
     </SettingColumn>
-  {:else if column === "string"}
-    <SettingColumn name={key}>
+  {:else if meta.type === "string"}
+    <SettingColumn name={key} {meta}>
       <input id={key} type="text" bind:value={$style[key]}>
     </SettingColumn>
-  {:else if column === "boolean"}
-    <SettingColumn name={key}>
+  {:else if meta.type === "boolean"}
+    <SettingColumn name={key} {meta}>
       <input id={key} type="checkbox" bind:checked={$style[key] as boolean}>
     </SettingColumn>
-  {:else if column === "color"}
-    <SettingColumn name={key} noLabelFor>
+  {:else if meta.type === "color"}
+    <SettingColumn name={key} {meta} noLabelFor>
       <div class="color-picker-wrap">
         <ColorPicker
           --input-size="15px"
@@ -51,18 +51,18 @@
         />
       </div>
     </SettingColumn>
-  {:else if column === "list"}
+  {:else if meta.type === "list"}
     {@const newDefinition = definition.shape[key] as z.ZodUnion<z.ZodUnionOptions>}
-    <SettingColumn name={key}>
+    <SettingColumn name={key} {meta}>
       <select id={key} bind:value={$style[key]}>
         {#each newDefinition.selectors as value (value)}
           <option {value}>{value}</option>
         {/each}
       </select>
     </SettingColumn>
-  <!-- {:else if column === "object"} -->
-  {:else}
-    <div class="setting-block-label">{key}</div>
+  {:else if meta.type === "object"}
+  <!-- {:else} -->
+    <div class="setting-block-label">{meta.display ?? key}</div>
     <div style:--indent={`${indent}em`} class="setting-block-indent">
       <Self
         definition={definition.shape[key] as any}

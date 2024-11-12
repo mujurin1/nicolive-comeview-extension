@@ -18,10 +18,11 @@ export interface MotionSettingStyle<Definition extends MotionSettingDefinition> 
 
 export const MotionSettingStyle = {
   create: <Raw extends Ignore<ZodRaw, Default_Raw>>(
+    myParams: Parameters<typeof my.object>[0],
     raw: Raw,
     updateCss: (customCss: CustomCss, setting: MotionSettingModel<MotionSettingDefinition<Raw>>) => void,
   ): MotionSettingStyle<MotionSettingDefinition<Raw>> => ({
-    definition: my.object({
+    definition: my.object(myParams)({
       ...Default_Raw,
       ...raw,
     }),

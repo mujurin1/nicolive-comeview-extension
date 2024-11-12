@@ -8,30 +8,42 @@ import { StackMotionMessage } from "./StackMotionMessage.svelte";
 
 export type StackMotionSetting = MotionSettingModel<typeof StackMotionSettingStyle.definition>;
 export const StackMotionSettingStyle = MotionSettingStyle.create(
+  {},
   {
     /**
      * メッセージの並ぶ方向\
      * row:縦並び column:横並び
      */
-    direction: my.list("row", "column"),
+    direction: my.list({
+      display: "向き",
+    })("row", "column")(),
 
     /**
      * メッセージの順序(最新→古い)を標準(上/左が新しい)と逆にするか
      */
-    reverseOrder: my.boolean(),
+    reverseOrder: my.boolean({
+      display: "並び順",
+    })(),
     /**
      * **TODO: 現在未対応**\
      * メッセージの詰める方向を標準(下/右に詰める)と逆にするか
      */
-    reverseGap: my.boolean(),
+    reverseGap: my.boolean({
+      display: undefined,
+    })(),
     /**
      * **TODO: 現在未対応**\
      * 余白を標準(右/上)と逆にするか
      */
-    reverseMargine: my.boolean(),
+    reverseMargine: my.boolean({
+      display: undefined,
+    })(),
 
     // TODO: ここに説明用の属性を付けたい
-    listAnimation: my.number(),
+    listAnimation: my.number({
+      display: "アニメーション",
+      desc: "説明",
+    })(),
   } as const,
 
   (cssObject, setting) => {

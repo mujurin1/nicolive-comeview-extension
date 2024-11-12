@@ -58,7 +58,7 @@
     <button onclick={senderReset} type="button">初期化</button>
 
     <SettingArea title="テンプレート">
-      <SettingColumn name="タイプ">
+      <SettingColumn name="タイプ" meta={{}}>
         <select id="タイプ" bind:value={$templateName}>
           {#each TemplateNames as value (value)}
             <option {value}>{value}</option>
@@ -66,7 +66,7 @@
         </select>
       </SettingColumn>
 
-      <SettingColumn name="モーション" noLabelFor>
+      <SettingColumn name="モーション" meta={{}} noLabelFor>
         <div>{motionDefinition.name}</div>
       </SettingColumn>
     </SettingArea>
