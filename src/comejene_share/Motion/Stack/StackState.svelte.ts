@@ -11,80 +11,105 @@ export const StackMotionSettingStyle = MotionSettingStyle.create(
   {},
   {
     /**
-     * メッセージの並ぶ方向\
-     * row:縦並び column:横並び
+     * メッセージを縦(flex-direction:column)に並べるか
      */
-    direction: my.list({
-      display: "向き",
-    })("row", "column")(),
+    isVertical: my.boolean({
+      display: "縦並び",
+    })(),
+    verticalGrow: my.boolean({
+      display: "垂直に伸ばす",
+      desc: "「並ぶ向き」の垂直方向に向けて広げます",
+    })(),
 
     /**
      * メッセージの順序(最新→古い)を標準(上/左が新しい)と逆にするか
      */
     reverseOrder: my.boolean({
-      display: "並び順",
+      display: "逆順",
+      desc: "メッセージを標準(上/左が新しい)と逆並びにします"
     })(),
+
+    maxWidth: my.number({
+      display: "横幅の最大値",
+      desc: "0 なら「縦並び」「垂直に伸ばす」に基づいて調整されます",
+      min: 0,
+      step: 10,
+    })(),
+
+
+    /**
+     * アニメーションを有効化するか
+     */
+    listAnimation: my.boolean({
+      display: "アニメーション",
+      desc: "説明",
+    })(),
+
+
+
     /**
      * **TODO: 現在未対応**\
      * メッセージの詰める方向を標準(下/右に詰める)と逆にするか
      */
     reverseGap: my.boolean({
-      display: undefined,
+      display: "reverseGap",
     })(),
     /**
      * **TODO: 現在未対応**\
      * 余白を標準(右/上)と逆にするか
      */
     reverseMargine: my.boolean({
-      display: undefined,
-    })(),
-
-    // TODO: ここに説明用の属性を付けたい
-    listAnimation: my.number({
-      display: "アニメーション",
-      desc: "説明",
+      display: "reverseMargine",
     })(),
   } as const,
 
-  (cssObject, setting) => {
-    const cssObj: CSSObject = {
+  (customCss, setting) => {
+    const direction = setting.isVertical ? "column" : "row";
+    const baseCss: CSSObject = {
       ".message-area": {
         position: "relative",
         display: "flex",
-        flexDirection: `${setting.direction}${setting.reverseOrder ? "-reverse" : ""}`,
-        width: setting.direction === "column" ? "100%" : "max-content",
-        height: "max-content",
-
-        // willChange: "transform",
-        transition: "transform 0.3s ease",
+        flexDirection: `${direction}${setting.reverseOrder ? "-reverse" : ""}`,
+        width: setting.isVertical ? "100%" : "max-content",
+        height: !setting.isVertical && setting.verticalGrow ? "100%" : "max-content",
 
         "&::-webkit-scrollbar": {
           display: "none",
         },
+      },
 
-        // ".message-container": {
-        //   // transformOrigin: "top",
-        //   animation: "enter-message 1s ease-out",
-        //   // width: "fit-content",
-        // },
+      ".message-container": {
+        maxWidth: setting.maxWidth <= 0 ? undefined : `${setting.maxWidth}px`,
+        width: setting.isVertical && setting.verticalGrow ? undefined : "fit-content",
       },
 
       ".padding": {
         /* DEBUG: 確認用の強調色 */
         backgroundColor: "#f6b7b7",
       },
-
-      // "@keyframes enter-message": {
-      //   from: {
-      //     transform: "translateX(100%)",
-      //   },
-      //   to: {
-      //     transform: "translateX(0)",
-      //   },
-      // },
     };
 
-    cssObject.updateCss("StackMotionSettingStyle", cssObj);
+    const animationCss: CSSObject = !setting.listAnimation ? {} : {
+      ".message-area": {
+        // willChange: "transform",
+        transition: "transform 0.3s ease",
+      },
+
+      ".message-container": {
+        animation: "enter-message 0.3s ease-out",
+      },
+
+      "@keyframes enter-message": {
+        from: {
+          transform: "translateY(100%)",
+        },
+        to: {
+          transform: "translateY(0)",
+        },
+      },
+    };
+
+    customCss.updateCss("StackMotionSettingStyle", [baseCss, animationCss]);
   },
 );
 
@@ -132,7 +157,7 @@ export class StackMotionState implements MotionState<
     this.messageAreaDiv.style.removeProperty("left");
     this.messageAreaDiv.style.removeProperty("transform");
     // this.messageAreaDiv.style.removeProperty("width");
-    // if (this.setting.direction === "row") {
+    // if (!this.setting.isVertical) {
     //   this.messageAreaDiv.style.width = "max-content";
     // }
 
@@ -181,7 +206,7 @@ export class StackMotionState implements MotionState<
     // borderResizeObserver.unobserve(message.node!);
     const rect = message.node!.getBoundingClientRect();
 
-    if (this.setting.direction === "column") {
+    if (this.setting.isVertical) {
       this.paddingSize += rect.height;
       this.paddingDiv.style.height = `${this.paddingSize}px`;
     } else {
@@ -196,7 +221,7 @@ export class StackMotionState implements MotionState<
   }
 
   private updateMessageAreaStyle() {
-    if (this.setting.direction === "column") {
+    if (this.setting.isVertical) {
       if (this.setting.reverseOrder) {
         this.messageAreaDiv.style.top = `${-this.messageAreaDiv.clientHeight}px`;
         this.messageAreaDiv.style.transform = `translateY(${this.messageAreaDiv.clientHeight}px)`;

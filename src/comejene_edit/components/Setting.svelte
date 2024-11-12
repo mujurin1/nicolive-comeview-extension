@@ -32,7 +32,7 @@
 </script>
 
 <SettingArea title="モーション設定">
-  <StyleSetting definition={motionDefinition.css.definition} bind:style={$motionSetting} />
+  <StyleSetting definition={motionDefinition.css.definition} path="motion" bind:style={$motionSetting} />
 </SettingArea>
 
 <SettingArea title="メッセージ枠">
@@ -44,7 +44,7 @@
     </select>
   </SettingColumn> -->
 
-  <StyleSetting definition={MessageFrameStyleDefinition} bind:style={$messageStyle.frameStyle as any} />
+  <StyleSetting definition={MessageFrameStyleDefinition} path="message" bind:style={$messageStyle.frameStyle as any} />
 </SettingArea>
 
 <SettingArea title="コンテンツ">
@@ -62,7 +62,7 @@
       <div>noen</div>
     {:else}
       {@const definition = MessageContentStyleDefinitionSet[MessageContentToStyleType[fr]]}
-      <StyleSetting {definition} bind:style={$messageStyle.contentsStyle[fr] as any} />
+      <StyleSetting {definition} path="content" bind:style={$messageStyle.contentsStyle[fr] as any} />
     {/if}
   {/key}
 </SettingArea>

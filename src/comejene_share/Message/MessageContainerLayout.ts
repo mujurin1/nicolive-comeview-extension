@@ -52,7 +52,7 @@ export const MessageContainerLayout = {
     }
 
     css(cssObj);
-    customCss.updateCss("MessageContainerLayout", cssObj);
+    customCss.updateCss("MessageContainerLayout", [cssObj]);
   }
 } as const;
 

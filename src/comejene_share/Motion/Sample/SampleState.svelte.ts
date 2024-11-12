@@ -12,7 +12,7 @@ export const SampleMotionSettingStyle = MotionSettingStyle.create(
   (customCss, _) => {
     const cssObj: CSSObject = {};
 
-    customCss.updateCss("SampleMotionSettingStyle", cssObj);
+    customCss.updateCss("SampleMotionSettingStyle", [cssObj]);
   }
 );
 

@@ -6,13 +6,12 @@ import type { CustomCss } from "../func";
 export type MessageFrameStyle = ZodModel<typeof MessageFrameStyleDefinition>;
 export const MessageFrameStyle = {
   updateCss: (customCss: CustomCss, style: MessageFrameStyle): void => {
-    const cssObj: CSSObject = {
+    const baseCss: CSSObject = {
       ".message-container": {
         backgroundColor: style.backColor,
-      }
+      },
     };
-
-    customCss.updateCss("MessageFrameStyle", cssObj);
+    customCss.updateCss("MessageFrameStyle", [baseCss]);
   }
 } as const;
 
@@ -20,10 +19,4 @@ export const MessageFrameStyleDefinition = my.object({})({
   backColor: my.color({
     display: "背景色",
   })(),
-  size: my.object({
-    display: "サイズ",
-  })({
-    x: my.list({})("FIT", "FULL")(),
-    y: my.list({})("FIT", "FULL")(),
-  }),
 });

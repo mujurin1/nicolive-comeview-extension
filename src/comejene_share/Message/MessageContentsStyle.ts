@@ -22,6 +22,13 @@ export const MessageContentStyleDefinitionSet = {
       backColor: my.color({
         display: "背景色",
       })(),
+      banNewLine: my.boolean({
+        display: "改行禁止",
+        // TODO: こういう風に書きたい. controller を介することで依存関係を整理する
+        // changed: (newValue, controller) => {
+        //   controller.disable("noNewLine", newValue);
+        // },
+      })(),
       noNewLine: my.boolean({
         display: "改行文字無視",
       })(),
@@ -31,7 +38,10 @@ export const MessageContentStyleDefinitionSet = {
     {},
     {
       /** 画像のサイズ */
-      imgSize: my.object({})({ width: my.number({})(), height: my.number({})() }),
+      imgSize: my.object({})({
+        width: my.number({ display: "width" })(),
+        height: my.number({ display: "height" })(),
+      }),
     }),
 } as const satisfies Record<MessageContentType, StyleDefinition>;
 
@@ -45,6 +55,7 @@ export const MessageContentStyle = {
     return {
       justifyContent: FlexPosition.asCss(style.position.x),
       alignItems: FlexPosition.asCss(style.position.y),
+      overflow: "clip",
     };
   },
   asCss_Text: (style: MessageContentStyle_Text): CSSObject => {
@@ -53,7 +64,7 @@ export const MessageContentStyle = {
     cssObj[".content"] = {
       fontSize: style.textSize,
       color: style.textColor,
-      whiteSpace: style.noNewLine ? "normal" : "pre-wrap",
+      whiteSpace: style.banNewLine ? "nowrap" : style.noNewLine ? "normal" : "pre-wrap",
     };
     return cssObj;
   },
@@ -99,6 +110,6 @@ export const MessageContentsStyle = {
       }
     }
 
-    customCss.updateCss("MessageContentsStyle", cssObj);
+    customCss.updateCss("MessageContentsStyle", [cssObj]);
   },
 } as const;

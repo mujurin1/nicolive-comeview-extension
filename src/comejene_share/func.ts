@@ -22,13 +22,13 @@ export function createCustomCss() {
      *   },
      * );
      */
-    updateCss: (id: string, cssObject: CSSObject): void => {
+    updateCss: (id: string, cssObjects: CSSObject[]): void => {
       const style = getOrCreate(id);
-      const parsed = parseCssObject(cssObject);
+      const parsed = parseCssObject(cssObjects);
       if (style.innerHTML !== parsed.styles) style.innerHTML = parsed.styles;
     },
-    getUpdateCss: (id: string): ((cssObject: CSSObject) => void) => {
-      return (cssObject) => obj.updateCss(id, cssObject);
+    getUpdateCss: (id: string): ((cssObjects: CSSObject[]) => void) => {
+      return cssObjects => obj.updateCss(id, cssObjects);
     },
     removeAll: () => {
       for (const style of styleTags.values()) {
@@ -52,8 +52,8 @@ export function createCustomCss() {
   }
 }
 
-function parseCssObject(cssObject: CSSObject) {
-  const serialized = serializeStyles([cssObject]);
+function parseCssObject(cssObjects: CSSObject[]) {
+  const serialized = serializeStyles(cssObjects);
 
   return serialized;
 }

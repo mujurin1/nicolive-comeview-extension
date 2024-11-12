@@ -31,8 +31,8 @@ const Default_Raw = {
   position: my.object({
     display: "位置",
   })({
-    x: my.list({})(...FlexPositions)(),
-    y: my.list({})(...FlexPositions)(),
+    x: my.list({ display: "x" })(...FlexPositions)(),
+    y: my.list({ display: "y" })(...FlexPositions)(),
   }),
 } as const satisfies ZodRaw;
 type Default_Raw = typeof Default_Raw;

@@ -7,7 +7,7 @@ export type MotionSettingModel<D extends MotionSettingDefinition = MotionSetting
 
 /** 全モーション共通で定義したい設定がある時に備えて */
 const Default_Raw = {
-  // d: my.boolean(),
+  // d: my.boolean({})(),
 } as const satisfies ZodRaw;
 type Default_Raw = typeof Default_Raw;
 

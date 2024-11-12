@@ -1,42 +1,43 @@
-import { MessageContentsStyle, type MessageStyle, type MotionNames, type MotionSettingModel } from "../../comejene_share";
+import { MessageContentsStyle, type MessageStyle, type MotionNames, type MotionSettings } from "../../comejene_share";
 import { MessageContainerTemplates } from "./MessageContainer_Templates";
 
 
-
-export interface Template {
+export interface Template<Name extends MotionNames = MotionNames> {
   motion: {
-    name: MotionNames;
-    setting: MotionSettingModel;
+    name: Name;
+    setting: MotionSettings[Name];
   };
   style: MessageStyle,
-  // style: {
-  //   frame: MessageFrameStyle;
-  //   contents: MessageContentsStyle;
-  // };
 }
 
 export const Templates = {
-  sample: (): Template => ({
+  sample: (): Template<"sample"> => ({
     motion: {
       name: "sample",
       setting: {},
     },
     style: {
-      ...Templates.stackA().style,
+      ...Templates.縦並び().style,
       containerLayout: MessageContainerTemplates["L:I-N-C"](),
     },
   }),
-  stackB: (): Template => {
-    const v = Templates.stackA();
-    v.style.containerLayout = MessageContainerTemplates["L:I-N-C"]();
+  横並び: (): Template<"stack"> => {
+    const v = Templates.縦並び();
+    // v.style.containerLayout = MessageContainerTemplates["L:I-N-C"]();
+    v.motion.setting.isVertical = false;
+    v.motion.setting.verticalGrow = false;
     return v;
   },
-  stackA: (): Template => ({
+  縦並び: (): Template<"stack"> => ({
     motion: {
       name: "stack",
       setting: {
-        direction: "column",
+        isVertical: true,
         reverseOrder: false,
+        maxWidth: 0,
+        verticalGrow: true,
+        listAnimation: true,
+
         reverseGap: false,
         reverseMargine: false,
       },
@@ -44,10 +45,6 @@ export const Templates = {
     style: {
       frameStyle: {
         backColor: "#aaffcc",
-        size: {
-          x: "FULL",
-          y: "FULL",
-        },
       },
       containerLayout: MessageContainerTemplates["L:I-{N_C}"](),
       contentsStyle: MessageContentsStyle.new(
@@ -61,6 +58,7 @@ export const Templates = {
           textColor: "#000000",
           backColor: "#000000",
           noNewLine: true,
+          banNewLine: false,
         },
         {
           position: { x: "center", y: "center" },
@@ -68,6 +66,7 @@ export const Templates = {
           textColor: "#000000",
           backColor: "#000000",
           noNewLine: true,
+          banNewLine: false,
         },
       ),
     }

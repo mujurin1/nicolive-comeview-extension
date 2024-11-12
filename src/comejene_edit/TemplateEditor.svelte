@@ -2,7 +2,6 @@
   import App from "../comejene/App.svelte";
   import {
     comejeneEnvs,
-    MessageFrameStyle,
     MotionDefinitions,
     type MotionDefinition,
     type MotionNames,
@@ -15,7 +14,7 @@
   import SettingColumn from "./components/SettingColumn.svelte";
   import { getDummyComment } from "./utils";
 
-  let templateName = notifierStore<TemplateName>("stackA", () => {
+  let templateName = notifierStore<TemplateName>("縦並び", () => {
     template = Templates[$templateName]();
     senderReset();
   });
@@ -27,10 +26,12 @@
   );
 
   let senders = new ComejeneSender_Dbg();
-  void senders.initialize(
-    // comejeneEnvs.obs.createSender({ wsUrl: `ws://localhost:${4455}` }),
-    comejeneEnvs.browserEx.createSender(),
-  );
+  void senders
+    .initialize(
+      // comejeneEnvs.obs.createSender({ wsUrl: `ws://localhost:${4455}` }),
+      comejeneEnvs.browserEx.createSender(),
+    )
+    .then(senderReset);
 
   function senderReset() {
     senders.sendReset(template.motion.name, template.motion.setting, template.style);
@@ -46,11 +47,6 @@
     const contents = { icon, name, message };
     senders.sendComment(contents);
   }
-
-  let __style = $state<MessageFrameStyle>({
-    backColor: "#aaaaaa",
-    size: { x: "FIT", y: "FULL" },
-  });
 </script>
 
 <div class="editor-container">
@@ -58,7 +54,7 @@
     <button onclick={senderReset} type="button">初期化</button>
 
     <SettingArea title="テンプレート">
-      <SettingColumn name="タイプ" meta={{}}>
+      <SettingColumn forId="タイプ" meta={{ display: "タイプ" }}>
         <select id="タイプ" bind:value={$templateName}>
           {#each TemplateNames as value (value)}
             <option {value}>{value}</option>
@@ -66,18 +62,18 @@
         </select>
       </SettingColumn>
 
-      <SettingColumn name="モーション" meta={{}} noLabelFor>
+      <SettingColumn meta={{ display: "モーション" }}>
         <div>{motionDefinition.name}</div>
       </SettingColumn>
+    </SettingArea>
+
+    <SettingArea title="コメントテスト">
+      <button onclick={() => dbg_add()} type="button">コメントテスト</button>
     </SettingArea>
 
     {#key template}
       <EditorProps {resetMessageStyle} {resetMotionSetting} bind:template />
     {/key}
-
-    <SettingArea title="コメントテスト">
-      <button onclick={() => dbg_add()} type="button">コメントテスト</button>
-    </SettingArea>
   </div>
 
   <div class="preview">
@@ -100,6 +96,7 @@
     flex-direction: column;
     row-gap: 5px;
     padding: 5px;
+    overflow-y: auto;
 
     & > div {
       width: 100%;

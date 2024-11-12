@@ -9,10 +9,12 @@
     style: _style = $bindable(),
     definition,
     indent = 1,
+    path,
   }: {
     style: Setting;
     definition: Definition;
     indent?: number;
+    path: string;
   } = $props();
 
   let style = notifierStore(
@@ -25,20 +27,28 @@
 
 {#each Object.keys(definition.shape) as key (key)}
   {@const meta = definition.shape[key].meta}
+  {@const forId = path + key}
   {#if meta.type === "number"}
-    <SettingColumn name={key} {meta}>
-      <input id={key} type="number" bind:value={$style[key]}>
+    <SettingColumn {forId} {meta}>
+      <input
+        id={forId}
+        max={meta.max}
+        min={meta.min}
+        step={meta.step}
+        type="number"
+        bind:value={$style[key]}
+      >
     </SettingColumn>
   {:else if meta.type === "string"}
-    <SettingColumn name={key} {meta}>
-      <input id={key} type="text" bind:value={$style[key]}>
+    <SettingColumn {forId} {meta}>
+      <input id={forId} type="text" bind:value={$style[key]}>
     </SettingColumn>
   {:else if meta.type === "boolean"}
-    <SettingColumn name={key} {meta}>
-      <input id={key} type="checkbox" bind:checked={$style[key] as boolean}>
+    <SettingColumn {forId} {meta}>
+      <input id={forId} type="checkbox" bind:checked={$style[key] as boolean}>
     </SettingColumn>
   {:else if meta.type === "color"}
-    <SettingColumn name={key} {meta} noLabelFor>
+    <SettingColumn {meta}>
       <div class="color-picker-wrap">
         <ColorPicker
           --input-size="15px"
@@ -53,8 +63,8 @@
     </SettingColumn>
   {:else if meta.type === "list"}
     {@const newDefinition = definition.shape[key] as z.ZodUnion<z.ZodUnionOptions>}
-    <SettingColumn name={key} {meta}>
-      <select id={key} bind:value={$style[key]}>
+    <SettingColumn {forId} {meta}>
+      <select id={forId} bind:value={$style[key]}>
         {#each newDefinition.selectors as value (value)}
           <option {value}>{value}</option>
         {/each}
@@ -67,6 +77,7 @@
       <Self
         definition={definition.shape[key] as any}
         indent={indent+1}
+        path={path+key}
         bind:style={$style[key] as any}
       />
     </div>

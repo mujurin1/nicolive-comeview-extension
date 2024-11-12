@@ -10,9 +10,9 @@ export * from "./Stack/StackState.svelte";
 import type { Component } from "svelte";
 import type { MotionSettingModel, MotionState } from "./Interface";
 import SampleMotion from "./Sample/SampleMotion.svelte";
-import { SampleMotionSettingStyle } from "./Sample/SampleState.svelte";
+import { SampleMotionSettingStyle, type SampleMotionSetting } from "./Sample/SampleState.svelte";
 import StackMotion from "./Stack/StackMotion.svelte";
-import { StackMotionSettingStyle } from "./Stack/StackState.svelte";
+import { StackMotionSettingStyle, type StackMotionSetting } from "./Stack/StackState.svelte";
 
 export const MotionDefinitions = {
   sample: {
@@ -28,6 +28,11 @@ export const MotionDefinitions = {
 } as const;
 
 export type MotionNames = "sample" | "stack";
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+export type MotionSettings = {
+  sample: SampleMotionSetting,
+  stack: StackMotionSetting,
+};
 
 export interface MotionDefinition<Name extends MotionNames> {
   name: Name;
