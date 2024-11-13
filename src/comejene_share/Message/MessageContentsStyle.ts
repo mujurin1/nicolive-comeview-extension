@@ -1,6 +1,6 @@
 import type { CSSObject } from "@emotion/css/create-instance";
 import { MessageContentToStyleType, type MessageContentFrame, type MessageContentType } from ".";
-import { myz } from "../../lib/Myz";
+import { myz } from "../../lib/Myz/index.svelte";
 import type { CustomCss } from "../func";
 import { FlexPosition, MessageContentStyleDefinition, type StyleDefinition, type StyleSettingModel } from "./MessageContainerDefinition";
 

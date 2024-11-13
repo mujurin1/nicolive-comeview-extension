@@ -1,4 +1,4 @@
-import { myz, type Ignore, type MyzObjects, type MyzRoot, type MyzState } from "../../lib/Myz";
+import { myz, type Ignore, type MyzObjects, type MyzRoot, type MyzState } from "../../lib/Myz/index.svelte";
 import type { CustomCss } from "../func";
 import type { ReceiveContents } from "../type";
 

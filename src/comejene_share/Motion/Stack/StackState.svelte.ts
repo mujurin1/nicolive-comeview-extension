@@ -1,6 +1,6 @@
 import type { CSSObject } from "@emotion/css/create-instance";
 import { tick } from "svelte";
-import { myz } from "../../../lib/Myz";
+import { myz } from "../../../lib/Myz/index.svelte";
 import type { ReceiveContents } from "../../type";
 import { MotionSettingStyle, type MotionSettingModel, type MotionState } from "../Interface";
 import { StackMotionMessage } from "./StackMotionMessage.svelte";

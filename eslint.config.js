@@ -43,8 +43,9 @@ const defaultConfig = tsEslint.config({
     "no-unused-vars": "off",
     "prefer-const": "warn",
     "camelcase": "off",
-
     "no-constant-condition": "off",
+    "@typescript-eslint/ban-types": "off",
+    "@typescript-eslint/no-unsafe-return": "off",
     "@typescript-eslint/no-extraneous-class": "off",
     "@typescript-eslint/switch-exhaustiveness-check": "warn",
     "@typescript-eslint/no-unnecessary-type-arguments": "off",

@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
-  import type { MyzObject } from "../../lib/Myz";
+  import type { MyzObject } from "../../lib/Myz/index.svelte";
 
   let { forId, meta, children }: {
     forId?: string;

@@ -1,9 +1,10 @@
 <script generics="Definition extends MyzRoot, Setting extends MyzState<Definition>" lang="ts">
   import ColorPicker from "svelte-awesome-color-picker";
   import { notifierStore } from "../../lib/CustomStore.svelte";
-  import type { MyzRoot, MyzState } from "../../lib/Myz";
+  import type { MyzRoot, MyzState } from "../../lib/Myz/index.svelte";
   import SettingColumn from "./SettingColumn.svelte";
   import Self from "./StyleSetting.svelte";
+  import StyleSwitch from "./StyleSwitch.svelte";
 
   let {
     style: _style = $bindable(),
@@ -70,14 +71,23 @@
       </select>
     </SettingColumn>
   {:else if object.type === "block"}
-  <!-- {:else} -->
-    <div class="setting-block-label">{object.display ?? key}</div>
+    <div class="setting-block-label">{object.display}</div>
     <div style:--indent={`${indent}em`} class="setting-block-indent">
       <Self
         definition={definition.blocks[key] as any}
         indent={indent+1}
         path={path+key}
-        bind:style={$style[key] as any}
+        bind:style={$style[key]}
+      />
+    </div>
+  {:else if object.type === "switch"}
+    <div style:--indent={`${indent}em`} class="setting-block-indent">
+      <StyleSwitch
+        display={object.display}
+        indent={indent}
+        path={path+key}
+        switch={object as any}
+        bind:style={$style[key]}
       />
     </div>
   {/if}
@@ -92,7 +102,6 @@
       width: 100%;
     }
   }
-
 
   :global(.setting-block-label) {
     cursor: default;

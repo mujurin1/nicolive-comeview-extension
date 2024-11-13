@@ -1,4 +1,4 @@
-import { myz, type Ignore, type MyzObjects, type MyzRoot, type MyzState } from "../../lib/Myz";
+import { myz, type Ignore, type MyzObjects, type MyzRoot, type MyzState } from "../../lib/Myz/index.svelte";
 
 export type StyleDefinition<R extends MyzObjects = MyzObjects> = MyzRoot<R & Default_Raw>;
 export type StyleSettingModel<D extends StyleDefinition = StyleDefinition> = MyzState<D>;
