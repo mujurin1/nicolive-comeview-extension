@@ -1,13 +1,13 @@
 import type { CustomCss } from "../func";
-import { MessageContainerLayout } from "./MessageContainerLayout";
-import { MessageContentsStyle } from "./MessageContentsStyle";
-import { MessageFrameStyle } from "./MessageFrameStyle";
+import { MessageContentLayout } from "./MessageContentLayout";
+import { MessageContentsStyle } from "./MessageContentStyle";
+import { MessageFrameState } from "./MessageFrame";
 
 export * from "./MessageContainer.svelte";
-export * from "./MessageContainerDefinition";
-export * from "./MessageContainerLayout";
-export * from "./MessageContentsStyle";
-export * from "./MessageFrameStyle";
+export * from "./MessageContent";
+export * from "./MessageContentLayout";
+export * from "./MessageContentStyle";
+export * from "./MessageFrame";
 
 /** コメジェネで表示するコンテンツの種類 */
 export const MessageContentFrames = ["icon", "name", "message"] as const;
@@ -25,15 +25,15 @@ export const MessageContentToStyleType = {
 } as const satisfies Record<MessageContentFrame, MessageContentType>;
 
 
-export interface MessageStyle {
-  frameStyle: MessageFrameStyle;
-  containerLayout: MessageContainerLayout;
+export interface MessageContent {
+  frameSate: MessageFrameState;
+  containerLayout: MessageContentLayout;
   contentsStyle: MessageContentsStyle;
 }
-export const MessageStyle = {
-  updateCss: (customCss: CustomCss, style: MessageStyle): void => {
-    MessageFrameStyle.updateCss(customCss, style.frameStyle);
-    MessageContainerLayout.updateCss(customCss, style.containerLayout);
+export const MessageContent = {
+  updateCss: (customCss: CustomCss, style: MessageContent): void => {
+    MessageFrameState.updateCss(customCss, style.frameSate);
+    MessageContentLayout.updateCss(customCss, style.containerLayout);
     MessageContentsStyle.updateCss(customCss, style.contentsStyle);
   },
 } as const;

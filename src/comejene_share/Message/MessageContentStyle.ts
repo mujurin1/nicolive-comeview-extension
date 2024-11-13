@@ -2,15 +2,15 @@ import type { CSSObject } from "@emotion/css/create-instance";
 import { MessageContentToStyleType, type MessageContentFrame, type MessageContentType } from ".";
 import { myz } from "../../lib/Myz/index.svelte";
 import type { CustomCss } from "../func";
-import { FlexPosition, MessageContentStyleDefinition, type StyleDefinition, type StyleSettingModel } from "./MessageContainerDefinition";
+import { FlexPosition, MessageContentRoot, type MessageContent } from "./MessageContent";
 
 type MessageContentStyle = MessageContentStyle_Text | MessageContentStyle_Img;
-type MessageContentStyle_Text = StyleSettingModel<typeof MessageContentStyleDefinitionSet.text>;
-type MessageContentStyle_Img = StyleSettingModel<typeof MessageContentStyleDefinitionSet.img>;
+type MessageContentStyle_Text = MessageContent<typeof MessageContentStyleRootSet.text>;
+type MessageContentStyle_Img = MessageContent<typeof MessageContentStyleRootSet.img>;
 
-export const MessageContentStyleDefinitionSet = {
+export const MessageContentStyleRootSet = {
   /** テキストタイプのメッセージの持つ属性 */
-  text: MessageContentStyleDefinition.create(
+  text: MessageContentRoot.create(
     {
       textSize: myz.number("文字サイズ"),
       textColor: myz.color("文字色"),
@@ -23,7 +23,7 @@ export const MessageContentStyleDefinitionSet = {
       noNewLine: myz.boolean("改行文字無視"),
     }),
   /** 画像タイプのメッセージの持つ属性 */
-  img: MessageContentStyleDefinition.create(
+  img: MessageContentRoot.create(
     {
       /** 画像のサイズ */
       imgSize: myz.block("画像サイズ", {
@@ -31,7 +31,7 @@ export const MessageContentStyleDefinitionSet = {
         height: myz.number("height"),
       }),
     }),
-} as const satisfies Record<MessageContentType, StyleDefinition>;
+} as const satisfies Record<MessageContentType, MessageContentRoot>;
 
 export const MessageContentStyle = {
   asCss: (type: MessageContentType, style: MessageContentStyle): CSSObject => {
@@ -39,7 +39,7 @@ export const MessageContentStyle = {
     // else if(type === "text")
     return MessageContentStyle.asCss_Text(style as MessageContentStyle_Text);
   },
-  asCss_Base: (style: StyleSettingModel): CSSObject => {
+  asCss_Base: (style: MessageContent): CSSObject => {
     return {
       justifyContent: FlexPosition.asCss(style.position.x),
       alignItems: FlexPosition.asCss(style.position.y),

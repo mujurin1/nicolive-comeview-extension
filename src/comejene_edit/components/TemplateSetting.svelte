@@ -1,16 +1,16 @@
 <script lang="ts">
   import { notifierStore } from "../../lib/CustomStore.svelte";
   import { type Template } from "../Template/Templates";
-  import Setting from "./Setting.svelte";
+  import TemplateSetting_ from "./TemplateSetting_.svelte";
 
   let {
     template = $bindable(),
     resetMotionSetting,
-    resetMessageStyle,
+    resetMessageContent: resetMessageContent,
   }: {
     template: Template;
     resetMotionSetting: () => void;
-    resetMessageStyle: () => void;
+    resetMessageContent: () => void;
   } = $props();
 
   let editTemplate = notifierStore(template, () => {
@@ -21,14 +21,14 @@
     editTemplate.state.motion.setting = motionSetting.state;
     resetMotionSetting();
   });
-  let messageStyle = notifierStore($editTemplate.style, () => {
-    editTemplate.state.style = messageStyle.state;
-    resetMessageStyle();
+  let messageContent = notifierStore($editTemplate.style, () => {
+    editTemplate.state.style = messageContent.state;
+    resetMessageContent();
   });
 </script>
 
-<Setting
+<TemplateSetting_
   motionName={$editTemplate.motion.name}
   bind:motionSetting={$motionSetting}
-  bind:messageStyle={$messageStyle}
+  bind:messageContent={$messageContent}
 />

@@ -2,9 +2,9 @@ import type { CSSObject } from "@emotion/css/create-instance";
 import { myz, type MyzState } from "../../lib/Myz/index.svelte";
 import type { CustomCss } from "../func";
 
-export type MessageFrameStyle = MyzState<typeof MessageFrameStyleDefinition>;
-export const MessageFrameStyle = {
-  updateCss: (customCss: CustomCss, style: MessageFrameStyle): void => {
+export type MessageFrameState = MyzState<typeof MessageFrameRoot>;
+export const MessageFrameState = {
+  updateCss: (customCss: CustomCss, style: MessageFrameState): void => {
     const baseCss: CSSObject = {
       ".message-container": {
         backgroundColor: style.backColor,
@@ -13,11 +13,11 @@ export const MessageFrameStyle = {
       },
     };
 
-    customCss.updateCss("MessageFrameStyle", [baseCss]);
+    customCss.updateCss("MessageFrameState", [baseCss]);
   },
 } as const;
 
-function padToCss(padding: MessageFrameStyle["padding"]): string {
+function padToCss(padding: MessageFrameState["padding"]): string {
   return [
     padding.top,
     padding.right,
@@ -30,7 +30,7 @@ function padToCss(padding: MessageFrameStyle["padding"]): string {
 }
 
 
-export const MessageFrameStyleDefinition = myz.root({
+export const MessageFrameRoot = myz.root({
   backColor: myz.color("背景色"),
   padding: myz.switch<{
     top: number;
@@ -39,9 +39,9 @@ export const MessageFrameStyleDefinition = myz.root({
     left: number;
   }>("余白")
     .add(
-      "全て",
+      "上下左右",
       {
-        padding: myz.number({ display: "全て" }),
+        padding: myz.number({ display: "上下左右" }),
       },
       ({ padding }) => ({ top: padding, right: padding, bottom: padding, left: padding }),
       ({ top }) => ({ padding: top }),

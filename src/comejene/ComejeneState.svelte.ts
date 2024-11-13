@@ -1,4 +1,4 @@
-import { checkComejeneEnvType, comejeneEnvs, type ComejeneEnvTypes, type ComejeneReceiver, type MessageStyle, type MotionNames, type MotionSettingModel, type MotionState } from "../comejene_share";
+import { checkComejeneEnvType, comejeneEnvs, type ComejeneEnvTypes, type ComejeneReceiver, type MessageContent, type MotionNames, type MotionSetting, type MotionState } from "../comejene_share";
 import { ComejeneViewState } from "./ComejeneViewState.svelte";
 
 export class ComejeneState {
@@ -6,10 +6,10 @@ export class ComejeneState {
   private readonly receiver: ComejeneReceiver;
 
   private motionName: MotionNames | undefined;
-  private motionSetting: MotionSettingModel | undefined;
-  private messageStyle: MessageStyle | undefined;
+  private motionSetting: MotionSetting | undefined;
+  private messageContent: MessageContent | undefined;
 
-  public viewState = $state<ComejeneViewState<MotionSettingModel, MotionState>>();
+  public viewState = $state<ComejeneViewState<MotionSetting, MotionState>>();
 
   public constructor() {
     this.env = checkComejeneEnvType();
@@ -28,15 +28,15 @@ export class ComejeneState {
       if (event.type === "comejene-reset") {
         this.motionName = event.motionName;
         this.motionSetting = event.motionSetting;
-        this.messageStyle = event.messageStyle;
+        this.messageContent = event.messageContent;
 
         this.resetViewState();
       } else if (event.type === "change-motion-setting") {
         this.motionSetting = event.motionSetting;
         this.viewState?.setMotionSetting(this.motionSetting);
-      } else if (event.type === "change-message-style") {
-        this.messageStyle = event.messageStyle;
-        this.viewState?.setMessageStyle(this.messageStyle);
+      } else if (event.type === "change-message-content") {
+        this.messageContent = event.messageContent;
+        this.viewState?.setMessageContent(this.messageContent);
       } else if (event.type === "content") {
         if (this.viewState == null) continue;
 
@@ -49,10 +49,10 @@ export class ComejeneState {
     if (
       this.motionName == null ||
       this.motionSetting == null ||
-      this.messageStyle == null
+      this.messageContent == null
     ) return;
 
     this.viewState?.dispose();
-    this.viewState = new ComejeneViewState(this.motionName, this.motionSetting, this.messageStyle);
+    this.viewState = new ComejeneViewState(this.motionName, this.motionSetting, this.messageContent);
   }
 }

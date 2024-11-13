@@ -1,4 +1,4 @@
-import { MessageContentsStyle, type MessageStyle, type MotionNames, type MotionSettings } from "../../comejene_share";
+import { MessageContentsStyle, type MessageContent, type MotionNames, type MotionSettings } from "../../comejene_share";
 import { MessageContainerTemplates } from "./MessageContainer_Templates";
 
 
@@ -7,7 +7,7 @@ export interface Template<Name extends MotionNames = MotionNames> {
     name: Name;
     setting: MotionSettings[Name];
   };
-  style: MessageStyle,
+  style: MessageContent,
 }
 
 export const Templates = {
@@ -43,7 +43,7 @@ export const Templates = {
       },
     },
     style: {
-      frameStyle: {
+      frameSate: {
         backColor: "#aaffcc",
         padding: {
           top: 5,

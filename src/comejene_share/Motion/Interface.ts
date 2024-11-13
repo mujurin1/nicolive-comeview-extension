@@ -2,30 +2,30 @@ import { myz, type Ignore, type MyzObjects, type MyzRoot, type MyzState } from "
 import type { CustomCss } from "../func";
 import type { ReceiveContents } from "../type";
 
-export type MotionSettingDefinition<R extends MyzObjects = MyzObjects> = MyzRoot<R & Default_Raw>;
-export type MotionSettingModel<D extends MotionSettingDefinition = MotionSettingDefinition> = MyzState<D>;
+export type MotionSettingRoot<R extends MyzObjects = MyzObjects> = MyzRoot<R & Default_Objects>;
+export type MotionSetting<D extends MotionSettingRoot = MotionSettingRoot> = MyzState<D>;
 
 /** 全モーション共通で定義したい設定がある時に備えて */
-const Default_Raw = {
+const Default_Objects = {
   // d: myz.block("", {
   //   a: myz.boolean(""),
   // }),
 } as const satisfies MyzObjects;
-type Default_Raw = typeof Default_Raw;
+type Default_Objects = typeof Default_Objects;
 
-export interface MotionSettingStyle<Definition extends MotionSettingDefinition> {
-  definition: Definition,
-  updateCss: (customCss: CustomCss, setting: MotionSettingModel<Definition>) => void,
+export interface MotionSettingStyle<Root extends MotionSettingRoot> {
+  root: Root,
+  updateCss: (customCss: CustomCss, setting: MotionSetting<Root>) => void,
 }
 
 export const MotionSettingStyle = {
-  create: <Raw extends Ignore<MyzObjects, Default_Raw>>(
-    raw: Raw,
-    updateCss: (customCss: CustomCss, setting: MotionSettingModel<MotionSettingDefinition<Raw>>) => void,
-  ): MotionSettingStyle<MotionSettingDefinition<Raw>> => ({
-    definition: myz.root({
-      ...Default_Raw,
-      ...raw,
+  create: <Objects extends Ignore<MyzObjects, Default_Objects>>(
+    objects: Objects,
+    updateCss: (customCss: CustomCss, setting: MotionSetting<MotionSettingRoot<Objects>>) => void,
+  ): MotionSettingStyle<MotionSettingRoot<Objects>> => ({
+    root: myz.root({
+      ...Default_Objects,
+      ...objects,
     }),
     updateCss,
   })
@@ -44,7 +44,7 @@ export interface MotionMessage {
  * モーションの状態
  */
 export interface MotionState<
-  Setting extends MotionSettingModel = MotionSettingModel,
+  Setting extends MotionSetting = MotionSetting,
   Message extends MotionMessage = MotionMessage,
 > {
   readonly setting: Setting;

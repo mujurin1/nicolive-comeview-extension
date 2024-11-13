@@ -9,9 +9,9 @@
   import { ComejeneSender_Dbg } from "../comejene_share/ViewEnvironment/temp";
   import { notifierStore } from "../lib/CustomStore.svelte";
   import { TemplateNames, Templates, type Template, type TemplateName } from "./Template/Templates";
-  import EditorProps from "./components/EditorProps.svelte";
-  import SettingArea from "./components/SettingArea.svelte";
-  import SettingColumn from "./components/SettingColumn.svelte";
+  import MyzView from "./components/MyzView.svelte";
+  import MyzViewArea from "./components/MyzViewArea.svelte";
+  import TemplateSetting from "./components/TemplateSetting.svelte";
   import { getDummyComment } from "./utils";
 
   let templateName = notifierStore<TemplateName>("縦並び", () => {
@@ -39,8 +39,8 @@
   function resetMotionSetting() {
     senders.sendMotionSetting(template.motion.setting);
   }
-  function resetMessageStyle() {
-    senders.sendMessageStyle(template.style);
+  function resetMessageContent() {
+    senders.sendMessageContent(template.style);
   }
 
   function dbg_add(icon = "", name = "name", message = getDummyComment()) {
@@ -53,26 +53,26 @@
   <div class="setting-container">
     <button onclick={senderReset} type="button">初期化</button>
 
-    <SettingArea title="テンプレート">
-      <SettingColumn forId="使用テンプレート" meta={{ display: "使用テンプレート" }}>
+    <MyzViewArea title="テンプレート">
+      <MyzView forId="使用テンプレート" object={{ display: "使用テンプレート" }}>
         <select id="使用テンプレート" bind:value={$templateName}>
           {#each TemplateNames as value (value)}
             <option {value}>{value}</option>
           {/each}
         </select>
-      </SettingColumn>
+      </MyzView>
 
-      <SettingColumn meta={{ display: "モーション" }}>
+      <MyzView object={{ display: "モーション" }}>
         <div>{motionDefinition.name}</div>
-      </SettingColumn>
-    </SettingArea>
+      </MyzView>
+    </MyzViewArea>
 
-    <SettingArea title="コメントテスト">
+    <MyzViewArea title="コメントテスト">
       <button onclick={() => dbg_add()} type="button">コメントテスト</button>
-    </SettingArea>
+    </MyzViewArea>
 
     {#key template}
-      <EditorProps {resetMessageStyle} {resetMotionSetting} bind:template />
+      <TemplateSetting {resetMessageContent} {resetMotionSetting} bind:template />
     {/key}
   </div>
 

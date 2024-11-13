@@ -8,7 +8,7 @@ export * from "./Stack/StackState.svelte";
 
 
 import type { Component } from "svelte";
-import type { MotionSettingModel, MotionState } from "./Interface";
+import type { MotionSetting, MotionState } from "./Interface";
 import SampleMotion from "./Sample/SampleMotion.svelte";
 import { SampleMotionSettingStyle, type SampleMotionSetting } from "./Sample/SampleState.svelte";
 import StackMotion from "./Stack/StackMotion.svelte";
@@ -41,7 +41,7 @@ export interface MotionDefinition<Name extends MotionNames> {
 }
 
 export type MotionComponent<
-  Setting extends MotionSettingModel = MotionSettingModel,
+  Setting extends MotionSetting = MotionSetting,
   State extends MotionState = MotionState<Setting>,
 > = Component<
   {

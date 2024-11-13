@@ -72,9 +72,6 @@
   .list {
     font-size: 1rem;
     margin-bottom: 5px;
-
-    & > *:not(last-child) {
-      margin-right: 50px;
-    }
+    margin-right: 50px;
   }
 </style>

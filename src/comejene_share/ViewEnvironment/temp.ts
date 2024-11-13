@@ -1,5 +1,5 @@
-import type { MessageStyle } from "../Message";
-import type { MotionNames, MotionSettingModel } from "../Motion";
+import type { MessageContent } from "../Message";
+import type { MotionNames, MotionSetting } from "../Motion";
 import type { ReceiveContents } from "../type";
 import type { ComejeneEvent, ComejeneSender } from "./type";
 
@@ -24,34 +24,34 @@ export class ComejeneSender_Dbg {
     });
   }
 
-  public sendReset(motionName: MotionNames, motionSetting: MotionSettingModel, messageStyle: MessageStyle) {
+  public sendReset(motionName: MotionNames, motionSetting: MotionSetting, messageContent: MessageContent) {
     this._sendMotionSettingController.reset();
-    this._sendMessageStyleController.reset();
+    this._sendMessageContentController.reset();
 
     this.send({
       type: "comejene-reset",
       motionName,
       motionSetting,
-      messageStyle,
+      messageContent: messageContent,
     });
   }
 
   private readonly LOCK_TIME_MS = 100;
-  private readonly _sendMotionSettingController = timeFlowController<MotionSettingModel>(
+  private readonly _sendMotionSettingController = timeFlowController<MotionSetting>(
     this.LOCK_TIME_MS,
     motionSetting => this.send({ type: "change-motion-setting", motionSetting }),
   );
-  private readonly _sendMessageStyleController = timeFlowController<MessageStyle>(
+  private readonly _sendMessageContentController = timeFlowController<MessageContent>(
     this.LOCK_TIME_MS,
-    messageStyle => this.send({ type: "change-message-style", messageStyle }),
+    messageContent => this.send({ type: "change-message-content", messageContent }),
   );
 
-  public sendMotionSetting(motionSetting: MotionSettingModel) {
+  public sendMotionSetting(motionSetting: MotionSetting) {
     this._sendMotionSettingController.do(motionSetting);
   }
 
-  public sendMessageStyle(messageStyle: MessageStyle) {
-    this._sendMessageStyleController.do(messageStyle);
+  public sendMessageContent(messageContent: MessageContent) {
+    this._sendMessageContentController.do(messageContent);
   }
 }
 

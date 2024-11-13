@@ -1,7 +1,7 @@
 <script
   generics="
-    Definition extends MyzRoot,
-    Setting extends MyzState<Definition>,
+    Root extends MyzRoot,
+    Setting extends MyzState<Root>,
     Switch extends MyzSwitch<Setting>,
   "
   lang="ts"
@@ -9,7 +9,7 @@
   import { untrack } from "svelte";
   import { notifierStore } from "../../lib/CustomStore.svelte";
   import type { MyzRoot, MyzState, MyzSwitch } from "../../lib/Myz/index.svelte";
-  import StyleSetting from "./StyleSetting.svelte";
+  import MyzRootView from "./MyzRootView.svelte";
 
   let {
     display,
@@ -42,7 +42,7 @@
   let itemState = notifierStore(
     _switch.items[selectKey.state].createState(style.state),
     () => {
-      // TODO: 何故かこれでeffectされない
+      // TODO: 何故かこれではeffectされない
       // style.state = selectItem.bind(itemState.state);
       _style = selectItem.bind(itemState.state);
     },
@@ -50,11 +50,10 @@
   );
 </script>
 
-<!-- indent={indent+1} -->
-<div class="setting-block-switch">
-  <div class="setting-block-switch-header">
-    <div class="setting-block-switch-label">{display}</div>
-    <select class="setting-block-switch-selector" bind:value={$selectKey}>
+<div class="myz-switch">
+  <div class="myz-switch-header">
+    <div class="myz-switch-label">{display}</div>
+    <select class="myz-switch-selector" bind:value={$selectKey}>
       {#each keys as value (value)}
         <option {value}>{value}</option>
       {/each}
@@ -62,20 +61,20 @@
   </div>
 
   {#key itemState.state}
-    <StyleSetting definition={selectItem} {indent} {path} bind:style={$itemState} />
+    <MyzRootView {indent} {path} root={selectItem} bind:style={$itemState} />
   {/key}
 </div>
 
 <style>
-  .setting-block-switch-header {
+  .myz-switch-header {
     display: flex;
     justify-content: space-between;
 
-    .setting-block-switch-label {
+    .myz-switch-label {
       flex: 1 0 0;
       column-gap: 6px;
     }
-    .setting-block-switch-selector {
+    .myz-switch-selector {
       flex: 0 1 0;
     }
   }

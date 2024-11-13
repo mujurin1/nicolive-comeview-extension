@@ -2,11 +2,11 @@ import type { CSSObject } from "@emotion/css/create-instance";
 import { tick } from "svelte";
 import { myz } from "../../../lib/Myz/index.svelte";
 import type { ReceiveContents } from "../../type";
-import { MotionSettingStyle, type MotionSettingModel, type MotionState } from "../Interface";
+import { MotionSettingStyle, type MotionSetting, type MotionState } from "../Interface";
 import { StackMotionMessage } from "./StackMotionMessage.svelte";
 
 
-export type StackMotionSetting = MotionSettingModel<typeof StackMotionSettingStyle.definition>;
+export type StackMotionSetting = MotionSetting<typeof StackMotionSettingStyle.root>;
 export const StackMotionSettingStyle = MotionSettingStyle.create(
   {
     /**

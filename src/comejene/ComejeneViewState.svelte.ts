@@ -1,7 +1,7 @@
-import { MessageStyle, MotionDefinitions, type MotionComponent, type MotionDefinition, type MotionNames, type MotionSettingModel, type MotionState, type ReceiveContents } from "../comejene_share";
+import { MessageContent, MotionDefinitions, type MotionComponent, type MotionDefinition, type MotionNames, type MotionSetting, type MotionState, type ReceiveContents } from "../comejene_share";
 import { createCustomCss } from "../comejene_share/func";
 
-export class ComejeneViewState<Setting extends MotionSettingModel, State extends MotionState> {
+export class ComejeneViewState<Setting extends MotionSetting, State extends MotionState> {
   private readonly _customCss = createCustomCss();
 
   public readonly motionDefinition: MotionDefinition<MotionNames>;
@@ -12,19 +12,19 @@ export class ComejeneViewState<Setting extends MotionSettingModel, State extends
 
   public component = $state<ReturnType<MotionComponent<Setting, State>>>(null!);
   private _motionSetting = $state<Setting>(null!);
-  private _messageStyle = $state<MessageStyle>(null!);
+  private _messageContent = $state<MessageContent>(null!);
 
   public get motionSetting() { return this._motionSetting; }
-  public get messageStyle() { return this._messageStyle; }
+  public get messageContent() { return this._messageContent; }
 
   public constructor(
     motionName: MotionNames,
     motionSetting: Setting,
-    messageStyle: MessageStyle,
+    messageContent: MessageContent,
   ) {
     this.motionDefinition = MotionDefinitions[motionName];
     this.setMotionSetting(motionSetting);
-    this.setMessageStyle(messageStyle);
+    this.setMessageContent(messageContent);
   }
 
   public dispose(): void {
@@ -43,10 +43,10 @@ export class ComejeneViewState<Setting extends MotionSettingModel, State extends
     void this.component.state.resetMotionLayout(this._motionSetting);
   }
 
-  public setMessageStyle(messageStyle: MessageStyle): void {
-    this._messageStyle = messageStyle;
+  public setMessageContent(messageContent: MessageContent): void {
+    this._messageContent = messageContent;
 
-    MessageStyle.updateCss(this._customCss, this._messageStyle);
+    MessageContent.updateCss(this._customCss, this._messageContent);
     if (this.component == null) return;
     void this.component.state.resetLayout();
   }

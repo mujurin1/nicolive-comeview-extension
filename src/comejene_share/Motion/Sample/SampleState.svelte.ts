@@ -1,11 +1,11 @@
 import type { CSSObject } from "@emotion/css/create-instance";
 import { tick } from "svelte";
 import type { ReceiveContents } from "../../type";
-import { MotionSettingStyle, type MotionSettingModel, type MotionState } from "../Interface";
+import { MotionSettingStyle, type MotionSetting, type MotionState } from "../Interface";
 import { SampleMotionMessage } from "./SampleMotionMessage.svelte";
 
 
-export type SampleMotionSetting = MotionSettingModel<typeof SampleMotionSettingStyle.definition>;
+export type SampleMotionSetting = MotionSetting<typeof SampleMotionSettingStyle.root>;
 export const SampleMotionSettingStyle = MotionSettingStyle.create(
   {},
   (customCss, _) => {

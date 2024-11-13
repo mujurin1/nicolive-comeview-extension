@@ -3,22 +3,22 @@ import type { CSSObject } from "@emotion/css/create-instance";
 import type { MessageContentFrame } from ".";
 import type { CustomCss } from "../func";
 
-export interface MessageContainerLayout {
+export interface MessageContentLayout {
   rows: ContainerGridSize[];
   cols: ContainerGridSize[];
   contents: Record<MessageContentFrame, ContentFrameLayout | undefined>;
 }
-export const MessageContainerLayout = {
+export const MessageContentLayout = {
   new: (
     rows: ContainerGridSize[],
     cols: ContainerGridSize[],
     contents: Record<MessageContentFrame, ContentFrameLayout | undefined>,
-  ): MessageContainerLayout => ({
+  ): MessageContentLayout => ({
     rows,
     cols,
     contents,
   }),
-  updateCss: (customCss: CustomCss, { rows, cols, contents }: MessageContainerLayout): void => {
+  updateCss: (customCss: CustomCss, { rows, cols, contents }: MessageContentLayout): void => {
     const cssObj: CSSObject = {
       ".comejene-container": {
         overflow: "clip",
@@ -52,15 +52,9 @@ export const MessageContainerLayout = {
     }
 
     css(cssObj);
-    customCss.updateCss("MessageContainerLayout", [cssObj]);
+    customCss.updateCss("MessageContentLayout", [cssObj]);
   }
 } as const;
-
-
-export interface MessageContainerGrid {
-  rows: ContainerGridSize[];
-  cols: ContainerGridSize[];
-}
 
 /** number:*px FIT:auto FLEX:1fr */
 export type ContainerGridSize = number | "FIT" | "FLEX";

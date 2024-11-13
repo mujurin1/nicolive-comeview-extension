@@ -2,16 +2,16 @@
   import type { Snippet } from "svelte";
   import type { MyzObject } from "../../lib/Myz/index.svelte";
 
-  let { forId, meta, children }: {
+  let { forId, object, children }: {
     forId?: string;
-    meta: Partial<MyzObject>;
+    object: Partial<Omit<MyzObject, "type">>;
     children: Snippet;
   } = $props();
 </script>
 
-<div class="setting-content">
-  <label class="setting-label" for={forId} title={meta.desc}>
-    {meta.display}
+<div class="setting-column">
+  <label class="setting-label" for={forId} title={object.desc}>
+    {object.display}
   </label>
   <div class="setting-input">
      {@render children()}
@@ -19,7 +19,7 @@
 </div>
 
 <style>
-  .setting-content {
+  .setting-column {
     display: flex;
     /* justify-content: space-between; */
     column-gap: 6px;
