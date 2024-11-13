@@ -1,4 +1,5 @@
 import { serializeStyles, type CSSObject } from "@emotion/serialize";
+import cssFlatten from "css-flatten";
 
 export type CustomCss = ReturnType<typeof createCustomCss>;
 export type CssFunc = (cssObject: CSSObject) => void;
@@ -24,8 +25,8 @@ export function createCustomCss() {
      */
     updateCss: (id: string, cssObjects: CSSObject[]): void => {
       const style = getOrCreate(id);
-      const parsed = parseCssObject(cssObjects);
-      if (style.innerHTML !== parsed.styles) style.innerHTML = parsed.styles;
+      const parsedCss = parseCssObject(cssObjects);
+      if (style.innerHTML !== parsedCss) style.innerHTML = parsedCss;
     },
     getUpdateCss: (id: string): ((cssObjects: CSSObject[]) => void) => {
       return cssObjects => obj.updateCss(id, cssObjects);
@@ -54,6 +55,5 @@ export function createCustomCss() {
 
 function parseCssObject(cssObjects: CSSObject[]) {
   const serialized = serializeStyles(cssObjects);
-
-  return serialized;
+  return cssFlatten(serialized.styles);
 }

@@ -28,7 +28,7 @@
   let senders = new ComejeneSender_Dbg();
   void senders
     .initialize(
-      // comejeneEnvs.obs.createSender({ wsUrl: `ws://localhost:${4455}` }),
+      comejeneEnvs.obs.createSender({ wsUrl: `ws://localhost:${4455}` }),
       comejeneEnvs.browserEx.createSender(),
     )
     .then(senderReset);
@@ -54,8 +54,8 @@
     <button onclick={senderReset} type="button">初期化</button>
 
     <SettingArea title="テンプレート">
-      <SettingColumn forId="タイプ" meta={{ display: "タイプ" }}>
-        <select id="タイプ" bind:value={$templateName}>
+      <SettingColumn forId="使用テンプレート" meta={{ display: "使用テンプレート" }}>
+        <select id="使用テンプレート" bind:value={$templateName}>
           {#each TemplateNames as value (value)}
             <option {value}>{value}</option>
           {/each}
