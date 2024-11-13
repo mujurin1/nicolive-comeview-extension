@@ -8,7 +8,6 @@ import { SampleMotionMessage } from "./SampleMotionMessage.svelte";
 export type SampleMotionSetting = MotionSettingModel<typeof SampleMotionSettingStyle.definition>;
 export const SampleMotionSettingStyle = MotionSettingStyle.create(
   {},
-  {},
   (customCss, _) => {
     const cssObj: CSSObject = {};
 

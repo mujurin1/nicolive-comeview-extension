@@ -49,7 +49,6 @@
     "@types/stylis": "^4.2.6",
     "css-flatten": "^2.0.0",
     "obs-websocket-js": "^5.0.6",
-    "svelte-awesome-color-picker": "^3.1.4",
-    "zod": "^3.23.8"
+    "svelte-awesome-color-picker": "^3.1.4"
   }
 }

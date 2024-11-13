@@ -1,6 +1,6 @@
 import type { CSSObject } from "@emotion/css/create-instance";
 import { tick } from "svelte";
-import { my } from "../../../function/MyZod";
+import { myz } from "../../../lib/Myz";
 import type { ReceiveContents } from "../../type";
 import { MotionSettingStyle, type MotionSettingModel, type MotionState } from "../Interface";
 import { StackMotionMessage } from "./StackMotionMessage.svelte";
@@ -8,59 +8,48 @@ import { StackMotionMessage } from "./StackMotionMessage.svelte";
 
 export type StackMotionSetting = MotionSettingModel<typeof StackMotionSettingStyle.definition>;
 export const StackMotionSettingStyle = MotionSettingStyle.create(
-  {},
   {
     /**
      * メッセージを縦(flex-direction:column)に並べるか
      */
-    isVertical: my.boolean({
-      display: "縦並び",
-    })(),
-    verticalGrow: my.boolean({
+    isVertical: myz.boolean("縦並び"),
+    verticalGrow: myz.boolean({
       display: "垂直に伸ばす",
       desc: "「並ぶ向き」の垂直方向に向けて広げます",
-    })(),
+    }),
 
     /**
      * メッセージの順序(最新→古い)を標準(上/左が新しい)と逆にするか
      */
-    reverseOrder: my.boolean({
+    reverseOrder: myz.boolean({
       display: "逆順",
       desc: "メッセージを標準(上/左が新しい)と逆並びにします"
-    })(),
+    }),
 
-    maxWidth: my.number({
+    maxWidth: myz.number({
       display: "横幅の最大値",
       desc: "0 なら「縦並び」「垂直に伸ばす」に基づいて調整されます",
       min: 0,
       step: 10,
-    })(),
+    }),
 
 
     /**
      * アニメーションを有効化するか
      */
-    listAnimation: my.boolean({
-      display: "アニメーション",
-      desc: "説明",
-    })(),
-
+    listAnimation: myz.boolean({ display: "アニメーション", desc: "説明" }),
 
 
     /**
      * **TODO: 現在未対応**\
      * メッセージの詰める方向を標準(下/右に詰める)と逆にするか
      */
-    reverseGap: my.boolean({
-      display: "reverseGap",
-    })(),
+    reverseGap: myz.boolean("reverseGap"),
     /**
      * **TODO: 現在未対応**\
      * 余白を標準(右/上)と逆にするか
      */
-    reverseMargine: my.boolean({
-      display: "reverseMargine",
-    })(),
+    reverseMargine: myz.boolean("reverseMargine"),
   } as const,
 
   (customCss, setting) => {

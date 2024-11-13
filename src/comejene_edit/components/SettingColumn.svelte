@@ -1,10 +1,10 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
-  import type { ZodMeta } from "../../function/MyZod";
+  import type { MyzObject } from "../../lib/Myz";
 
   let { forId, meta, children }: {
     forId?: string;
-    meta: Partial<ZodMeta>;
+    meta: Partial<MyzObject>;
     children: Snippet;
   } = $props();
 </script>

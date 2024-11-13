@@ -45,6 +45,7 @@ export const Templates = {
     style: {
       frameStyle: {
         backColor: "#aaffcc",
+        padding: 5,
       },
       containerLayout: MessageContainerTemplates["L:I-{N_C}"](),
       contentsStyle: MessageContentsStyle.new(

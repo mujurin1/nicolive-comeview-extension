@@ -1,46 +1,34 @@
 import type { CSSObject } from "@emotion/css/create-instance";
 import { MessageContentToStyleType, type MessageContentFrame, type MessageContentType } from ".";
-import { my, type ExpandRecursively } from "../../function/MyZod";
+import { myz } from "../../lib/Myz";
 import type { CustomCss } from "../func";
 import { FlexPosition, MessageContentStyleDefinition, type StyleDefinition, type StyleSettingModel } from "./MessageContainerDefinition";
 
 type MessageContentStyle = MessageContentStyle_Text | MessageContentStyle_Img;
-type MessageContentStyle_Text = ExpandRecursively<StyleSettingModel<typeof MessageContentStyleDefinitionSet.text>>;
-type MessageContentStyle_Img = ExpandRecursively<StyleSettingModel<typeof MessageContentStyleDefinitionSet.img>>;
+type MessageContentStyle_Text = StyleSettingModel<typeof MessageContentStyleDefinitionSet.text>;
+type MessageContentStyle_Img = StyleSettingModel<typeof MessageContentStyleDefinitionSet.img>;
 
 export const MessageContentStyleDefinitionSet = {
   /** テキストタイプのメッセージの持つ属性 */
   text: MessageContentStyleDefinition.create(
-    {},
     {
-      textSize: my.number({
-        display: "文字サイズ",
-      })(),
-      textColor: my.color({
-        display: "文字色",
-      })(),
-      backColor: my.color({
-        display: "背景色",
-      })(),
-      banNewLine: my.boolean({
-        display: "改行禁止",
-        // TODO: こういう風に書きたい. controller を介することで依存関係を整理する
-        // changed: (newValue, controller) => {
-        //   controller.disable("noNewLine", newValue);
-        // },
-      })(),
-      noNewLine: my.boolean({
-        display: "改行文字無視",
-      })(),
+      textSize: myz.number("文字サイズ"),
+      textColor: myz.color("文字色"),
+      backColor: myz.color("背景色"),
+      banNewLine: myz.boolean("改行禁止"),
+      // TODO: こういう風に書きたい. controller を介することで依存関係を整理する
+      // changed: (newValue, controller) => {
+      //   controller.disable("noNewLine", newValue);
+      // },
+      noNewLine: myz.boolean("改行文字無視"),
     }),
   /** 画像タイプのメッセージの持つ属性 */
   img: MessageContentStyleDefinition.create(
-    {},
     {
       /** 画像のサイズ */
-      imgSize: my.object({})({
-        width: my.number({ display: "width" })(),
-        height: my.number({ display: "height" })(),
+      imgSize: myz.block("画像サイズ", {
+        width: myz.number("width"),
+        height: myz.number("height"),
       }),
     }),
 } as const satisfies Record<MessageContentType, StyleDefinition>;

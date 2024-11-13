@@ -28,7 +28,7 @@
   let senders = new ComejeneSender_Dbg();
   void senders
     .initialize(
-      comejeneEnvs.obs.createSender({ wsUrl: `ws://localhost:${4455}` }),
+      // comejeneEnvs.obs.createSender({ wsUrl: `ws://localhost:${4455}` }),
       comejeneEnvs.browserEx.createSender(),
     )
     .then(senderReset);

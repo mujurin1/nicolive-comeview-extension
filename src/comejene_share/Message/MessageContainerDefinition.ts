@@ -1,7 +1,7 @@
-import { type Ignore, type ZodDefinition, type ZodModel, type ZodRaw, my } from "../../function/MyZod";
+import { myz, type Ignore, type MyzObjects, type MyzRoot, type MyzState } from "../../lib/Myz";
 
-export type StyleDefinition<R extends ZodRaw = ZodRaw> = ZodDefinition<R & Default_Raw>;
-export type StyleSettingModel<D extends ZodDefinition = ZodDefinition> = ZodModel<D>;
+export type StyleDefinition<R extends MyzObjects = MyzObjects> = MyzRoot<R & Default_Raw>;
+export type StyleSettingModel<D extends StyleDefinition = StyleDefinition> = MyzState<D>;
 
 export const FlexPositions = ["start", "center", "end"] as const;
 export type FlexPosition = typeof FlexPositions[number];
@@ -13,10 +13,9 @@ export const FlexPosition = {
 } as const;
 
 export const MessageContentStyleDefinition = {
-  create: <Raw extends Ignore<ZodRaw, Default_Raw>>(
-    myParams: Parameters<typeof my.object>[0],
+  create: <Raw extends Ignore<MyzObjects, Default_Raw>>(
     raw: Raw,
-  ): StyleDefinition<Raw> => my.object(myParams)({
+  ): StyleDefinition<Raw> => myz.root({
     ...Default_Raw,
     ...raw,
   }),
@@ -28,11 +27,9 @@ export const MessageContentStyleDefinition = {
  */
 const Default_Raw = {
   /** X,Y 軸上の位置 */
-  position: my.object({
-    display: "位置",
-  })({
-    x: my.list({ display: "x" })(...FlexPositions)(),
-    y: my.list({ display: "y" })(...FlexPositions)(),
+  position: myz.block("位置", {
+    x: myz.list("x", FlexPositions),
+    y: myz.list("y", FlexPositions),
   }),
-} as const satisfies ZodRaw;
+} as const satisfies MyzObjects;
 type Default_Raw = typeof Default_Raw;

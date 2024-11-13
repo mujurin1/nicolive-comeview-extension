@@ -1,7 +1,7 @@
-<script generics="Definition extends ZodDefinition, Setting extends ZodModel<Definition>" lang="ts">
+<script generics="Definition extends MyzRoot, Setting extends MyzState<Definition>" lang="ts">
   import ColorPicker from "svelte-awesome-color-picker";
-  import { type z, type ZodDefinition, type ZodModel } from "../../function/MyZod";
   import { notifierStore } from "../../lib/CustomStore.svelte";
+  import type { MyzRoot, MyzState } from "../../lib/Myz";
   import SettingColumn from "./SettingColumn.svelte";
   import Self from "./StyleSetting.svelte";
 
@@ -25,30 +25,30 @@
   );
 </script>
 
-{#each Object.keys(definition.shape) as key (key)}
-  {@const meta = definition.shape[key].meta}
+{#each Object.keys(definition.blocks) as key (key)}
+  {@const object = definition.blocks[key]}
   {@const forId = path + key}
-  {#if meta.type === "number"}
-    <SettingColumn {forId} {meta}>
+  {#if object.type === "number"}
+    <SettingColumn {forId} meta={object}>
       <input
         id={forId}
-        max={meta.max}
-        min={meta.min}
-        step={meta.step}
+        max={object.max}
+        min={object.min}
+        step={object.step}
         type="number"
         bind:value={$style[key]}
       >
     </SettingColumn>
-  {:else if meta.type === "string"}
-    <SettingColumn {forId} {meta}>
+  {:else if object.type === "string"}
+    <SettingColumn {forId} meta={object}>
       <input id={forId} type="text" bind:value={$style[key]}>
     </SettingColumn>
-  {:else if meta.type === "boolean"}
-    <SettingColumn {forId} {meta}>
+  {:else if object.type === "boolean"}
+    <SettingColumn {forId} meta={object}>
       <input id={forId} type="checkbox" bind:checked={$style[key] as boolean}>
     </SettingColumn>
-  {:else if meta.type === "color"}
-    <SettingColumn {meta}>
+  {:else if object.type === "color"}
+    <SettingColumn meta={object}>
       <div class="color-picker-wrap">
         <ColorPicker
           --input-size="15px"
@@ -61,21 +61,20 @@
         />
       </div>
     </SettingColumn>
-  {:else if meta.type === "list"}
-    {@const newDefinition = definition.shape[key] as z.ZodUnion<z.ZodUnionOptions>}
-    <SettingColumn {forId} {meta}>
+  {:else if object.type === "list"}
+    <SettingColumn {forId} meta={object}>
       <select id={forId} bind:value={$style[key]}>
-        {#each newDefinition.selectors as value (value)}
+        {#each object.choices as value (value)}
           <option {value}>{value}</option>
         {/each}
       </select>
     </SettingColumn>
-  {:else if meta.type === "object"}
+  {:else if object.type === "block"}
   <!-- {:else} -->
-    <div class="setting-block-label">{meta.display ?? key}</div>
+    <div class="setting-block-label">{object.display ?? key}</div>
     <div style:--indent={`${indent}em`} class="setting-block-indent">
       <Self
-        definition={definition.shape[key] as any}
+        definition={definition.blocks[key] as any}
         indent={indent+1}
         path={path+key}
         bind:style={$style[key] as any}
