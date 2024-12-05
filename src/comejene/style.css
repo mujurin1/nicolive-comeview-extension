@@ -8,6 +8,16 @@ main,
   height: 100%;
 }
 
+input {
+  margin: 0;
+  padding: 0;
+
+  &[type=number],
+  &[type=range] {
+    width: 100%;
+  }
+}
+
 label[for]:not([for=""]),
 input[type=checkbox],
 input[type=radio],

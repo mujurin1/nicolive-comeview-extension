@@ -78,6 +78,7 @@ const defaultConfig = tsEslint.config({
     "@typescript-eslint/no-useless-empty-export": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/non-nullable-type-assertion-style": "warn",
+    "@typescript-eslint/prefer-reduce-type-parameter": "off",
     "@typescript-eslint/prefer-enum-initializers": "error",
     "@typescript-eslint/prefer-readonly": "warn",
     "@typescript-eslint/prefer-regexp-exec": "error",

@@ -1,8 +1,8 @@
 <script lang="ts">
   import { MessageContent, MessageContentFrames, MessageContentStyleRootSet, MessageContentToStyleType, MessageFrameRoot, MotionDefinitions, type MessageContentFrame, type MotionDefinition, type MotionNames, type MotionSetting } from "../../comejene_share";
   import { notifierStore } from "../../lib/CustomStore.svelte";
-  import MyzRootView from "./MyzRootView.svelte";
-  import MyzViewArea from "./MyzViewArea.svelte";
+  import MyzRootView from "../../lib/Myz/MyzRootView.svelte";
+  import MyzViewArea from "../../lib/Myz/MyzViewArea.svelte";
 
   let {
     motionName,

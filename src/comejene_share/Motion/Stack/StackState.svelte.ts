@@ -1,6 +1,6 @@
 import type { CSSObject } from "@emotion/css/create-instance";
 import { tick } from "svelte";
-import { myz } from "../../../lib/Myz/index.svelte";
+import { myz } from "../../../lib/Myz";
 import type { ReceiveContents } from "../../type";
 import { MotionSettingStyle, type MotionSetting, type MotionState } from "../Interface";
 import { StackMotionMessage } from "./StackMotionMessage.svelte";
@@ -23,12 +23,13 @@ export const StackMotionSettingStyle = MotionSettingStyle.create(
      */
     reverseOrder: myz.boolean({
       display: "逆順",
-      desc: "メッセージを標準(上/左が新しい)と逆並びにします"
+      desc: "メッセージを標準(下/右が新しい)と逆にします"
     }),
 
     maxWidth: myz.number({
       display: "横幅の最大値",
-      desc: "0 なら「縦並び」「垂直に伸ばす」に基づいて調整されます",
+      desc: "0なら「縦並び」「垂直に伸ばす」に基づいて調整されます",
+      control: "number",
       min: 0,
       step: 10,
     }),

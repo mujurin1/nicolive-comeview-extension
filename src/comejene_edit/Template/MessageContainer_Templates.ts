@@ -2,8 +2,8 @@ import { MessageContentLayout } from "../../comejene_share";
 
 export const MessageContainerTemplates = {
   "L:I-{N_C}": () => MessageContentLayout.new(
-    [50, "FLEX"],
-    [50, 80, "FLEX"],
+    ["FIT", "FLEX"],
+    [50, "FIT", "FLEX"],
     {
       icon: {
         row: { start: 1, end: 2 },
@@ -21,7 +21,7 @@ export const MessageContainerTemplates = {
   ),
   "L:I-N-C": () => MessageContentLayout.new(
     ["FLEX"],
-    ["FIT", 80, "FLEX"],
+    ["FIT", "FIT", "FLEX"],
     {
       icon: {
         row: { start: 1, end: 1 },

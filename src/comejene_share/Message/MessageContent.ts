@@ -1,4 +1,4 @@
-import { myz, type Ignore, type MyzObjects, type MyzRoot, type MyzState } from "../../lib/Myz/index.svelte";
+import { myz, type Ignore, type MyzObjects, type MyzRoot, type MyzState } from "../../lib/Myz";
 
 export type MessageContentRoot<R extends MyzObjects = MyzObjects> = MyzRoot<R & Default_Objects>;
 export type MessageContent<D extends MessageContentRoot = MessageContentRoot> = MyzState<D>;

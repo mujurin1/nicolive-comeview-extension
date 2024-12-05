@@ -23,7 +23,7 @@ export const Templates = {
   }),
   横並び: (): Template<"stack"> => {
     const v = Templates.縦並び();
-    // v.style.containerLayout = MessageContainerTemplates["L:I-N-C"]();
+    v.style.containerLayout = MessageContainerTemplates["L:I-N-C"]();
     v.motion.setting.isVertical = false;
     v.motion.setting.verticalGrow = false;
     return v;
@@ -59,20 +59,20 @@ export const Templates = {
           imgSize: { width: 30, height: 30 }
         },
         {
-          position: { x: "center", y: "center" },
+          position: { x: "start", y: "center" },
           textSize: 13,
           textColor: "#000000",
-          backColor: "#000000",
+          backColor: "#00000000",
+          banNewLine: true,
           noNewLine: true,
-          banNewLine: false,
         },
         {
           position: { x: "center", y: "center" },
           textSize: 13,
           textColor: "#000000",
-          backColor: "#000000",
-          noNewLine: true,
+          backColor: "#00000000",
           banNewLine: false,
+          noNewLine: true,
         },
       ),
     }

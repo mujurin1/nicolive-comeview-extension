@@ -53,8 +53,13 @@ export interface ComejeneSender {
   /**
    * メッセージを送信します
    * @param message 送信するメッセージ
+   * @param lowPriority 低優先度のメッセージか @default false
    */
-  send(message: ComejeneEvent): void;
+  send(message: ComejeneEvent, lowPriority?: boolean): void;
+  /**
+   * 状態をリセットします
+   */
+  reset(): void;
   /**
    * 通信を終了します
    */

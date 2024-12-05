@@ -1,25 +1,25 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
-  import type { MyzObject } from "../../lib/Myz/index.svelte";
+  import type { MyzValue } from ".";
 
   let { forId, object, children }: {
     forId?: string;
-    object: Partial<Omit<MyzObject, "type">>;
+    object: Partial<Omit<MyzValue, "type">>;
     children: Snippet;
   } = $props();
 </script>
 
-<div class="setting-column">
-  <label class="setting-label" for={forId} title={object.desc}>
+<div class="myz-column">
+  <label class="myz-column-label" for={forId} title={object.desc}>
     {object.display}
   </label>
-  <div class="setting-input">
+  <div class="myz-column-input">
      {@render children()}
   </div>
 </div>
 
 <style>
-  .setting-column {
+  .myz-column {
     display: flex;
     /* justify-content: space-between; */
     column-gap: 6px;
@@ -27,7 +27,7 @@
     padding: 1px 0;
 
 
-    & > .setting-label {
+    & > .myz-column-label {
       flex: 0 0 0;
       display: inline-block;
       min-width: 100px;
@@ -35,7 +35,7 @@
       padding-left: var(--indent);
     }
 
-    & > .setting-input {
+    & > .myz-column-input {
       flex: 1 1 0;
       display: flex;
       align-items: center;

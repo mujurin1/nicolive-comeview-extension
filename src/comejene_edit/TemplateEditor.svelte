@@ -6,11 +6,12 @@
     type MotionDefinition,
     type MotionNames,
   } from "../comejene_share";
-  import { ComejeneSender_Dbg } from "../comejene_share/ViewEnvironment/temp";
+
+  import { ComejeneSenderController } from "../comejene_share/ViewEnvironment";
   import { notifierStore } from "../lib/CustomStore.svelte";
+  import MyzView from "../lib/Myz/MyzView.svelte";
+  import MyzViewArea from "../lib/Myz/MyzViewArea.svelte";
   import { TemplateNames, Templates, type Template, type TemplateName } from "./Template/Templates";
-  import MyzView from "./components/MyzView.svelte";
-  import MyzViewArea from "./components/MyzViewArea.svelte";
   import TemplateSetting from "./components/TemplateSetting.svelte";
   import { getDummyComment } from "./utils";
 
@@ -25,7 +26,7 @@
     MotionDefinitions[template.motion.name],
   );
 
-  let senders = new ComejeneSender_Dbg();
+  let senders = new ComejeneSenderController();
   void senders
     .initialize(
       // comejeneEnvs.obs.createSender({ wsUrl: `ws://localhost:${4455}` }),
@@ -43,7 +44,7 @@
     senders.sendMessageContent(template.style);
   }
 
-  function dbg_add(icon = "", name = "name", message = getDummyComment()) {
+  function dbg_add(icon = "", name = "あname", message = getDummyComment()) {
     const contents = { icon, name, message };
     senders.sendComment(contents);
   }

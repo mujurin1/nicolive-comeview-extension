@@ -8,43 +8,42 @@
   } = $props();
 </script>
 
-<div class="setting-area">
-  <div class="setting-area-header-container">
-    <div class="setting-area-header-title">{title}</div>
+<div class="myz-area">
+  <div class="myz-area-header-container">
+    <div class="myz-area-header-title">{title}</div>
     {#if headerItem != null}
-      <div class="setting-area-header-item">
+      <div class="myz-area-header-item">
         {@render headerItem()}
       </div>
     {/if}
   </div>
 
-  <div class="setting-area-content">
+  <div class="myz-area-content">
     {@render children()}
   </div>
 </div>
 
 <style>
-  .setting-area {
-  }
+  .myz-area { }
 
-  .setting-area-header-container {
+  .myz-area-header-container {
     display: flex;
     align-items: center;
     padding: 0 5px;
     gap: 15px;
-    background-color: #d9e2fb;
+    background-color: hsl(224, 81%, 92%);
 
-    & > .setting-area-header-title {
+    & > .myz-area-header-title {
       flex: 0 0 fit-content;
       font-size: 1.2em;
     }
-    & > .setting-area-header-item {
+    & > .myz-area-header-item {
       flex: 1 1 100%;
     }
   }
 
-  .setting-area-content {
-    background-color: #e1eaff;
+  .myz-area-content {
+    background-color: hsl(222, 100%, 94%);
     padding: 3px 5px;
   }
 </style>

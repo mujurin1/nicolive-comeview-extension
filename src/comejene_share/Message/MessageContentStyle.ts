@@ -1,6 +1,6 @@
 import type { CSSObject } from "@emotion/css/create-instance";
 import { MessageContentToStyleType, type MessageContentFrame, type MessageContentType } from ".";
-import { myz } from "../../lib/Myz/index.svelte";
+import { myz } from "../../lib/Myz";
 import type { CustomCss } from "../func";
 import { FlexPosition, MessageContentRoot, type MessageContent } from "./MessageContent";
 
@@ -12,9 +12,9 @@ export const MessageContentStyleRootSet = {
   /** テキストタイプのメッセージの持つ属性 */
   text: MessageContentRoot.create(
     {
-      textSize: myz.number("文字サイズ"),
+      textSize: myz.number({ display: "文字サイズ", min: 10 }),
       textColor: myz.color("文字色"),
-      backColor: myz.color("背景色"),
+      backColor: myz.color("背景色", "optional"),
       banNewLine: myz.boolean("改行禁止"),
       // TODO: こういう風に書きたい. controller を介することで依存関係を整理する
       // changed: (newValue, controller) => {
@@ -25,11 +25,26 @@ export const MessageContentStyleRootSet = {
   /** 画像タイプのメッセージの持つ属性 */
   img: MessageContentRoot.create(
     {
-      /** 画像のサイズ */
-      imgSize: myz.block("画像サイズ", {
-        width: myz.number("width"),
-        height: myz.number("height"),
-      }),
+      imgSize: myz.switch<{
+        width: number;
+        height: number;
+      }>("画像サイズ")
+        .addBlock(
+          "縦横",
+          { size: myz.number("縦横") },
+          ({ size }) => ({ width: size, height: size }),
+          ({ width }) => ({ size: width }),
+        )
+        .addBlock(
+          "縦と横",
+          {
+            height: myz.number("縦"),
+            width: myz.number("横"),
+          },
+          value => value,
+          value => value,
+        )
+        .build(),
     }),
 } as const satisfies Record<MessageContentType, MessageContentRoot>;
 
@@ -52,6 +67,7 @@ export const MessageContentStyle = {
     cssObj[".content"] = {
       fontSize: style.textSize,
       color: style.textColor,
+      background: style.backColor,
       whiteSpace: style.banNewLine ? "nowrap" : style.noNewLine ? "normal" : "pre-wrap",
     };
     return cssObj;

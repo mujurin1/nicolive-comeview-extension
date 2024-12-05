@@ -35,18 +35,18 @@ input[type=number]::-webkit-inner-spin-button {
 
 button.link-button {
   border: none;
-  background-color: #0073ff11;
-  color: #5050ef;
+  background-color: hsla(213, 100%, 50%, 0.067);
+  color: hsl(240, 83%, 63%);
   font-size: 1em;
   padding: 0 5px;
   border-radius: 5px;
 
   &:hover {
-    background-color: #0073ff1f;
+    background-color: hsla(213, 100%, 50%, 0.122);
   }
 
   &:active {
-    background-color: #0073ff17;
+    background-color: hsla(213, 100%, 50%, 0.09);
   }
 }
 

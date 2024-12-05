@@ -27,6 +27,7 @@ export const ComejeneEnv_BrowserEx: ComejeneEnv<never> = {
   createSender: () => {
     return Promise.resolve({
       send,
+      reset: () => { },
       close: () => { },
     });
   },
