@@ -19,11 +19,7 @@ CONTENT
  -->
 
 {#snippet Link(name: string, tab: TabName, items?: string[])}
-  <button
-    class="link-button"
-    onclick={() => setting.page.openHilight(tab, items)}
-    type="button"
-  >
+  <button class="link-button" onclick={() => setting.page.openHilight(tab, items)} type="button">
     {name}
   </button>
 {/snippet}
@@ -48,11 +44,16 @@ CONTENT
     <details class="section">
       <summary class="section-title">v0.3.1で修正された不具合</summary>
       <div class="section-content">
-        <div>放送終了後にウェブソケットが再接続をしてしまう（フィードバックありがとうございます m(_ _)m）</div>
-        <div>ウェブソケットが終了メッセージを受信する前に切断された場合に自動再接続されなかった</div>
         <div>
-          再接続時に以下の条件を満たしていた時にエラーが出る（可能性があった）<br>
-          ・接続後にリアルタイムコメントを受信する前に切断していた時<br>
+          放送終了後にウェブソケットが再接続をしてしまう（フィードバックありがとうございます m(_
+          _)m）
+        </div>
+        <div>
+          ウェブソケットが終了メッセージを受信する前に切断された場合に自動再接続されなかった
+        </div>
+        <div>
+          再接続時に以下の条件を満たしていた時にエラーが出る（可能性があった）<br />
+          ・接続後にリアルタイムコメントを受信する前に切断していた時<br />
           ・最後にコメントを取得してから数十秒経過後に切断していた時
         </div>
       </div>
@@ -71,12 +72,11 @@ CONTENT
           <button
             class="link-button"
             onclick={() =>
-              setting.page.openHilight(
-                "ニコ生",[
+              setting.page.openHilight("ニコ生", [
                 "nicolive-184-visible",
                 "nicolive-system-visible",
-                "nicolive-system-yomiage",]
-              )}
+                "nicolive-system-yomiage",
+              ])}
             type="button"
           >
             ニコ生設定

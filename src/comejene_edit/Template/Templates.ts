@@ -11,7 +11,7 @@ export interface Template<Name extends MotionNames = MotionNames> {
 }
 
 export const Templates = {
-  sample: (): Template<"sample"> => ({
+  デバッグ用: (): Template<"sample"> => ({
     motion: {
       name: "sample",
       setting: {},

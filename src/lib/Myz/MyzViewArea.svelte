@@ -1,7 +1,11 @@
 <script lang="ts">
-    import type { Snippet } from "svelte";
+  import type { Snippet } from "svelte";
 
-  let { title, children, headerItem }: {
+  let {
+    title,
+    children,
+    headerItem,
+  }: {
     title: string;
     children: Snippet;
     headerItem?: Snippet;
@@ -24,7 +28,8 @@
 </div>
 
 <style>
-  .myz-area { }
+  .myz-area {
+  }
 
   .myz-area-header-container {
     display: flex;

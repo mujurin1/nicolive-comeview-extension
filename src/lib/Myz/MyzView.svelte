@@ -2,7 +2,11 @@
   import type { Snippet } from "svelte";
   import type { MyzValue } from ".";
 
-  let { forId, object, children }: {
+  let {
+    forId,
+    object,
+    children,
+  }: {
     forId?: string;
     object: Partial<Omit<MyzValue, "type">>;
     children: Snippet;
@@ -14,7 +18,7 @@
     {object.display}
   </label>
   <div class="myz-column-input">
-     {@render children()}
+    {@render children()}
   </div>
 </div>
 
@@ -25,7 +29,6 @@
     column-gap: 6px;
     align-items: center;
     padding: 1px 0;
-
 
     & > .myz-column-label {
       flex: 0 0 0;
@@ -39,6 +42,6 @@
       flex: 1 1 0;
       display: flex;
       align-items: center;
-  }
+    }
   }
 </style>

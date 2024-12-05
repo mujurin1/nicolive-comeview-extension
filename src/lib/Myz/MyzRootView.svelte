@@ -18,12 +18,9 @@
     path: string;
   } = $props();
 
-  let style = notifierStore(
-    _style,
-    () => {
-      _style = style.state;
-    }
-  );
+  let style = notifierStore(_style, () => {
+    _style = style.state;
+  });
 </script>
 
 {#each Object.keys(root.block) as key (key)}
@@ -41,15 +38,15 @@
         step={object.step}
         type={object.control}
         bind:value={$style[key]}
-      >
+      />
     </MyzView>
   {:else if object.type === "string"}
     <MyzView {forId} {object}>
-      <input id={forId} type="text" bind:value={$style[key]}>
+      <input id={forId} type="text" bind:value={$style[key]} />
     </MyzView>
   {:else if object.type === "boolean"}
     <MyzView {forId} {object}>
-      <input id={forId} type="checkbox" bind:checked={$style[key] as boolean}>
+      <input id={forId} type="checkbox" bind:checked={$style[key] as boolean} />
     </MyzView>
   {:else if object.type === "color"}
     <MyzView {object}>
@@ -77,8 +74,8 @@
     <div class="myz-block-label">{object.display}</div>
     <div style:--indent={`${indent}em`}>
       <Self
-        indent={indent+1}
-        path={path+key}
+        indent={indent + 1}
+        path={path + key}
         root={root.block[key] as any}
         bind:style={$style[key]}
       />
@@ -86,7 +83,7 @@
   {:else if object.type === "switch"}
     <MyzSwitchView
       display={object.display}
-      path={path+key}
+      path={path + key}
       switch={object as any}
       bind:style={$style[key]}
     />

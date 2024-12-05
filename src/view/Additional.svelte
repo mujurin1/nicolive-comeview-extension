@@ -23,10 +23,7 @@
       {@render close(() => (userId = undefined))}
       <UserSetting noAccordion={true} platformId="nicolive" {userId} />
     </div>
-  {:else if (
-      SettingStore.state.nicolive.showPostArea &&
-      Nicolive.pageData?.nicoliveInfo?.loginUser != null
-    )}
+  {:else if SettingStore.state.nicolive.showPostArea && Nicolive.pageData?.nicoliveInfo?.loginUser != null}
     <NicolivePostComment />
   {/if}
 </div>

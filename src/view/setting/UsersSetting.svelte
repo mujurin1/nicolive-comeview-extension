@@ -3,21 +3,22 @@
   import { Nicolive } from "../../Platform";
   import { StorageUserStore, type StorageUser } from "../../store/StorageUserStore.svelte";
 
-  let { serchQuery = $bindable("") }: {
+  let {
+    serchQuery = $bindable(""),
+  }: {
     serchQuery?: string;
   } = $props();
 
   let hitUsers = $derived.by(() => {
     const users = new Map([
-        ...Object.values(StorageUserStore["nicolive"].users).map(u => [u, false] as const),
-        ...Object.values(Nicolive.users).map(u => [u.storageUser, true] as const),
-      ]
-    );
+      ...Object.values(StorageUserStore["nicolive"].users).map(u => [u, false] as const),
+      ...Object.values(Nicolive.users).map(u => [u.storageUser, true] as const),
+    ]);
 
     let query = serchQuery.trim();
     const serchFromName = query !== "";
-    let serchIsId = false
-    if(serchFromName && query.startsWith("id:")) {
+    let serchIsId = false;
+    if (serchFromName && query.startsWith("id:")) {
       serchIsId = true;
       query = query.slice(3).trimStart();
     }
@@ -26,13 +27,10 @@
 
     for (const [user, showLive] of users) {
       if (
-        (
-          !serchFromName || (
-            serchIsId
-              ? (user.id+"").startsWith(query)
-              : user.name != null && user.name.includes(query)
-          )
-        ) &&
+        (!serchFromName ||
+          (serchIsId
+            ? (user.id + "").startsWith(query)
+            : user.name != null && user.name.includes(query))) &&
         (!serchOptions.showLiveOnly.checked || showLive) &&
         (!serchOptions["184Only"].checked || user.name == null) &&
         (!serchOptions.rawUserOnly.checked || user.name != null) &&
@@ -46,8 +44,7 @@
 
     return array
       .sort((aUser, bUser) => {
-        if(typeof aUser.id !== typeof bUser.id)
-          return typeof aUser.id === "number" ? -1: 1;
+        if (typeof aUser.id !== typeof bUser.id) return typeof aUser.id === "number" ? -1 : 1;
 
         return aUser.id < bUser.id ? -1 : 1;
       })

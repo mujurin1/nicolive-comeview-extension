@@ -8,8 +8,16 @@
   import ViewSetting from "./ViewSetting.svelte";
   import YomiageSetting from "./YomiageSetting.svelte";
 
-  export const names = ["一般", "読み上げ", "ニコ生", "リスナー", "コメント表示", "フィードバック", "Advanced"] as const;
-  type TabNames = typeof names[number];
+  export const names = [
+    "一般",
+    "読み上げ",
+    "ニコ生",
+    "リスナー",
+    "コメント表示",
+    "フィードバック",
+    "Advanced",
+  ] as const;
+  type TabNames = (typeof names)[number];
 
   let currentTab = $state<TabNames>("一般");
   let show = $state(false);
@@ -27,7 +35,7 @@
     show = _show;
     await tick();
 
-    if(tab != null) currentTab = tab;
+    if (tab != null) currentTab = tab;
     if (show) {
       dialog?.showModal();
     } else {
@@ -57,7 +65,7 @@
             {:else if tabId === "ニコ生"}
               <NicoliveSetting bind:highlightItems />
             {:else if tabId === "リスナー"}
-              <UsersSetting bind:serchQuery/>
+              <UsersSetting bind:serchQuery />
             {:else if tabId === "コメント表示"}
               <ViewSetting />
             {:else if tabId === "フィードバック"}
@@ -74,17 +82,21 @@
                 </p>
 
                 <p>
-                  <span>フィードバックでは不具合の報告や欲しい機能の要望が出来ます</span><br>
-                  <span>特に「欲しい！」と思っている機能は対応予定/他の人が送信済みの場合でも送ってください</span><br>
+                  <span>フィードバックでは不具合の報告や欲しい機能の要望が出来ます</span><br />
+                  <span>
+                    特に「欲しい！」と思っている機能は対応予定/他の人が送信済みの場合でも送ってください
+                  </span><br />
                   <span>強く望まれている機能ほど対応が早くなります</span>
                 </p>
-                <p>フィードバックを貰えると開発の励みになるので、ぜひ、フィードバックをください！</p>
+                <p>
+                  フィードバックを貰えると開発の励みになるので、ぜひ、フィードバックをください！
+                </p>
               </div>
             {:else if tabId === "Advanced"}
               <AdvancedSetting />
             {/if}
           </div>
-        {/snippet}  <!-- このエラーは svelte の不具合ぽいので無視する -->
+        {/snippet}
       </Tab>
     </div>
   </dialog>
@@ -109,10 +121,10 @@
         }
       }
     }
-    :global(input[type=checkbox]) {
+    :global(input[type="checkbox"]) {
       min-width: 20px;
     }
-    :global(input[type=number]) {
+    :global(input[type="number"]) {
       width: 80px;
     }
   }
@@ -228,5 +240,4 @@
       box-shadow: 0 0 0 5px #ffb5b530;
     }
   }
-
 </style>

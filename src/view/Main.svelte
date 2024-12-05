@@ -20,7 +20,7 @@
     additional.page = additionalPage;
   });
 
-  let startup = $derived(Nicolive.state === "none")
+  let startup = $derived(Nicolive.state === "none");
 </script>
 
 <main>

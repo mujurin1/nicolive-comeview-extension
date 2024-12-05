@@ -1,6 +1,5 @@
 import { untrack } from "svelte";
-import type { Subscriber } from "svelte/motion";
-import { writable } from "svelte/store";
+import { writable, type Subscriber } from "svelte/store";
 
 export type NotifierStore<T> = ReturnType<typeof notifierStore<T>>;
 
