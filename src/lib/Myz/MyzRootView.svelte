@@ -39,7 +39,7 @@
         max={object.max}
         min={object.min}
         step={object.step}
-        type={object.control ?? "number"}
+        type={object.control}
         bind:value={$style[key]}
       >
     </MyzView>

@@ -156,7 +156,7 @@ export const myz = {
     return { ...toValue("string", displayOrParams, extras) };
   },
   number: <EXTRA extends MyzExtraTypes = null>(displayOrParams: string | MyzPart<MyzNumber>, ...extras: Exclude<EXTRA, null>[]): MyzNumber<EXTRA> => {
-    return { ...toValue("number", displayOrParams, extras), control: "range" };
+    return { control: "range", ...toValue("number", displayOrParams, extras) };
   },
   boolean: <EXTRA extends MyzExtraTypes = null>(displayOrParams: string | MyzPart<MyzBoolean>, ...extras: Exclude<EXTRA, null>[]): MyzBoolean<EXTRA> => {
     return { ...toValue("boolean", displayOrParams, extras) };
