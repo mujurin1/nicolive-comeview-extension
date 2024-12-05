@@ -1,5 +1,5 @@
 import { AsyncIteratorSet } from "@mujurin/nicolive-api-ts";
-import type { ComejeneEnv, ComejeneEvent } from "./type";
+import type { ComejeneEnv, ComejeneEvent, ComejeneSender } from "./type";
 
 export interface WindowSenderOptions {
   wsUrl: string;
@@ -14,7 +14,7 @@ function send(message: ComejeneEvent) {
  * 拡張機能内 (デバッグ用)\
  * createReceiver は同時に１つ以上使ってはダメ
  */
-export const ComejeneEnv_BrowserEx: ComejeneEnv<never> = {
+export const ComejeneEnv_BrowserEx: ComejeneEnv = {
   createReceiver: () => {
     iteratorSet = AsyncIteratorSet.create<ComejeneEvent>();
     return {
@@ -24,8 +24,11 @@ export const ComejeneEnv_BrowserEx: ComejeneEnv<never> = {
       },
     };
   },
-  createSender: () => {
-    return Promise.resolve({
+  createSender: (name): ComejeneSender => {
+    return ({
+      state: "open",
+      name,
+      connect: () => Promise.resolve(true),
       send,
       reset: () => { },
       close: () => { },

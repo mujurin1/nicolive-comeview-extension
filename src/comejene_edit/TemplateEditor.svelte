@@ -26,22 +26,20 @@
     MotionDefinitions[template.motion.name],
   );
 
-  let senders = new ComejeneSenderController();
-  void senders
-    .initialize(
-      // comejeneEnvs.obs.createSender({ wsUrl: `ws://localhost:${4455}` }),
-      comejeneEnvs.browserEx.createSender(),
-    )
-    .then(senderReset);
+  let senders = new ComejeneSenderController(() => template);
+  void senders.initialize([
+    [comejeneEnvs.obs.createSender("OBS"), { wsUrl: `ws://localhost:${4455}` }],
+    [comejeneEnvs.browserEx.createSender("browser")],
+  ]);
 
   function senderReset() {
-    senders.sendReset(template.motion.name, template.motion.setting, template.style);
+    senders.sendReset();
   }
   function resetMotionSetting() {
-    senders.sendMotionSetting(template.motion.setting);
+    senders.sendMotionSetting();
   }
   function resetMessageContent() {
-    senders.sendMessageContent(template.style);
+    senders.sendMessageContent();
   }
 
   function dbg_add(icon = "", name = "あname", message = getDummyComment()) {

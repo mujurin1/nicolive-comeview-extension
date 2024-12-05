@@ -2,8 +2,7 @@ export * from "./OBS";
 export * from "./type";
 
 
-import type { MessageContent } from "../Message";
-import type { MotionNames, MotionSetting } from "../Motion";
+import type { Template } from "../../comejene_edit/Template/Templates";
 import type { ReceiveContents } from "../type";
 import { ComejeneEnv_BrowserEx } from "./BrowserEx";
 import { ComejeneEnv_OBS } from "./OBS";
@@ -26,22 +25,62 @@ export function checkComejeneEnvType(): ComejeneEnvTypes {
   return "browserEx";
 }
 
+type SenderSets<T extends any[]> = { [K in keyof T]: readonly [ComejeneSender<T[K]>, ...ExcludeNever<[T[K]]>] };
 
 export class ComejeneSenderController {
-  public senders: ComejeneSender[] = [];
+  public senders = new Set<ComejeneSender>();
 
-  public async initialize(...senderPromises: Promise<ComejeneSender>[]) {
-    this.senders = await Promise.all(senderPromises);
+  constructor(
+    private readonly getTemplate: () => Template,
+  ) { }
+
+  public initialize<SenderOptions extends any[]>(senders: SenderSets<SenderOptions>) {
+    return Promise.all(
+      senders.map(([sender, option]) =>
+        this.upsertAndConnect(sender, option)
+      )
+    );
   }
 
-  public add(sender: ComejeneSender): void {
-    this.senders.push(sender);
+  public get(name: string): ComejeneSender | undefined {
+    for (const sender of this.senders)
+      if (sender.name === name) return sender;
+    return undefined;
   }
 
-  public remove(): boolean {
+  /**
+   * 追加をして初期化も行う
+   * @param sender 
+   * @param options 
+   * @returns 接続に成功したか
+   */
+  public async upsertAndConnect<SenderOptions>(sender: ComejeneSender<SenderOptions>, ...options: ExcludeNever<[SenderOptions]>): Promise<boolean> {
+    this.senders.add(sender);
+    if (!await sender.connect(...options)) return false;
+    sender.reset();
+
+    const { motion: { name, setting }, style } = this.getTemplate();
+    sender.send({
+      type: "comejene-reset",
+      motionName: name,
+      motionSetting: setting,
+      messageContent: style,
+    });
+
     return true;
   }
 
+  /**
+   * 削除をして後処理も行う
+   * @param name 削除するComejeneSender名
+   * @returns 
+   */
+  public deleteAndClose(name: string): boolean {
+    const sender = this.get(name);
+    if (sender == null) return false;
+    sender.close();
+    return this.senders.delete(sender);
+  }
 
   public send(message: ComejeneEvent, lowPriority = false) {
     for (const sender of this.senders) {
@@ -56,24 +95,29 @@ export class ComejeneSenderController {
     });
   }
 
-  public sendReset(motionName: MotionNames, motionSetting: MotionSetting, messageContent: MessageContent) {
+  public sendReset() {
+    const { motion: { name, setting }, style } = this.getTemplate();
     for (const sender of this.senders) {
       sender.reset();
     }
 
     this.send({
       type: "comejene-reset",
-      motionName,
-      motionSetting,
-      messageContent: messageContent,
+      motionName: name,
+      motionSetting: setting,
+      messageContent: style,
     });
   }
 
-  public sendMotionSetting(motionSetting: MotionSetting) {
-    this.send({ type: "change-motion-setting", motionSetting }, true);
+  public sendMotionSetting() {
+    const { motion: { setting } } = this.getTemplate();
+    this.send({ type: "change-motion-setting", motionSetting: setting }, true);
   }
 
-  public sendMessageContent(messageContent: MessageContent) {
-    this.send({ type: "change-message-content", messageContent }, true);
+  public sendMessageContent() {
+    const { style } = this.getTemplate();
+    this.send({ type: "change-message-content", messageContent: style }, true);
   }
 }
+
+type ExcludeNever<T> = T extends [never] ? [] : T;

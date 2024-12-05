@@ -1,6 +1,6 @@
 import { AsyncIteratorSet } from "@mujurin/nicolive-api-ts";
 import OBSWebSocket from "obs-websocket-js";
-import type { ComejeneEnv, ComejeneEvent } from "./type";
+import type { ComejeneEnv, ComejeneEvent, ComejeneSender, ComejeneSenderState } from "./type";
 
 
 export const OBS_EVENT_NAME = "niconama-comejene";
@@ -30,16 +30,33 @@ export const ComejeneEnv_OBS: ComejeneEnv<OBSSenderOptions> = {
       window.removeEventListener(OBS_EVENT_NAME, receive);
     }
   },
-  createSender: async ({ wsUrl }) => {
+  createSender: (name) => {
     const lowPrioritySender = timeFlowController<ComejeneEvent>(100, send);
+    let obsWs: OBSWebSocket | undefined;
+    let state: ComejeneSenderState = "close";
 
-    const obsWs = new OBSWebSocket();
-    // TODO: 例外処理
-    await obsWs.connect(wsUrl);
+    const sender: ComejeneSender<OBSSenderOptions> = { state, name, connect, send, reset, close };
+    return sender;
 
-    return { send, reset, close };
+    async function connect({ wsUrl }: OBSSenderOptions) {
+      if (!(state === "close" || state === "failed")) return true;
+      state = "connectiong";
+
+      obsWs = new OBSWebSocket();
+      try {
+        await obsWs.connect(wsUrl);
+      } catch {
+        state = "failed";
+        return false;
+      }
+
+      state = "open";
+      return true;
+    }
 
     function send(event: ComejeneEvent, lowPriority = false) {
+      if (state !== "open" || obsWs == null) return;
+
       if (lowPriority) {
         lowPrioritySender.do(event);
         return;
@@ -65,6 +82,8 @@ export const ComejeneEnv_OBS: ComejeneEnv<OBSSenderOptions> = {
     }
 
     function close() {
+      if (state !== "open" || obsWs == null) return;
+      state = "close";
       return obsWs.disconnect();
     }
   }

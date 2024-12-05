@@ -22,11 +22,9 @@ export interface NewContent {
 }
 
 
-export interface ComejeneEnv<
-  SenderOptions = never
-> {
+export interface ComejeneEnv<SenderOptions = never> {
   createReceiver(): ComejeneReceiver;
-  createSender(...options: ExcludeNever<[SenderOptions]>): Promise<ComejeneSender>;
+  createSender(name: string): ComejeneSender<SenderOptions>;
 }
 
 /**
@@ -45,11 +43,21 @@ export interface ComejeneReceiver {
   close(): void;
 }
 
+export type ComejeneSenderState = "connectiong" | "open" | "close" | "failed";
+
 /**
  * コメジェネのデータを送信する\
  * 拡張機能側
  */
-export interface ComejeneSender {
+export interface ComejeneSender<SenderOptions = never> {
+  readonly state: ComejeneSenderState;
+
+  /** ユーザーが管理するためのSenderの名前 */
+  name: string;
+
+  /** 接続に成功したら`true`を返す */
+  connect(...options: ExcludeNever<[SenderOptions]>): Promise<boolean>;
+
   /**
    * メッセージを送信します
    * @param message 送信するメッセージ
