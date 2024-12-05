@@ -1,13 +1,13 @@
 export * from "./NicoliveType";
 
-import { type AbortAndPromise, type INicoliveServerConnector, type NicoliveMessageServerConnector, type NicolivePageData, NicoliveUtility, NicoliveWebSocketReconnectError, type NicoliveWsServerConnector, abortErrorWrap, type dwango, getNicoliveId, isAbortError, sleep, timestampToMs } from "@mujurin/nicolive-api-ts";
+import { type AbortAndPromise, type INicoliveServerConnector, type NicoliveMessageServerConnector, type NicolivePageData, NicoliveRejectReason, NicoliveRejectReasonDisplay, NicoliveUtility, NicoliveWebSocketReconnectError, type NicoliveWsServerConnector, abortErrorWrap, type dwango, getNicoliveId, isAbortError, sleep, timestampToMs } from "@mujurin/nicolive-api-ts";
 import { BouyomiChan } from "../function/BouyomiChan";
 import { autoUpdateCommentCss } from "../function/CssStyle.svelte";
 import { MessageStore } from "../store/MessageStore.svelte";
 import { SettingStore, checkVisibleSpeachType_Speach } from "../store/SettingStore.svelte";
 import { StorageUserStore } from "../store/StorageUserStore.svelte";
 import { timeString } from "../utils";
-import { ExtMessenger } from "./Extention.svelte";
+import { ExtMessenger, type ExtentionMessage } from "./Extention.svelte";
 import { NicoliveMessage, NicoliveUser, type SystemMessageType } from "./NicoliveType";
 
 
@@ -49,7 +49,7 @@ class _Nicolive {
 
       this.users[userId].storageUser = {
         id: this.users[userId].storageUser.id,
-        name: this.users[userId].storageUser.name
+        name: this.users[userId].storageUser.name,
       };
     });
     StorageUserStore.nicolive.updated.on("new", user => {
@@ -70,7 +70,9 @@ class _Nicolive {
     this.state = "connecting";
 
     try {
-      await this.setupConnector();
+      this.pageData = await this.setAbort(NicoliveUtility.fetchNicolivePageData(this.url));
+      if (this.checkReject(this.pageData)) return;
+      await this.setupConnector(this.pageData);
       this.createOwner(this.pageData!);
       await this.opened(true);
       await this.connectReaderWaitAnyClose();
@@ -80,6 +82,44 @@ class _Nicolive {
       ExtMessenger.add("接続を終了しました");
       this.close();
     }
+  }
+
+  private checkReject(pageData: NicolivePageData): boolean {
+    const rejects = pageData.nicoliveInfo.rejectedReasons;
+    if (rejects.length === 0) return false;
+    const display = rejects
+      .map(x => `> ${NicoliveRejectReasonDisplay[x as never] ?? x}`)
+      .join("\n");
+
+    ExtMessenger.add(`次の理由で接続に失敗しました\n${display}`);
+
+    if (rejects.includes(NicoliveRejectReason.passwordAuthRequired))
+      this.requestPassword();
+    return true;
+  }
+
+  private requestPassword(repeate = false) {
+    ExtMessenger.add(`合言葉が${repeate ? "違います" : "必要です"}。合言葉を入力して下さい`, {
+      input: {
+        type: "text",
+        value: "",
+      },
+      button: {
+        text: "送信",
+        func: this.sendPassword.bind(this),
+      },
+    });
+  }
+
+  async sendPassword(message: ExtentionMessage) {
+    const password = message.input!.value;
+    const result = await NicoliveUtility.postPasswordAuth(this.pageData!.nicoliveInfo.liveId, password);
+    if (!result.ok) {
+      this.requestPassword(true);
+      return;
+    }
+
+    void this.connect();
   }
 
   public async reconnect() {
@@ -124,10 +164,9 @@ class _Nicolive {
     }
   }
 
-  private async setupConnector() {
+  private async setupConnector(pageData: NicolivePageData) {
     try {
-      this.pageData = await this.setAbort(NicoliveUtility.fetchNicolivePageData(this.url));
-      this.wsServerConnector = await this.setAbort(NicoliveUtility.createWsServerConnector(this.pageData));
+      this.wsServerConnector = await this.setAbort(NicoliveUtility.createWsServerConnector(pageData));
       const msgServerData = await this.wsServerConnector.getMessageServerData();
       this.msgServerConnector = await this.setAbort(NicoliveUtility.createMessageServerConnector(msgServerData));
     } catch (e) {
@@ -474,6 +513,9 @@ class _Nicolive {
 
   /**
    * ユーザー情報を更新する
+   * @param user 更新するユーザー
+   * @param comment コメント
+   * @param no コメント番号
    * @returns `this.users` から取り出したユーザー
    */
   private upsertUser(user: NicoliveUser, comment: string, no?: number): NicoliveUser {
@@ -482,7 +524,7 @@ class _Nicolive {
       this.users[user.storageUser.id] = user;
     }
 
-    // this.messages から返すことで svelte の更新のルールに則る
+    // this.users から取り出すことにより svelte の更新のルールに則る
     user = this.users[user.storageUser.id];
     if (StorageUserStore.nicolive.users[user.storageUser.id] != null)
       user.storageUser = StorageUserStore.nicolive.users[user.storageUser.id];

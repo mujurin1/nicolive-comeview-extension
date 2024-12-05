@@ -46,7 +46,7 @@ export interface NicoliveUser extends ExtUserType<"nicolive"> {
   noName184?: string;
 }
 
-
+export type NicoliveMessageBuilder = ReturnType<typeof NicoliveMessage.builder>;
 export const NicoliveMessage = {
   builder: (
     messageId: string,

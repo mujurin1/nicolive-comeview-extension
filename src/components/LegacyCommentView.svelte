@@ -105,22 +105,26 @@
   </div>
 {/snippet}
 
+
+{#snippet ExtentionMessageContent(message: ExtentionMessage)}
+  {message.content}
+  {#if message.input != null}
+    <input type={message.input.type} bind:value={message.input.value} />
+  {/if}
+  {#if message.button != null}
+    <button onclick={() => message.button!.func(message)} type="button">{message.button.text}</button>
+  {/if}
+{/snippet}
 {#snippet ExtentionMessageView(message: ExtentionMessage)}
   <div class="cm-default cm-system">
     <LegacyCommentViewItem name={message.tempName} time={message.time}>
       {#snippet content()}
         {#if message.expandMessage == null}
-          {message.content}
-          {#if message.button != null}
-            <button onclick={message.button.func} type="button">{message.button.text}</button>
-          {/if}
+          {@render ExtentionMessageContent(message)}
         {:else}
           <details class="extension-details">
             <summary>
-              {message.content}
-              {#if message.button != null}
-                <button onclick={message.button.func} type="button">{message.button.text}</button>
-              {/if}
+             {@render ExtentionMessageContent(message)}
             </summary>
             {message.expandMessage}
           </details>

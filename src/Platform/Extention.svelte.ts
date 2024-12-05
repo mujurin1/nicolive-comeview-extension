@@ -3,9 +3,15 @@ import { MessageStore } from "../store/MessageStore.svelte";
 
 export interface ExtentionMessageOption {
   expandMessage?: string;
+  input?: {
+    type: "text" | "number";
+    /** この値はsvelteの更新ルールに則った値にする事 */
+    value: string;
+  };
   button?: {
     text: string;
-    func: (() => void);
+    /** 自分の状態を引数に受け取る関数 */
+    func: ((message: ExtentionMessage) => void);
   };
 }
 export type ExtentionMessage = ExtMessageType<"extention", "system"> & ExtentionMessageOption;

@@ -6,5 +6,6 @@
 {#if true}
   <Sample />
 {:else}
+  TODO: コメジェネが終わったら index.ts のCSSを戻す
   <Main />
 {/if}

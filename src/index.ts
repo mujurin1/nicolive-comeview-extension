@@ -1,5 +1,5 @@
 import { mount } from "svelte";
-// import "./app.css";
+// import "./app.css";  // TODO: コメジェネが終わったらCSSを戻す
 import App from "./App.svelte";
 import "./comejene/style.css";
 
