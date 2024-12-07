@@ -1,162 +1,227 @@
 export * from "./NicoliveType";
 
-import { type AbortAndPromise, type INicoliveServerConnector, type NicoliveMessageServerConnector, type NicolivePageData, NicoliveRejectReason, NicoliveRejectReasonDisplay, NicoliveUtility, NicoliveWebSocketReconnectError, type NicoliveWsServerConnector, abortErrorWrap, type dwango, getNicoliveId, isAbortError, sleep, timestampToMs } from "@mujurin/nicolive-api-ts";
-import { BouyomiChan } from "../function/BouyomiChan";
-import { autoUpdateCommentCss } from "../function/CssStyle.svelte";
+import { type AbortAndPromise, type INicoliveServerConnector, type NicoliveId, type NicoliveMessageServerConnector, type NicolivePageData, NicoliveRejectReason, NicoliveRejectReasonDisplay, NicoliveUtility, NicoliveWebSocketReconnectError, type NicoliveWsServerConnector, abortErrorWrap, type dwango, getNicoliveId, isAbortError, promiser, sleep, timestampToMs } from "@mujurin/nicolive-api-ts";
 import { NceMessageStore, NceUserStore } from "../store/NceStore.svelte";
-import { SettingStore, checkVisibleSpeachType_Speach } from "../store/SettingStore.svelte";
+import { SettingStore } from "../store/SettingStore.svelte";
 import { StorageUserStore } from "../store/StorageUserStore.svelte";
+import { CommentViewCss } from "../system/commentViewCss";
+import { speach } from "../system/speach";
 import { timeString } from "../utils";
 import { ExtMessenger, type ExtentionMessage } from "./Extention.svelte";
+import type { NceConnection, NceConnectionState } from "./NceConnection";
 import { NicoliveMessage, NicoliveUser, type SystemMessageType } from "./NicoliveType";
 
+export class NicoliveConnection implements NceConnection<"nicolive"> {
+  public readonly connectionId: string;
+  public get state() { return this._connector?.state ?? "none"; }
+  public canFetchBackward: boolean = false;
+  public isFetchingBackward: boolean = false;
 
-class _Nicolive {
+  public connectionName: string;
+  public url = $state("");
+  public isSpeack = true;
+
   /** 接続開始時の過去コメを読み上げないためのフラグ */
   private _canSpeak = false;
-  /** ストアを監視してCSSを更新する機能のクリーンアップ関数 */
-  private readonly _cleanupAutoUpdateComentCss: (() => void)[] = [];
-  // private client: NicoliveClient;
-  // private erroredDelayGenerator = delayMsGenerator();
+  private _connector = $state<Connector>();
 
-  public state = $state<"none" | "connecting" | "opened" | "reconnecting" | "closed">("none");
-  public pageData = $state<NicolivePageData>();
-  private connectingAbort: AbortController | undefined;
-  private wsServerConnector: NicoliveWsServerConnector | undefined;
-  private msgServerConnector: NicoliveMessageServerConnector | undefined;
-  private fetchingBackwardAborter: AbortController | undefined;
+  public get pageData() { return this._connector?.pageData; }
 
-  public url = $state("");
-  /**
-   * 過去メッセージを取得可能か (全て取得しているか)
-   */
-  public canFetchBackwardMessage = $state(false);
-  /**
-   * 過去コメントを取得中か
-   */
-  public isFetchingBackwardMessage = $state(false);
-
-  constructor() {
-    StorageUserStore.nicolive.updated.on("remove", userId => {
-      const user = NceUserStore.nicolive.get(userId);
-      if (user == null) return;
-
-      user.storageUser = {
-        id: user.storageUser.id,
-        name: user.storageUser.name,
-      };
-    });
-    StorageUserStore.nicolive.updated.on("new", user => {
-      const userState = NceUserStore.nicolive.get(user.id);
-      if (userState == null) return;
-      userState.storageUser = user;
-    });
+  public constructor(id: string, name: string) {
+    this.connectionId = id;
+    this.connectionName = name;
   }
 
-  /**
-   * 放送に接続します
-   * @returns 
-   */
-  public async connect() {
-    if (this.state !== "none" && this.state !== "closed") return;
-    if (!this.fixUrl()) return;
+  public async connect(): Promise<boolean> {
+    if (this._connector == null) {
+      const liveId = getNicoliveId(this.url);
+      if (liveId == null) return false;
+      this.url = liveId;
 
-    NceMessageStore.cleanup();
-    this.state = "connecting";
-
-    try {
-      this.pageData = await this.setAbort(NicoliveUtility.fetchNicolivePageData(this.url));
-      if (this.checkReject(this.pageData)) return;
-      await this.setupConnector(this.pageData);
-      this.createOwner(this.pageData!);
-      await this.opened(true);
-      await this.connectReaderWaitAnyClose();
-    } catch (e) {
-      ExtMessenger.addMessage("エラーが発生したので接続を終了します", `${e}`);
-    } finally {
-      ExtMessenger.add("接続を終了しました");
-      this.close();
+      this._connector = new Connector(
+        liveId,
+        this.onMessage,
+        this.onMessageOld,
+      );
     }
-  }
 
-  private checkReject(pageData: NicolivePageData): boolean {
-    const rejects = pageData.nicoliveInfo.rejectedReasons;
-    if (rejects.length === 0) return false;
-    const display = rejects
-      .map(x => `> ${NicoliveRejectReasonDisplay[x as never] ?? x}`)
-      .join("\n");
+    if (!await this._connector.connect()) return false;
+    this._connector.connectPromise!
+      .finally(() => ExtMessenger.add("接続を終了しました"))
+      .catch((e: unknown) => ExtMessenger.addMessage("エラーが発生したので接続を終了します", `${e}`));
+    this._canSpeak = true;
 
-    ExtMessenger.add(`次の理由で接続に失敗しました\n${display}`);
-
-    if (rejects.includes(NicoliveRejectReason.passwordAuthRequired))
-      this.requestPassword();
     return true;
   }
 
-  private requestPassword(repeate = false) {
-    ExtMessenger.add(`合言葉が${repeate ? "違います" : "必要です"}。合言葉を入力して下さい`, {
-      input: {
-        type: "text",
-        value: "",
-      },
-      button: {
-        text: "送信",
-        func: this.setRequestPassword,
-      },
-    });
+  public async reconnect(): Promise<boolean> {
+    if (this._connector == null) return false;
+    if (!await this._connector.reconnect()) return false;
+
+    ExtMessenger.add("再接続しました");
+
+    this._connector.connectPromise!
+      .finally(() => ExtMessenger.add("接続を終了しました"))
+      .catch((e: unknown) => ExtMessenger.addMessage("エラーが発生したので接続を終了します", `${e}`));
+
+    return true;
   }
 
-  private readonly setRequestPassword = async (message: ExtentionMessage) => {
-    const password = message.input!.value;
-    const result = await NicoliveUtility.postPasswordAuth(this.pageData!.nicoliveInfo.liveId, password);
-    if (!result.ok) {
-      this.requestPassword(true);
-      return;
-    }
+  public close() {
+    this._canSpeak = false;
+    this._connector?.close();
+  }
 
-    void this.connect();
+  public getOwner() {
+    const id = this._connector?.pageData?.nicoliveInfo.provider.id;
+    return NceUserStore.nicolive.get(id);
+  }
+
+  public fetchBackword(maxBackwords: number) {
+    return this._connector?.fetchBackword(maxBackwords);
+  }
+  public stopFetchBackward() {
+    this._connector?.stopFetchBackward();
+  }
+  public postBroadcasterComment(comment: string) {
+    return this._connector?.postBroadcasterComment(comment);
+  }
+  public postComment(comment: string, isAnonymous: boolean) {
+    return this._connector?.postComment(comment, isAnonymous);
+  }
+
+  private readonly onMessage = (message: NicoliveMessage) => {
+    if (!this._canSpeak) return;
+    speach(message);
+    NceMessageStore.add(message);
   };
+  private readonly onMessageOld = (messages: NicoliveMessage[]) => {
+    NceMessageStore.messages.push(...messages);
+  };
+}
+
+export const Nicolive = new NicoliveConnection("id", "name");
+
+// TODO: 以下の適切な場所について考える
+StorageUserStore.nicolive.updated.on("remove", userId => {
+  const user = NceUserStore.nicolive.get(userId);
+  if (user == null) return;
+
+  user.storageUser = {
+    id: user.storageUser.id,
+    name: user.storageUser.name,
+  };
+});
+StorageUserStore.nicolive.updated.on("new", user => {
+  const userState = NceUserStore.nicolive.get(user.id);
+  if (userState == null) return;
+  userState.storageUser = user;
+});
+
+
+class Connector {
+  /** 過去コメントの取得を中断するためのもの */
+  private fetchingBackwardAborter: AbortController | undefined;
+  /** 接続施行中に中断するためのもの */
+  private connectingAbort: AbortController | undefined;
+  /** ニコ生ウェブソケットコネクタ */
+  private wsServerConnector: NicoliveWsServerConnector | undefined;
+  /** ニコ生メッセージサーバーコネクタ */
+  private msgServerConnector: NicoliveMessageServerConnector | undefined;
+  public pageData = $state<NicolivePageData>();
+
+  public canFetchBackward = $state<boolean>(false);
+  public isFetchingBackward = $state<boolean>(false);
+  public state = $state<NceConnectionState>("none");
+  public connectPromise: Promise<void> | undefined;
+
+
+  public constructor(
+    public readonly liveId: NicoliveId,
+    public readonly onMessage: (message: NicoliveMessage) => void,
+    public readonly onOldMessage: (messages: NicoliveMessage[]) => void,
+  ) { }
+
+  public async connect() {
+    if (this.state !== "none" && this.state !== "closed") return false;
+
+    const connect = promiser();
+    this.connectPromise = this._connect(connect.resolve);
+
+    await connect.promise;
+    return true;
+  }
+
+  private async _connect(opened: () => void) {
+    try {
+      this.pageData = await this.setAbort(NicoliveUtility.fetchNicolivePageData(this.liveId));
+      if (this.checkReject(this.pageData)) return;
+      await this.setupConnector(this.pageData);
+      this.createOwner(this.pageData!);
+      await this.onOpen(true);
+      opened();
+      await this.connectReaderWaitAnyClose();
+    } finally {
+      opened();
+      this.connectPromise = undefined;
+      this.close();
+    }
+  }
 
   public async reconnect() {
-    if (this.state !== "none" && this.state !== "closed") return;
-    if (this.wsServerConnector == null || this.msgServerConnector == null) return;
+    if (this.state !== "none" && this.state !== "closed") return false;
+    if (this.wsServerConnector == null || this.msgServerConnector == null) return false;
     this.state = "reconnecting";
 
+    const connect = promiser();
+    this.connectPromise = this._reconnect(
+      connect.resolve,
+      this.wsServerConnector,
+      this.msgServerConnector,
+    );
+
+    await connect.promise;
+    return true;
+  }
+
+  private async _reconnect(
+    opened: () => void,
+    wsConnector: NicoliveWsServerConnector,
+    msgConnector: NicoliveMessageServerConnector,
+  ) {
     try {
-      if (this.wsServerConnector.isClosed()) {
-        const { abortController, promise } = this.wsServerConnector.reconnect();
+      if (wsConnector.isClosed()) {
+        const { abortController, promise } = wsConnector.reconnect();
         this.connectingAbort = abortController;
         await promise;
       }
-      if (this.msgServerConnector.isClosed()) {
-        const { abortController, promise } = this.msgServerConnector.reconnect();
+      if (msgConnector.isClosed()) {
+        const { abortController, promise } = msgConnector.reconnect();
         this.connectingAbort = abortController;
         await promise;
       }
       this.connectingAbort = undefined;
 
-      await this.opened(false);
-      ExtMessenger.add("再接続しました");
+      await this.onOpen(false);
+      opened();
 
       await this.connectReaderWaitAnyClose();
-    } catch (e) {
-      ExtMessenger.addMessage("エラーが発生したので接続を終了します", `${e}`);
     } finally {
-      ExtMessenger.add("接続を終了しました");
+      opened();
+      this.connectPromise = undefined;
       this.connectingAbort = undefined;
       this.close();
     }
   }
 
-  private async opened(isNewConnection: boolean) {
-    this.state = "opened";
-    this.canFetchBackwardMessage = true;
-    this._canSpeak = true;
 
-    if (isNewConnection) {
-      if (this.pageData!.status === "ENDED" || SettingStore.state.general.fetchConnectingBackward)
-        await this.fetchBackword(1);
-    }
+  public close() {
+    if (this.state === "none" || this.state === "closed") return;
+    this.state = "closed";
+
+    this.connectingAbort?.abort();
+    this.wsServerConnector?.getAbortController().abort();
+    this.msgServerConnector?.getAbortController().abort();
   }
 
   private async setupConnector(pageData: NicolivePageData) {
@@ -172,58 +237,69 @@ class _Nicolive {
     }
   }
 
-  private setAbort<T extends AbortAndPromise<any>>(value: T): T["promise"] {
-    this.connectingAbort = value.abortController;
-    return value.promise;
-  }
+  private async onOpen(isNewConnection: boolean) {
+    this.state = "opened";
+    this.canFetchBackward = true;
 
-  public close() {
-    if (this.state === "none" || this.state === "closed") return;
-    this.state = "closed";
-    this._canSpeak = false;
-
-    this.connectingAbort?.abort();
-    this.wsServerConnector?.getAbortController().abort();
-    this.msgServerConnector?.getAbortController().abort();
-  }
-
-  public async fetchBackword(maxBackwords: number) {
-    if (
-      this.isFetchingBackwardMessage ||
-      this.msgServerConnector == null ||
-      !this.canFetchBackwardMessage
-    ) return;
-    this.isFetchingBackwardMessage = true;
-
-    try {
-      const backward = this.msgServerConnector.getBackwardMessages(
-        1e3, maxBackwords, false
-      );
-      if (backward == null) {
-        this.canFetchBackwardMessage = false;
-        return;
-      }
-      this.fetchingBackwardAborter = backward.abortController;
-      const [messaages, isMoreBackwards] = await backward.messagePromise;
-      this.canFetchBackwardMessage = isMoreBackwards;
-      this.onMessageOld(messaages);
-    } finally {
-      this.fetchingBackwardAborter = undefined;
-      this.isFetchingBackwardMessage = false;
+    if (isNewConnection) {
+      if (this.pageData!.status === "ENDED" || SettingStore.state.general.fetchConnectingBackward)
+        await this.fetchBackword(1);
     }
   }
 
-  public stopFetchBackward() {
-    this.fetchingBackwardAborter?.abort();
+  private onChunkedMessage(chunkedMessages: dwango.ChunkedMessage) {
+    const message = this.createMessage(chunkedMessages);
+    if (message == null) return;
+    this.onMessage(message);
+  }
+
+  private onChunkedMessageOld(chunkedMessages: dwango.ChunkedMessage[]) {
+    const messages: NicoliveMessage[] = [];
+    for (const chunkedMessage of chunkedMessages) {
+      const message = this.createMessage(chunkedMessage);
+      if (message == null) continue;
+      messages.push(message);
+    }
+    this.onOldMessage(messages);
   }
 
 
+  //#region 通信
   public async postBroadcasterComment(comment: string) {
     if (this.state !== "opened") return;
     await this.pageData!.postBroadcasterComment(comment);
   }
   public async postComment(comment: string, isAnonymous: boolean) {
     await this.wsServerConnector!.postComment(comment, isAnonymous);
+  }
+
+  public async fetchBackword(maxBackwords: number) {
+    if (
+      this.isFetchingBackward ||
+      this.msgServerConnector == null ||
+      !this.canFetchBackward
+    ) return;
+    this.isFetchingBackward = true;
+
+    try {
+      const backward = this.msgServerConnector.getBackwardMessages(
+        1e3, maxBackwords, false
+      );
+      if (backward == null) {
+        this.canFetchBackward = false;
+        return;
+      }
+      this.fetchingBackwardAborter = backward.abortController;
+      const [messaages, isMoreBackwards] = await backward.messagePromise;
+      this.canFetchBackward = isMoreBackwards;
+      this.onChunkedMessageOld(messaages);
+    } finally {
+      this.fetchingBackwardAborter = undefined;
+      this.isFetchingBackward = false;
+    }
+  }
+  public stopFetchBackward() {
+    this.fetchingBackwardAborter?.abort();
   }
 
   private async connectReaderWaitAnyClose() {
@@ -268,7 +344,7 @@ class _Nicolive {
         const iter = serverConnector.getIterator();
         for await (const message of iter) {
           // _show_dbg(message);
-          this.onMessage(message);
+          this.onChunkedMessage(message);
         }
         // イテレーターが終わるのは接続が終了したとき
       } catch (e) {
@@ -353,210 +429,202 @@ class _Nicolive {
 
     return false;
   }
+  //#endregion 通信
 
-  /**
-   * `url`を放送IDのみの文字列にします
-   * @returns 正しいURLなら`true`
-   */
-  private fixUrl() {
-    const liveId = getNicoliveId(this.url);
-    if (liveId == null) return false;
-    this.url = liveId;
-    return true;
-  }
 
-  public getOwner(): NicoliveUser {
-    return NceUserStore.nicolive.users[this.pageData!.nicoliveInfo.provider.id];
-  }
-
-  private readonly onMessage = (chunkedMessage: dwango.ChunkedMessage) => {
-    const message = this.createMessage(chunkedMessage);
-    if (message == null) return;
-
-    this.speach(message);
-
-    NceMessageStore.add(message);
-  };
-
-  private speach(message: NicoliveMessage) {
-    if (!this._canSpeak) return;
-    if (message.kind === "user") {
-      if (SettingStore.state.general.hideSharp && message.includeSharp) return;
-      if (message.is184 && !checkVisibleSpeachType_Speach(SettingStore.state.nicolive.visibleAndYomiage["184"])) return;
-    } else if (message.kind === "system") {
-      const check = SettingStore.state.nicolive.visibleAndYomiage.system[message.systemMessageType];
-      if (!checkVisibleSpeachType_Speach(check)) return;
-    }
-
-    let name: string | undefined;
-    if (message.kind !== "system") {
-      const storeUser = message.extUser.storageUser;
-      if (SettingStore.state.general.useYobina && storeUser.yobina != null) name = storeUser.yobina;
-      else if (SettingStore.state.yomiage.speachNames.コテハン && SettingStore.state.general.useKotehan && storeUser.kotehan != null) name = storeUser.kotehan;
-      else if (SettingStore.state.yomiage.speachNames.コメ番 && SettingStore.state.general.nameToNo && message.extUser?.noName184 != null) name = message.extUser.noName184;
-      else if (SettingStore.state.yomiage.speachNames.ユーザー名 && storeUser.name != null) name = storeUser.name;
-    }
-    void BouyomiChan.speak(message.content, name);
-  }
-
-  private readonly onMessageOld = (chunkedMessages: dwango.ChunkedMessage[]) => {
-    const messages: NicoliveMessage[] = [];
-    for (const chunkedMessage of chunkedMessages) {
-      const message = this.createMessage(chunkedMessage);
-      if (message == null) continue;
-
-      messages.push(message);
-    }
-
-    NceMessageStore.messages.unshift(...messages);
-  };
-
-  private createMessage({ meta, payload }: dwango.ChunkedMessage): NicoliveMessage | undefined {
-    if (meta == null) return;
-
-    const messageId = meta.id;
-    const time = timeString(
-      timestampToMs(meta.at!) - this.wsServerConnector!.getLatestSchedule().begin.getTime()
-    );
-
-    const builder = NicoliveMessage.builder(messageId, this.url, time);
-
-    if (payload.case === "message") {
-      const data = payload.value.data;
-      if (data.case === "chat") {
-        const userId = data.value.hashedUserId ?? data.value.rawUserId + "";
-        const is184 = data.value.rawUserId == null;
-        let user = NceUserStore.nicolive.get(userId);
-        if (user == null) {
-          user = NicoliveUser.create(userId, is184, is184 ? undefined : data.value.name, data.value.no, "user");
-        }
-
-        //  この代入は user:null だった場合にも $state である NceUserStore.nicolive.users から参照を取るため
-        user = this.upsertUser(user, data.value.content, data.value.no);
-        return builder.user(data.value.content, user, is184, data.value.no);
-      } else {
-        let content: string;
-        let type: SystemMessageType;
-
-        if (data.case === "nicoad") {
-          type = "nicoad";
-          if (data.value.versions.case === "v0") {
-            const { latest, ranking } = data.value.versions.value;
-            const i = latest?.message == null ? "" : `「${latest?.message}」`;
-            content = ranking == null ? "" : `【広告貢献${ranking}位】`;
-            content += `提供：${latest?.advertiser}さん${i}（${latest?.point}pt）`;
-          } else if (data.value.versions.case === "v1") {
-            content = data.value.versions.value.message;
-          } else {
-            content = "ニコニ広告されました";
-          }
-        } else if (data.case === "gift") {
-          type = "gift";
-          const { contributionRank: rank, advertiserName: giftUser, itemName, point } = data.value;
-          content = rank == null ? "" : `【ギフト貢献${rank}位】`;
-          content += `${giftUser}さんがギフト「${itemName}（${point}pt）」を贈りました`;
-        } else if (data.case === "simpleNotification") {
-          if (data.value.message.case == null) return;
-          const message = data.value.message;
-          if (message.case === "rankingIn" || message.case === "rankingUpdated")
-            type = "ranking";
-          else
-            type = message.case;
-          content = message.value;
-        } else
-          return;
-        return builder.system(content, type);
-      }
-    } else if (payload.case === "state") {
-      if (payload.value.marquee != null) {
-        const operatorComment = payload.value.marquee.display?.operatorComment;
-        if (operatorComment == null) return;
-        const content = operatorComment.content;
-        const user = this.upsertUser(this.getOwner(), content);
-        const name = operatorComment.name;
-
-        return builder.owner(content, user, name, operatorComment.link);
-      } else {
-        let content: string;
-        let type: SystemMessageType;
-
-        if (payload.value.enquete != null) {
-          if (payload.value.enquete.choices.length === 0) return;
-          type = "enquete";
-          content = payload.value.enquete.choices[0].perMille == null
-            ? "【アンケート開始】" : "【アンケート結果】";
-          content += payload.value.enquete.question;
-          for (let i = 0; i < payload.value.enquete.choices.length; i++) {
-            const choice = payload.value.enquete.choices[i];
-            // eslint-disable-next-line no-irregular-whitespace
-            content += `\n　${i}:`;
-            if (choice.perMille != null) content += `${choice.perMille / 10}% `;
-            content += choice.description;
-          }
-        } else
-          return;
-
-        return builder.system(content, type);
-      }
-    } else
-      return;
-  }
-
-  /**
-   * ユーザー情報を更新する
-   * @param user 更新するユーザー
-   * @param comment コメント
-   * @param no コメント番号
-   * @returns `NceUserStore.nicolive.users` から取り出したユーザー
-   */
-  private upsertUser(user: NicoliveUser, comment: string, no?: number): NicoliveUser {
-    const isNew = NceUserStore.nicolive.users[user.storageUser.id] == null;
-    if (isNew) {
-      NceUserStore.nicolive.users[user.storageUser.id] = user;
-    }
-
-    // NceUserStore.nicolive.users から取り出すことにより svelte の更新のルールに則る
-    user = NceUserStore.nicolive.users[user.storageUser.id];
-    if (StorageUserStore.nicolive.users[user.storageUser.id] != null)
-      user.storageUser = StorageUserStore.nicolive.users[user.storageUser.id];
-
-    if (no != null && (user.firstNo == null || no < user.firstNo)) {
-      user.firstNo = no;
-      if (user.is184) user.noName184 = `${no}コメ`;
-    }
-
-    const koteyobi = parseKotehanAndYobina(comment);
-
-    if (koteyobi != null) {
-      if (koteyobi.kotehan != null) user.storageUser.kotehan = koteyobi.kotehan === 0 ? undefined : koteyobi.kotehan;
-      if (koteyobi.yobina != null) user.storageUser.yobina = koteyobi.yobina === 0 ? undefined : koteyobi.yobina;
-      StorageUserStore.nicolive.upsert(user.storageUser);
-    }
-
-    if (isNew) {
-      this.onFirstComment(user);
-    }
-
-    return user;
-  }
-
-  private onFirstComment(user: NicoliveUser) {
-    this._cleanupAutoUpdateComentCss.push(autoUpdateCommentCss(user.storageUser.id));
-  }
+  // 
+  // 以下はUtility関数
+  // 
 
   private createOwner(pageData: NicolivePageData) {
-    const info = pageData!.nicoliveInfo;
+    const info = pageData.nicoliveInfo;
     const { id, name } = info.provider;
     if (id == null) return;
 
-    this.upsertUser(
+    upsertUser(
       NicoliveUser.create(id, false, name, undefined, info.provider.type),
       ""
     );
   }
+
+  private createMessage({ meta, payload }: dwango.ChunkedMessage) {
+    if (meta == null) return;
+    const messageId = meta.id;
+    const time = timeString(
+      timestampToMs(meta.at!) - this.wsServerConnector!.getLatestSchedule().begin.getTime()
+    );
+    const builder = NicoliveMessage.builder(messageId, this.liveId, time);
+    return createMessage(payload, builder, this.pageData!.nicoliveInfo.provider.id);
+  }
+
+  private checkReject(pageData: NicolivePageData): boolean {
+    const rejects = pageData.nicoliveInfo.rejectedReasons;
+    if (rejects.length === 0) return false;
+    const display = rejects
+      .map(x => `> ${NicoliveRejectReasonDisplay[x as never] ?? x}`)
+      .join("\n");
+
+    ExtMessenger.add(`次の理由で接続に失敗しました\n${display}`);
+
+    if (rejects.includes(NicoliveRejectReason.passwordAuthRequired))
+      this.requestPassword();
+    return true;
+  }
+
+  private requestPassword(repeate = false) {
+    ExtMessenger.add(`合言葉が${repeate ? "違います" : "必要です"}。合言葉を入力して下さい`, {
+      input: {
+        type: "text",
+        value: "",
+      },
+      button: {
+        text: "送信",
+        func: this.setRequestPassword,
+      },
+    });
+  }
+
+  private readonly setRequestPassword = async (message: ExtentionMessage) => {
+    if (this.state !== "closed") return;
+
+    const password = message.input!.value;
+    const result = await NicoliveUtility.postPasswordAuth(this.pageData!.nicoliveInfo.liveId, password);
+    if (!result.ok) {
+      this.requestPassword(true);
+      return;
+    }
+
+    void this.connect();
+  };
+
+  private setAbort<T extends AbortAndPromise<any>>(value: T): T["promise"] {
+    this.connectingAbort = value.abortController;
+    return value.promise;
+  }
 }
 
-export const Nicolive = new _Nicolive();
+/**
+ * ユーザー情報を更新する
+ * @param user 更新するユーザー
+ * @param comment コメント
+ * @param no コメント番号
+ * @returns `NceUserStore.nicolive.users` から取り出したユーザー
+ */
+function upsertUser(user: NicoliveUser, comment: string, no?: number): NicoliveUser {
+  // svelte の更新のルールに則る
+  user = NceUserStore.nicolive.add(user);
+  if (StorageUserStore.nicolive.users[user.storageUser.id] != null)
+    user.storageUser = StorageUserStore.nicolive.users[user.storageUser.id];
+
+  if (no != null && (user.firstNo == null || no < user.firstNo)) {
+    user.firstNo = no;
+    if (user.is184) user.noName184 = `${no}コメ`;
+  }
+
+  const koteyobi = parseKotehanAndYobina(comment);
+
+  if (koteyobi != null) {
+    if (koteyobi.kotehan != null) user.storageUser.kotehan = koteyobi.kotehan === 0 ? undefined : koteyobi.kotehan;
+    if (koteyobi.yobina != null) user.storageUser.yobina = koteyobi.yobina === 0 ? undefined : koteyobi.yobina;
+    StorageUserStore.nicolive.upsert(user.storageUser);
+  }
+
+  // if (isNew) {
+  //   this.onFirstComment(user);
+  // }
+  // > private onFirstComment(user: NicoliveUser) {
+  // >   this._cleanupAutoUpdateComentCss.push(autoUpdateCommentCss(user.storageUser.id));
+  // > }
+  CommentViewCss.hook("nicolive", user.storageUser.id);
+
+  return user;
+}
+
+function createMessage(
+  payload: dwango.ChunkedMessage["payload"],
+  builder: ReturnType<typeof NicoliveMessage.builder>,
+  ownerId: string
+): NicoliveMessage | undefined {
+  if (payload.case === "message") {
+    const data = payload.value.data;
+    if (data.case === "chat") {
+      const userId = data.value.hashedUserId ?? data.value.rawUserId + "";
+      const is184 = data.value.rawUserId == null;
+      let user = NceUserStore.nicolive.get(userId);
+      if (user == null) {
+        user = NicoliveUser.create(userId, is184, is184 ? undefined : data.value.name, data.value.no, "user");
+      }
+
+      //  この代入は user:null だった場合にも $state である NceUserStore.nicolive.users から参照を取るため
+      user = upsertUser(user, data.value.content, data.value.no);
+      return builder.user(data.value.content, user, is184, data.value.no);
+    } else {
+      let content: string;
+      let type: SystemMessageType;
+
+      if (data.case === "nicoad") {
+        type = "nicoad";
+        if (data.value.versions.case === "v0") {
+          const { latest, ranking } = data.value.versions.value;
+          const i = latest?.message == null ? "" : `「${latest?.message}」`;
+          content = ranking == null ? "" : `【広告貢献${ranking}位】`;
+          content += `提供：${latest?.advertiser}さん${i}（${latest?.point}pt）`;
+        } else if (data.value.versions.case === "v1") {
+          content = data.value.versions.value.message;
+        } else {
+          content = "ニコニ広告されました";
+        }
+      } else if (data.case === "gift") {
+        type = "gift";
+        const { contributionRank: rank, advertiserName: giftUser, itemName, point } = data.value;
+        content = rank == null ? "" : `【ギフト貢献${rank}位】`;
+        content += `${giftUser}さんがギフト「${itemName}（${point}pt）」を贈りました`;
+      } else if (data.case === "simpleNotification") {
+        if (data.value.message.case == null) return;
+        const message = data.value.message;
+        if (message.case === "rankingIn" || message.case === "rankingUpdated")
+          type = "ranking";
+        else
+          type = message.case;
+        content = message.value;
+      } else
+        return;
+      return builder.system(content, type);
+    }
+  } else if (payload.case === "state") {
+    if (payload.value.marquee != null) {
+      const operatorComment = payload.value.marquee.display?.operatorComment;
+      if (operatorComment == null) return;
+      const content = operatorComment.content;
+      const user = upsertUser(NceUserStore.nicolive.get(ownerId)!, content);
+      const name = operatorComment.name;
+
+      return builder.owner(content, user, name, operatorComment.link);
+    } else {
+      let content: string;
+      let type: SystemMessageType;
+
+      if (payload.value.enquete != null) {
+        if (payload.value.enquete.choices.length === 0) return;
+        type = "enquete";
+        content = payload.value.enquete.choices[0].perMille == null
+          ? "【アンケート開始】" : "【アンケート結果】";
+        content += payload.value.enquete.question;
+        for (let i = 0; i < payload.value.enquete.choices.length; i++) {
+          const choice = payload.value.enquete.choices[i];
+          // eslint-disable-next-line no-irregular-whitespace
+          content += `\n　${i}:`;
+          if (choice.perMille != null) content += `${choice.perMille / 10}% `;
+          content += choice.description;
+        }
+      } else
+        return;
+
+      return builder.system(content, type);
+    }
+  } else
+    return;
+}
 
 /**
  * 文字列からコテハンと呼び名をパースする\

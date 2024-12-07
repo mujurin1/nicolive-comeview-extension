@@ -151,7 +151,6 @@ export const StorageUserStore: StorageUserStore = (() => {
   }
 })();
 
-
 function storageUserKey_combine<PlatformId extends PlatformsId>(live: PlatformId, userIdStr: string): StorageUserKey<PlatformId> {
   return `${live}%${userIdStr}`;
 }
