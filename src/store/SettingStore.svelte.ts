@@ -1,6 +1,6 @@
 import { storages } from "../lib/Storage";
 import { SystemMessageType } from "../Platform";
-import { safeOverwrite_keys_target, type DeepReadonly } from "../utils";
+import { safeOverwrite, type DeepReadonly } from "../utils";
 
 export const Talker = ["none", "bouyomiChan"] as const;
 export type Talker = typeof Talker[number];
@@ -211,7 +211,7 @@ export const SettingStore: SettingStore = (() => {
     {
       onUpdated(data: Partial<SettingState>, type) {
         if (type === "change") unsetNotChangeProperty(data);
-        safeOverwrite_keys_target(state, data);
+        safeOverwrite(state, data);
       },
       onRemoved() {
         // 削除はあり得ない
@@ -225,11 +225,11 @@ export const SettingStore: SettingStore = (() => {
     },
     async saveFromJson(json) {
       const parsed = JSON.parse(json);
-      safeOverwrite_keys_target(state, parsed);
+      safeOverwrite(state, parsed);
       await SettingStore.save();
     },
     async resetAllData() {
-      safeOverwrite_keys_target(state, SettingState);
+      safeOverwrite(state, SettingState);
       await SettingStore.save();
     },
   };

@@ -27,9 +27,9 @@
       {/if}
     </div>
 
-    {#if Nicolive.canFetchBackwardMessage}
+    {#if Nicolive.canFetchBackward}
       <div class="head-item">
-        {#if Nicolive.isFetchingBackwardMessage}
+        {#if Nicolive.isFetchingBackward}
           <div title="１セグメント毎の待機時間は１秒">過去コメント取得中‥</div>
           <button onclick={() => Nicolive.stopFetchBackward()} type="button"> 中断 </button>
         {:else}

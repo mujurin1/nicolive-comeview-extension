@@ -35,6 +35,7 @@ export interface NceUserType<PlatformId extends PlatformsId = PlatformsId> {
   platformId: PlatformId;
   /**
    * ストレージのユーザー情報\
+   * 実体は`StorageUserStore`と共有している\
    * `StorageUser`に存在する情報は`NceUserType`で定義しない (二重管理になるため)
    */
   storageUser: StorageUser;

@@ -1,5 +1,5 @@
 import type { NicoliveMessage } from "../Platform";
-import { NceUserStore } from "../store/NceStore.svelte";
+import { NceUserStore, type PlatformId_User } from "../store/NceStore.svelte";
 import { SettingStore, type CommentFormat } from "../store/SettingStore.svelte";
 
 function createStyleElement() {
@@ -28,11 +28,16 @@ export function getCssClassNameFromUserId(userId: string): string {
   return `cm-id-${userId}`;
 }
 
-export function autoUpdateCommentCss(userId: string) {
+/**
+ * ユーザーのCSSStyleを作成する\
+ * ユーザーの状態は`NceUserStore`を参照するため、変更は自動で反映されます
+ * @returns CSSStyleを削除してEffectを解除します
+ */
+export function autoUpdateCommentCss(platformsId: PlatformId_User, userId: string) {
   const className = getCssClassNameFromUserId(userId);
-  return $effect.root(() => {
+  const unEffect = $effect.root(() => {
     $effect(() => {
-      const format = NceUserStore.nicolive.get(userId)?.storageUser?.format;
+      const format = NceUserStore[platformsId].get(userId)?.storageUser?.format;
 
       if (format == null) {
         clearClass("cm-user", className);
@@ -42,6 +47,11 @@ export function autoUpdateCommentCss(userId: string) {
       }
     });
   });
+
+  return () => {
+    unEffect();
+    clearClass("cm-user", className);
+  };
 }
 
 function upsertClass(styleName: StyleNames, className: string, rule: string) {
