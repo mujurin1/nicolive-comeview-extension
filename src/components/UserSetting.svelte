@@ -1,6 +1,7 @@
 <script lang="ts">
   import { notifierStore } from "../lib/CustomStore.svelte";
-  import { getNicoliveIconUrl, Nicolive, onErrorImage, type PlatformsId } from "../Platform";
+  import { getNicoliveIconUrl, onErrorImage, type PlatformsId } from "../Platform";
+  import { NceUserStore } from "../store/NceStore.svelte";
   import { CommentFormat } from "../store/SettingStore.svelte";
   import { StorageUserStore, type StorageUser } from "../store/StorageUserStore.svelte";
   import FormatSetting from "./FormatSetting.svelte";
@@ -16,12 +17,12 @@
   } = $props();
 
   const userS = notifierStore<StorageUser>(
-    StorageUserStore[platformId].users[userId] ?? Nicolive.users[userId]?.storageUser,
+    StorageUserStore[platformId].users[userId] ?? NceUserStore.nicolive.get(userId)?.storageUser,
     () => StorageUserStore[platformId].upsert(userS.state),
     // このオブジェクトはセーブデータ上で `undefiend` になる(存在しない)時があるため derived が必要
     () => {
       let a = StorageUserStore[platformId].users[userId];
-      let b = Nicolive.users[userId]?.storageUser;
+      let b = NceUserStore.nicolive.get(userId)?.storageUser;
       return a ?? b;
     },
   );

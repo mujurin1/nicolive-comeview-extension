@@ -1,6 +1,7 @@
 <script lang="ts">
   import UserSetting from "../../components/UserSetting.svelte";
   import { Nicolive } from "../../Platform";
+  import { NceUserStore } from "../../store/NceStore.svelte";
   import { StorageUserStore, type StorageUser } from "../../store/StorageUserStore.svelte";
 
   let {
@@ -12,7 +13,7 @@
   let hitUsers = $derived.by(() => {
     const users = new Map([
       ...Object.values(StorageUserStore["nicolive"].users).map(u => [u, false] as const),
-      ...Object.values(Nicolive.users).map(u => [u.storageUser, true] as const),
+      ...Object.values(NceUserStore.nicolive.users).map(u => [u.storageUser, true] as const),
     ]);
 
     let query = serchQuery.trim();

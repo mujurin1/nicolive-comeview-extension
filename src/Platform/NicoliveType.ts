@@ -1,13 +1,13 @@
 import type { NicoliveInfoProviderType } from "@mujurin/nicolive-api-ts";
-import { PlatformsId, type ExtMessageType, type ExtUserType } from "./index";
+import { PlatformsId, type ExtMessageType, type NceUserType } from "./index";
 
 /**
- * MEMO: `"rankingIn"` `"rankingUpdated"` は冗長なのでどちらも`"ranking"`として扱う
+ * MEMO: `"rankingIn"`,`"rankingUpdated"` は冗長なのでどちらも`"ranking"`として扱う
  */
 export const SystemMessageType = [
   "nicoad", "gift", "enquete",
   // simpleNotification
-  "ichiba", "quote", "emotion", "cruise", "programExtended", "ranking" /* "rankingIn", "rankingUpdated" */, "visited"
+  "ichiba", "quote", "emotion", "cruise", "programExtended", "ranking" /* "rankingIn", "rankingUpdated" */, "visited",
 ] as const;
 export type SystemMessageType = typeof SystemMessageType[number];
 export const SystemMessageTypeDisplayName = {
@@ -19,26 +19,27 @@ export const SystemMessageTypeDisplayName = {
   emotion: "エモーション",
   cruise: "クルーズ",
   programExtended: "延長",
+  /** `rankingIn`,`rankingUpdated` の2つを兼用する独自定義 */
   ranking: "ランキング",
   // rankingIn: "ランクイン",
   // rankingUpdated: "ランキング更新",
   visited: "来場",
-};
+} as const satisfies Record<SystemMessageType, string>;
 
 
-export type NicoliveMessage =
-  | ExtMessageType<"nicolive", "system"> & {
-    systemMessageType: SystemMessageType;
-  }
-  | ExtMessageType<"nicolive", "owner"> & {
-    no: undefined;
-  }
-  | ExtMessageType<"nicolive", "user"> & {
-    no: number | undefined;
-    is184: boolean;
-  };
+export type NicoliveMessage = NicoliveMessageSystem | NicoliveMessageOwner | NicoliveMessageUser;
+export interface NicoliveMessageSystem extends ExtMessageType<"nicolive", "system"> {
+  systemMessageType: SystemMessageType;
+}
+export interface NicoliveMessageOwner extends ExtMessageType<"nicolive", "owner"> {
+  no: undefined;
+}
+export interface NicoliveMessageUser extends ExtMessageType<"nicolive", "user"> {
+  no: number | undefined;
+  is184: boolean;
+}
 
-export interface NicoliveUser extends ExtUserType<"nicolive"> {
+export interface NicoliveUser extends NceUserType<"nicolive"> {
   providerType: NicoliveInfoProviderType;
   firstNo: number | undefined;
   is184: boolean;
@@ -138,7 +139,7 @@ export const NicoliveUser = {
     is184: boolean,
     name: string | undefined,
     no: number | undefined,
-    providerType: NicoliveInfoProviderType = "user",
+    providerType: NicoliveInfoProviderType,
   ): NicoliveUser => ({
     providerType,
     platformId: PlatformsId.nicolive,

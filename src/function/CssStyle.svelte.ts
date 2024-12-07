@@ -1,4 +1,5 @@
-import { Nicolive, type NicoliveMessage } from "../Platform";
+import type { NicoliveMessage } from "../Platform";
+import { NceUserStore } from "../store/NceStore.svelte";
 import { SettingStore, type CommentFormat } from "../store/SettingStore.svelte";
 
 function createStyleElement() {
@@ -31,7 +32,7 @@ export function autoUpdateCommentCss(userId: string) {
   const className = getCssClassNameFromUserId(userId);
   return $effect.root(() => {
     $effect(() => {
-      const format = Nicolive.users[userId]?.storageUser?.format;
+      const format = NceUserStore.nicolive.get(userId)?.storageUser?.format;
 
       if (format == null) {
         clearClass("cm-user", className);

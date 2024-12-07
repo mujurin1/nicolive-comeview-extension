@@ -1,7 +1,7 @@
 <script lang="ts" module>
   import { additional } from "../view/view";
 
-  export function openUserSetting(user: ExtUserType) {
+  export function openUserSetting(user: NceUserType) {
     additional.page.openUserSetting(user.storageUser.id);
   }
 </script>
@@ -9,15 +9,15 @@
 <script lang="ts">
   import { tick } from "svelte";
   import { getCssClassNameFromMessage } from "../function/CssStyle.svelte";
-  import { type ExtentionMessage, type ExtUserType, type NicoliveMessage, type NicoliveUser } from "../Platform";
-  import { MessageStore } from "../store/MessageStore.svelte";
+  import { type ExtentionMessage, type NceUserType, type NicoliveMessage, type NicoliveUser } from "../Platform";
+  import { NceMessageStore } from "../store/NceStore.svelte";
   import { checkVisibleYomiage_Visible, SettingStore } from "../store/SettingStore.svelte";
   import LegacyCommentViewItem from "./LegacyCommentViewItem.svelte";
 
   let listView: HTMLDivElement;
 
   $effect.pre(() => {
-    MessageStore.messages.length;
+    NceMessageStore.messages.length;
 
     const autoscroll =
       listView && listView.offsetHeight + listView.scrollTop > listView.scrollHeight - 50;
@@ -135,7 +135,7 @@
 {/snippet}
 
 <div bind:this={listView} class="comment-list" tabindex="-1">
-  {#each MessageStore.messages as message (message.id)}
+  {#each NceMessageStore.messages as message (message.id)}
     {#if message.platformId === "nicolive"}
       {@const visible = checkVisible(message)}
       {#if visible}

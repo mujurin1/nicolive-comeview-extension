@@ -1,7 +1,8 @@
 import type { ExtMessageType } from ".";
-import { MessageStore } from "../store/MessageStore.svelte";
+import { NceMessageStore } from "../store/NceStore.svelte";
 
-export interface ExtentionMessageOption {
+export type ExtentionMessage = ExtMessageType<"extention", "system"> & ExtentionMessageOption;
+interface ExtentionMessageOption {
   expandMessage?: string;
   input?: {
     type: "text" | "number";
@@ -14,7 +15,6 @@ export interface ExtentionMessageOption {
     func: ((message: ExtentionMessage) => void);
   };
 }
-export type ExtentionMessage = ExtMessageType<"extention", "system"> & ExtentionMessageOption;
 
 export const ExtMessenger = {
   /**
@@ -26,9 +26,9 @@ export const ExtMessenger = {
     const message: ExtentionMessage = {
       ...opsions,
 
-      id: `extention#${MessageStore.messages.length + 1}`,
+      id: `extention#${NceMessageStore.messages.length + 1}`,
       platformId: "extention",
-      messageId: (MessageStore.messages.length + 1) + "",
+      messageId: (NceMessageStore.messages.length + 1) + "",
       kind: "system",
       liveId: "extention",
 
@@ -41,12 +41,11 @@ export const ExtMessenger = {
       includeSharp: false,
       tempName: "ｼｽﾃﾑ",
     };
-    MessageStore.add(message);
+    NceMessageStore.add(message);
 
     return message.id;
   },
   /**
-   * 
    * @param content 表示する文字列
    * @param expandMessage エキスパンドで表示する文字列
    * @returns `ExtentionMessage.id` (全メッセージ中で一意なID)

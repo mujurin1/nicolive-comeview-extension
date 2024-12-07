@@ -3,7 +3,7 @@ export * from "./NicoliveType";
 import { type AbortAndPromise, type INicoliveServerConnector, type NicoliveMessageServerConnector, type NicolivePageData, NicoliveRejectReason, NicoliveRejectReasonDisplay, NicoliveUtility, NicoliveWebSocketReconnectError, type NicoliveWsServerConnector, abortErrorWrap, type dwango, getNicoliveId, isAbortError, sleep, timestampToMs } from "@mujurin/nicolive-api-ts";
 import { BouyomiChan } from "../function/BouyomiChan";
 import { autoUpdateCommentCss } from "../function/CssStyle.svelte";
-import { MessageStore } from "../store/MessageStore.svelte";
+import { NceMessageStore, NceUserStore } from "../store/NceStore.svelte";
 import { SettingStore, checkVisibleSpeachType_Speach } from "../store/SettingStore.svelte";
 import { StorageUserStore } from "../store/StorageUserStore.svelte";
 import { timeString } from "../utils";
@@ -28,13 +28,6 @@ class _Nicolive {
 
   public url = $state("");
   /**
-   * 接続している放送単位でのユーザーの情報を管理する\
-   * システムメッセージのコメントのユーザーは管理しない
-   * 
-   * `Map`だと内部の値が変更されても通知されないためオブジェクトで管理する
-   */
-  public users = $state<Record<string, NicoliveUser>>({});
-  /**
    * 過去メッセージを取得可能か (全て取得しているか)
    */
   public canFetchBackwardMessage = $state(false);
@@ -45,16 +38,18 @@ class _Nicolive {
 
   constructor() {
     StorageUserStore.nicolive.updated.on("remove", userId => {
-      if (this.users[userId] == null) return;
+      const user = NceUserStore.nicolive.get(userId);
+      if (user == null) return;
 
-      this.users[userId].storageUser = {
-        id: this.users[userId].storageUser.id,
-        name: this.users[userId].storageUser.name,
+      user.storageUser = {
+        id: user.storageUser.id,
+        name: user.storageUser.name,
       };
     });
     StorageUserStore.nicolive.updated.on("new", user => {
-      if (this.users[user.id] == null) return;
-      this.users[user.id].storageUser = user;
+      const userState = NceUserStore.nicolive.get(user.id);
+      if (userState == null) return;
+      userState.storageUser = user;
     });
   }
 
@@ -66,7 +61,7 @@ class _Nicolive {
     if (this.state !== "none" && this.state !== "closed") return;
     if (!this.fixUrl()) return;
 
-    MessageStore.cleanup();
+    NceMessageStore.cleanup();
     this.state = "connecting";
 
     try {
@@ -106,12 +101,12 @@ class _Nicolive {
       },
       button: {
         text: "送信",
-        func: this.sendPassword.bind(this),
+        func: this.setRequestPassword,
       },
     });
   }
 
-  async sendPassword(message: ExtentionMessage) {
+  private readonly setRequestPassword = async (message: ExtentionMessage) => {
     const password = message.input!.value;
     const result = await NicoliveUtility.postPasswordAuth(this.pageData!.nicoliveInfo.liveId, password);
     if (!result.ok) {
@@ -120,7 +115,7 @@ class _Nicolive {
     }
 
     void this.connect();
-  }
+  };
 
   public async reconnect() {
     if (this.state !== "none" && this.state !== "closed") return;
@@ -371,11 +366,7 @@ class _Nicolive {
   }
 
   public getOwner(): NicoliveUser {
-    return Nicolive.users[this.pageData!.nicoliveInfo.provider.id];
-  }
-
-  public getUser(userId: string | undefined): NicoliveUser | undefined {
-    return Nicolive.users[userId!];
+    return NceUserStore.nicolive.users[this.pageData!.nicoliveInfo.provider.id];
   }
 
   private readonly onMessage = (chunkedMessage: dwango.ChunkedMessage) => {
@@ -384,7 +375,7 @@ class _Nicolive {
 
     this.speach(message);
 
-    MessageStore.add(message);
+    NceMessageStore.add(message);
   };
 
   private speach(message: NicoliveMessage) {
@@ -417,7 +408,7 @@ class _Nicolive {
       messages.push(message);
     }
 
-    MessageStore.messages.unshift(...messages);
+    NceMessageStore.messages.unshift(...messages);
   };
 
   private createMessage({ meta, payload }: dwango.ChunkedMessage): NicoliveMessage | undefined {
@@ -435,12 +426,12 @@ class _Nicolive {
       if (data.case === "chat") {
         const userId = data.value.hashedUserId ?? data.value.rawUserId + "";
         const is184 = data.value.rawUserId == null;
-        let user = this.getUser(userId);
+        let user = NceUserStore.nicolive.get(userId);
         if (user == null) {
-          user = NicoliveUser.create(userId, is184, is184 ? undefined : data.value.name, data.value.no);
+          user = NicoliveUser.create(userId, is184, is184 ? undefined : data.value.name, data.value.no, "user");
         }
 
-        //  この代入は user:null だった場合にも $state である this.users から参照を取るため
+        //  この代入は user:null だった場合にも $state である NceUserStore.nicolive.users から参照を取るため
         user = this.upsertUser(user, data.value.content, data.value.no);
         return builder.user(data.value.content, user, is184, data.value.no);
       } else {
@@ -516,16 +507,16 @@ class _Nicolive {
    * @param user 更新するユーザー
    * @param comment コメント
    * @param no コメント番号
-   * @returns `this.users` から取り出したユーザー
+   * @returns `NceUserStore.nicolive.users` から取り出したユーザー
    */
   private upsertUser(user: NicoliveUser, comment: string, no?: number): NicoliveUser {
-    const isNew = this.getUser(user.storageUser.id) == null;
+    const isNew = NceUserStore.nicolive.users[user.storageUser.id] == null;
     if (isNew) {
-      this.users[user.storageUser.id] = user;
+      NceUserStore.nicolive.users[user.storageUser.id] = user;
     }
 
-    // this.users から取り出すことにより svelte の更新のルールに則る
-    user = this.users[user.storageUser.id];
+    // NceUserStore.nicolive.users から取り出すことにより svelte の更新のルールに則る
+    user = NceUserStore.nicolive.users[user.storageUser.id];
     if (StorageUserStore.nicolive.users[user.storageUser.id] != null)
       user.storageUser = StorageUserStore.nicolive.users[user.storageUser.id];
 

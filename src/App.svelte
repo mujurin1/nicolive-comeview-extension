@@ -3,7 +3,7 @@
   import Main from "./view/Main.svelte";
 </script>
 
-{#if true}
+{#if false}
   <Sample />
 {:else}
   TODO: コメジェネが終わったら index.ts のCSSを戻す

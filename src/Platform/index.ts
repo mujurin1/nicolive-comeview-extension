@@ -12,7 +12,7 @@ import type { NicoliveMessage, NicoliveUser } from "./Nicolive.svelte";
  */
 export const PlatformsId = {
   /**
-   * 拡張機能によるメッセージのためのID
+   * 拡張機能によるメッセージ
    */
   extention: "extention",
   /**
@@ -23,24 +23,25 @@ export const PlatformsId = {
 export type PlatformsId = typeof PlatformsId[keyof typeof PlatformsId];
 export const PlatformsIds = Object.keys(PlatformsId) as (keyof typeof PlatformsId)[];
 
-
 // 放送サイトのユーザー・メッセージ型
-export type ExtUesr = NicoliveUser;
-export type ExtMessage = ExtentionMessage | NicoliveMessage;
+export type NceUser<P extends PlatformsId = PlatformsId> =
+  (NicoliveUser) & { platformId: P; };
+export type NceMessage<P extends PlatformsId = PlatformsId> =
+  (ExtentionMessage | NicoliveMessage) & { platformId: P; };
 
 
-
-/**
- * 放送サイト毎に実装する必要のあるユーザーインターフェース
- */
-export interface ExtUserType<PlatformId extends PlatformsId = PlatformsId> {
+/** 放送サイト毎に実装する必要のあるユーザーインターフェース */
+export interface NceUserType<PlatformId extends PlatformsId = PlatformsId> {
   platformId: PlatformId;
+  /**
+   * ストレージのユーザー情報\
+   * `StorageUser`に存在する情報は`NceUserType`で定義しない (二重管理になるため)
+   */
   storageUser: StorageUser;
 }
-
-/**
- * 放送サイト毎に実装する必要のあるコメントインターフェース
- */
+/** メッセージ投稿者の種別 */
+export type ExtUserKind = "system" | "owner" | "user";
+/** 放送サイト毎に実装する必要のあるコメントインターフェース */
 export type ExtMessageType<
   PlatformId extends PlatformsId = PlatformsId,
   UserKind extends ExtUserKind = ExtUserKind,
@@ -49,9 +50,9 @@ export type ExtMessageType<
     platformId: PlatformId;
     /**
      * 全てのコメントで一意なID\
-     * 具体的な値は`platformId#messageId`で統一する
+     * 実際の値は`platformId#messageId`で統一する
      * 
-     * MEMO: 同じ放送サイトで複数の放送から取得している場合この条件では被る可能性がある
+     * 同じ放送サイトで複数の放送でこの値は重複することを許容する
      */
     id: string;
     /**
@@ -89,18 +90,12 @@ export type ExtMessageType<
     }
     : UserKind extends "owner" ? {
       kind: UserKind;
-      extUser: ExtUesr & { platformId: PlatformId; };
+      extUser: NceUser & { platformId: PlatformId; };
       includeSharp: false;
     }
     : UserKind extends "user" ? {
       kind: UserKind;
-      extUser: ExtUesr & { platformId: PlatformId; };
+      extUser: NceUser & { platformId: PlatformId; };
     }
     : never
   );
-
-
-/**
- * メッセージ投稿者の種別
- */
-export type ExtUserKind = "system" | "owner" | "user";
