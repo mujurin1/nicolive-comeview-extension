@@ -102,15 +102,6 @@
     &.connect-item {
       margin-right: 20px;
     }
-
-    & > *:not(datalist) {
-      display: flex;
-      align-items: center;
-
-      &:not(:last-child) {
-        margin-right: 5px;
-      }
-    }
   }
 
   .setting-btn {

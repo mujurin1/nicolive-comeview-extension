@@ -60,7 +60,7 @@
 {/snippet}
 
 {#snippet NicoliveMessageView(message: NicoliveMessage)}
-  {@const isFirst = message.kind === "user" && message.no != null && message.extUser?.firstNo === message.no}
+  {@const isFirst = message.kind === "user" && message.isFirstComment}
   {@const hideSharp = SettingStore.state.general.hideSharp && message.includeSharp}
   <div
     class={`cm-default ${getCssClassNameFromMessage(message)}`}
@@ -76,9 +76,9 @@
         {/snippet}
       </LegacyCommentViewItem>
     {:else}
-      {@const user = message.extUser}
+      {@const user = message.user}
       <LegacyCommentViewItem
-        iconUrl={message.iconUrl}
+        iconUrl={message.user.iconUrl}
         no={message.no}
         time={message.time}
       >
@@ -141,7 +141,7 @@
       {#if visible}
         {@render NicoliveMessageView(message)}
       {/if}
-    {:else if message.platformId === "extention"}
+    {:else if message.platformId === "nce"}
       {@render ExtentionMessageView(message)}
     {/if}
   {/each}

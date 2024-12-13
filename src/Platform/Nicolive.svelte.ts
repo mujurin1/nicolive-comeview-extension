@@ -8,16 +8,19 @@ import { CommentViewCss } from "../system/commentViewCss";
 import { speach } from "../system/speach";
 import { timeString } from "../utils";
 import { ExtMessenger, type ExtentionMessage } from "./Extention.svelte";
-import type { NceConnection, NceConnectionState } from "./NceConnection";
+import type { NceConnection, NceConnectionSetting, NceConnectionState } from "./NceConnection";
 import { NicoliveMessage, NicoliveUser, type SystemMessageType } from "./NicoliveType";
 
 export class NicoliveConnection implements NceConnection<"nicolive"> {
   public readonly connectionId: string;
   public get state() { return this._connector?.state ?? "none"; }
-  public canFetchBackward: boolean = false;
+  public setting = $state<NceConnectionSetting>({ isSpeak: true });
+  // public canFetchBackward: boolean = false;
+  public get canFetchBackward() { return this._connector?.canFetchBackward ?? false; }
   public isFetchingBackward: boolean = false;
+  public messages = $state<NicoliveMessage[]>([]);
 
-  public connectionName: string;
+  public connectionName = $state("name");
   public url = $state("");
   public isSpeack = true;
 
@@ -27,9 +30,8 @@ export class NicoliveConnection implements NceConnection<"nicolive"> {
 
   public get pageData() { return this._connector?.pageData; }
 
-  public constructor(id: string, name: string) {
+  public constructor(id: string) {
     this.connectionId = id;
-    this.connectionName = name;
   }
 
   public async connect(): Promise<boolean> {
@@ -39,6 +41,7 @@ export class NicoliveConnection implements NceConnection<"nicolive"> {
       this.url = liveId;
 
       this._connector = new Connector(
+        this.connectionId,
         liveId,
         this.onMessage,
         this.onMessageOld,
@@ -46,10 +49,12 @@ export class NicoliveConnection implements NceConnection<"nicolive"> {
     }
 
     if (!await this._connector.connect()) return false;
+
+    // 接続完了
+    this._canSpeak = true;
     this._connector.connectPromise!
       .finally(() => ExtMessenger.add("接続を終了しました"))
       .catch((e: unknown) => ExtMessenger.addMessage("エラーが発生したので接続を終了します", `${e}`));
-    this._canSpeak = true;
 
     return true;
   }
@@ -58,8 +63,9 @@ export class NicoliveConnection implements NceConnection<"nicolive"> {
     if (this._connector == null) return false;
     if (!await this._connector.reconnect()) return false;
 
+    // 再接続完了
+    this._canSpeak = true;
     ExtMessenger.add("再接続しました");
-
     this._connector.connectPromise!
       .finally(() => ExtMessenger.add("接続を終了しました"))
       .catch((e: unknown) => ExtMessenger.addMessage("エラーが発生したので接続を終了します", `${e}`));
@@ -91,16 +97,17 @@ export class NicoliveConnection implements NceConnection<"nicolive"> {
   }
 
   private readonly onMessage = (message: NicoliveMessage) => {
-    if (!this._canSpeak) return;
-    speach(message);
-    NceMessageStore.add(message);
+    if (!this._canSpeak && this.setting.isSpeak) speach(message);
+    this.messages.push(message);
+    NceMessageStore.messages.push(message);
   };
   private readonly onMessageOld = (messages: NicoliveMessage[]) => {
-    NceMessageStore.messages.push(...messages);
+    this.messages.unshift(...messages);
+    NceMessageStore.messages.unshift(...messages);
   };
 }
 
-export const Nicolive = new NicoliveConnection("id", "name");
+export const Nicolive = new NicoliveConnection("id");
 
 // TODO: 以下の適切な場所について考える
 StorageUserStore.nicolive.updated.on("remove", userId => {
@@ -137,6 +144,8 @@ class Connector {
 
 
   public constructor(
+    /** 接続ごとに固有なID */
+    public readonly connectionId: string,
     public readonly liveId: NicoliveId,
     public readonly onMessage: (message: NicoliveMessage) => void,
     public readonly onOldMessage: (messages: NicoliveMessage[]) => void,
@@ -157,7 +166,7 @@ class Connector {
       this.pageData = await this.setAbort(NicoliveUtility.fetchNicolivePageData(this.liveId));
       if (this.checkReject(this.pageData)) return;
       await this.setupConnector(this.pageData);
-      this.createOwner(this.pageData!);
+      createOwner(this.pageData!);
       await this.onOpen(true);
       opened();
       await this.connectReaderWaitAnyClose();
@@ -436,24 +445,13 @@ class Connector {
   // 以下はUtility関数
   // 
 
-  private createOwner(pageData: NicolivePageData) {
-    const info = pageData.nicoliveInfo;
-    const { id, name } = info.provider;
-    if (id == null) return;
-
-    upsertUser(
-      NicoliveUser.create(id, false, name, undefined, info.provider.type),
-      ""
-    );
-  }
-
   private createMessage({ meta, payload }: dwango.ChunkedMessage) {
     if (meta == null) return;
     const messageId = meta.id;
     const time = timeString(
       timestampToMs(meta.at!) - this.wsServerConnector!.getLatestSchedule().begin.getTime()
     );
-    const builder = NicoliveMessage.builder(messageId, this.liveId, time);
+    const builder = NicoliveMessage.builder(messageId, this.connectionId, time);
     return createMessage(payload, builder, this.pageData!.nicoliveInfo.provider.id);
   }
 
@@ -504,7 +502,8 @@ class Connector {
 }
 
 /**
- * ユーザー情報を更新する
+ * ユーザー情報を更新する\
+ * 対象は `NceUserStore` `StorageUserStore` の `nicolive`
  * @param user 更新するユーザー
  * @param comment コメント
  * @param no コメント番号
@@ -557,7 +556,8 @@ function createMessage(
 
       //  この代入は user:null だった場合にも $state である NceUserStore.nicolive.users から参照を取るため
       user = upsertUser(user, data.value.content, data.value.no);
-      return builder.user(data.value.content, user, is184, data.value.no);
+      const message = builder.user(data.value.content, user, is184, data.value.no);
+      return message;
     } else {
       let content: string;
       let type: SystemMessageType;
@@ -624,6 +624,15 @@ function createMessage(
     }
   } else
     return;
+}
+
+function createOwner(pageData: NicolivePageData) {
+  const info = pageData.nicoliveInfo;
+  const { id, name } = info.provider;
+  if (id == null) return;
+
+  const owner = NicoliveUser.create(id, false, name, undefined, info.provider.type);
+  upsertUser(owner, "");
 }
 
 /**

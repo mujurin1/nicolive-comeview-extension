@@ -12,10 +12,10 @@ export function speach(message: NceMessage) {
 
   let name: string | undefined;
   if (message.kind !== "system") {
-    const storeUser = message.extUser.storageUser;
+    const storeUser = message.user.storageUser;
     if (SettingStore.state.general.useYobina && storeUser.yobina != null) name = storeUser.yobina;
     else if (SettingStore.state.yomiage.speachNames.コテハン && SettingStore.state.general.useKotehan && storeUser.kotehan != null) name = storeUser.kotehan;
-    else if (SettingStore.state.yomiage.speachNames.コメ番 && SettingStore.state.general.nameToNo && message.extUser?.noName184 != null) name = message.extUser.noName184;
+    else if (SettingStore.state.yomiage.speachNames.コメ番 && SettingStore.state.general.nameToNo && message.user?.noName184 != null) name = message.user.noName184;
     else if (SettingStore.state.yomiage.speachNames.ユーザー名 && storeUser.name != null) name = storeUser.name;
   }
 

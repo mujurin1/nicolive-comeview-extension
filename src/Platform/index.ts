@@ -12,9 +12,9 @@ import type { NicoliveMessage, NicoliveUser } from "./Nicolive.svelte";
  */
 export const PlatformsId = {
   /**
-   * 拡張機能によるメッセージ
+   * 拡張機能による汎用メッセージ
    */
-  extention: "extention",
+  nce: "nce",
   /**
    * ニコ生
    */
@@ -30,73 +30,75 @@ export type NceMessage<P extends PlatformsId = PlatformsId> =
   (ExtentionMessage | NicoliveMessage) & { platformId: P; };
 
 
-/** 放送サイト毎に実装する必要のあるユーザーインターフェース */
+/**
+ * 共通のユーザーインターフェース
+ */
 export interface NceUserType<PlatformId extends PlatformsId = PlatformsId> {
-  platformId: PlatformId;
+  readonly platformId: PlatformId;
   /**
    * ストレージのユーザー情報\
    * 実体は`StorageUserStore`と共有している\
    * `StorageUser`に存在する情報は`NceUserType`で定義しない (二重管理になるため)
    */
   storageUser: StorageUser;
+
+  iconUrl: string | undefined;
 }
+
 /** メッセージ投稿者の種別 */
 export type ExtUserKind = "system" | "owner" | "user";
-/** 放送サイト毎に実装する必要のあるコメントインターフェース */
+/**
+ * 共通のメッセージインターフェース
+ */
 export type ExtMessageType<
   PlatformId extends PlatformsId = PlatformsId,
   UserKind extends ExtUserKind = ExtUserKind,
 > =
   {
-    platformId: PlatformId;
+    readonly platformId: PlatformId;
     /**
-     * 全てのコメントで一意なID\
-     * 実際の値は`platformId#messageId`で統一する
-     * 
-     * 同じ放送サイトで複数の放送でこの値は重複することを許容する
+     * 全てのメッセージで一意なID\
+     * 実際の値は`connectionId#messageId`で統一する
      */
-    id: string;
+    readonly id: `${string}#${string}`;
     /**
-     * このメッセージを受信した放送のID\
-     * 別放送サイトとは被っても良い
+     * このメッセージを受信した接続のID\
+     * `NceConnection.connectionId`
      */
-    liveId: string;
+    readonly connectionId: string;
     /**
-     * 放送毎のメッセージID\
-     * 別放送サイトとは被っても良い
+     * 放送内で固有のメッセージID\
+     * 同じ接続内では重複しない
      */
-    messageId: string;
+    readonly messageId: string;
 
-    iconUrl: string | undefined;
-    time: string | undefined;
-    content: string;
+    readonly time: string | undefined;
+    readonly content: string;
 
+    /** メッセージに含まれるURL */
+    readonly link: string | undefined;
+    /** シャープを含むメッセージか */
+    readonly includeSharp: boolean;
     /**
-     * コメントに含まれるURL
-     */
-    link: string | undefined;
-    /**
-     * シャープを含むコメントか
-     */
-    includeSharp: boolean;
-    /**
-     * コメントに固有な表示名\
+     * メッセージに固有な表示名\
      * これが`undefined`ならユーザー名などのユーザーに固有な名前が表示される
      */
-    tempName: string | undefined;
+    readonly tempName: string | undefined;
   } & (
     UserKind extends "system" ? {
-      kind: UserKind;
-      includeSharp: false;
+      readonly kind: UserKind;
+      readonly includeSharp: false;
     }
     : UserKind extends "owner" ? {
-      kind: UserKind;
-      extUser: NceUser & { platformId: PlatformId; };
-      includeSharp: false;
+      readonly kind: UserKind;
+      readonly user: NceUser & { readonly platformId: PlatformId; };
+      readonly includeSharp: false;
     }
     : UserKind extends "user" ? {
-      kind: UserKind;
-      extUser: NceUser & { platformId: PlatformId; };
+      readonly kind: UserKind;
+      readonly user: NceUser & { readonly platformId: PlatformId; };
+      /** 初コメか */
+      readonly isFirstComment: boolean;
     }
     : never
   );

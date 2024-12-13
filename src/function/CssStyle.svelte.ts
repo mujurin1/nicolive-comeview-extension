@@ -18,7 +18,7 @@ export type StyleNames = keyof typeof styles;
 
 export function getCssClassNameFromMessage(message: NicoliveMessage): string {
   if (message.kind === "system") return "cm-system";
-  return getCssClassNameFromUserId(message.extUser.storageUser.id);
+  return getCssClassNameFromUserId(message.user.storageUser.id);
 }
 
 export function getCssClassNameFromUserId(userId: string): string {

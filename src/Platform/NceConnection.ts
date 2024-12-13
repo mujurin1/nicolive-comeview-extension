@@ -1,4 +1,4 @@
-import type { NceUser, PlatformsId } from ".";
+import type { NceMessage, NceUser, PlatformsId } from ".";
 
 export const NceConnectionState = {
   /** 未接続 */
@@ -14,15 +14,41 @@ export const NceConnectionState = {
 } as const;
 export type NceConnectionState = keyof typeof NceConnectionState;
 
+/**
+ * 接続毎の設定
+ */
+export interface NceConnectionSetting {
+  /**
+   * メッセージを読み上げるか (この接続の受信したメッセージのみに関係する)\
+   * 全体で読み上げOFFならこの値に依らず読み上げない
+   */
+  isSpeak: boolean;
+  /**
+   * コメジェネに送信するか (この接続の受信したメッセージのみに関係する)
+   * コメジェネはまだ他に設定あるかも。それならObjectにするかな
+   */
+  // useComejene: boolean;
+}
 
 /**
  * 放送サイトと接続する
+ * 
+ * このインターフェースは基底クラスにして継承すると、
+ * 各実装で重複するコードを纏められる\
+ * と思うけど、今はすべきでないと思うのでやらない
  */
 export interface NceConnection<P extends PlatformsId = PlatformsId> {
   /** 接続毎に一意なID */
   readonly connectionId: string;
   /** 接続状態 */
   readonly state: NceConnectionState;
+  /** 接続設定 */
+  readonly setting: NceConnectionSetting;
+  /**
+   * この接続で受信したメッセージ一覧\
+   * 各メッセージの実体は`NceMessageStore`と共有している
+   */
+  readonly messages: NceMessage<P>[];
   /** 過去コメントを取得可能か (取得出来る過去コメントがあるか) */
   readonly canFetchBackward: boolean;
   /** 過去コメントを取得中か */
@@ -66,21 +92,8 @@ export interface NceConnection<P extends PlatformsId = PlatformsId> {
   // 
 
   // /**
-  //  * この接続でのメッセージ一覧\
-  //  * 各メッセージの実体は`NceMessageStore`と共有している
-  //  */
-  // readonly messages: NceMessage<P>[];
-
-  // /**
   //  * この接続を削除する\
   //  * この接続のメッセージも削除するなど用
   //  */
   // dispose(): void;
 }
-
-export interface NceMessagePost<P extends PlatformsId = PlatformsId> {
-  postMessage(message: string): Promise<void>;
-  postMessageOwner(message: string): Promise<void>;
-}
-
-

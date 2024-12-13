@@ -1,4 +1,4 @@
-import { type IEventEmitter, EventEmitter } from "../lib/EventEmitter";
+import { EventEmitter, type IEventEmitter } from "@mujurin/nicolive-api-ts";
 import { storages } from "../lib/Storage";
 import type { PlatformsId } from "../Platform";
 import type { DeepReadonly } from "../utils";
@@ -36,13 +36,23 @@ export interface StorageUserStore {
   readonly users: DeepReadonly<{ [K in PlatformsId]: Record<string, StorageUser> }>;
 
   readonly nicolive: PlatformStorageUserStore;
-  readonly extention: PlatformStorageUserStore;
+  readonly nce: PlatformStorageUserStore;
 }
 
 export interface PlatformStorageUserStore {
   readonly users: Record<string, StorageUser>;
   readonly updated: IEventEmitter<StorageUserUpdate>;
+  /**
+   * ユーザー情報を更新する\
+   * ユーザーの存在に関わらずストレージの更新イベントを呼び出す
+   * @param user 更新するユーザー
+   */
   upsert(user: StorageUser): void;
+  /**
+   * ユーザー情報を削除する\
+   * ストレージの削除イベントを呼び出す
+   * @param userId 削除するユーザー
+   */
   remove(userId: string): void;
 }
 
@@ -50,7 +60,7 @@ export interface PlatformStorageUserStore {
 export const StorageUserStore: StorageUserStore = (() => {
   const users = $state<{ readonly [K in PlatformsId]: Record<string, StorageUser> }>({
     nicolive: {},
-    extention: {},
+    nce: {},
   });
 
 
@@ -118,7 +128,7 @@ export const StorageUserStore: StorageUserStore = (() => {
   const userStore: StorageUserStore = {
     get users() { return users; },
     nicolive: createPlatformStore("nicolive"),
-    extention: createPlatformStore("extention"),
+    nce: createPlatformStore("nce"),
   };
 
   return userStore;

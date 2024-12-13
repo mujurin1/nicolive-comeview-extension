@@ -41,6 +41,7 @@ export interface NicoliveMessageUser extends ExtMessageType<"nicolive", "user"> 
 
 export interface NicoliveUser extends NceUserType<"nicolive"> {
   providerType: NicoliveInfoProviderType;
+  /** 初コメの番号 */
   firstNo: number | undefined;
   is184: boolean;
   /** 184のコメ番名. 184のみ値が入る */
@@ -51,85 +52,83 @@ export type NicoliveMessageBuilder = ReturnType<typeof NicoliveMessage.builder>;
 export const NicoliveMessage = {
   builder: (
     messageId: string,
-    liveId: string,
+    connectionId: string,
     time: string,
   ) => ({
     system: (content: string, systemMessageType: SystemMessageType, link?: string) =>
-      NicoliveMessage.system(messageId, liveId, time, content, link, systemMessageType),
+      NicoliveMessage.system(messageId, connectionId, time, content, link, systemMessageType),
     owner: (content: string, user: NicoliveUser, name?: string, link?: string) =>
-      NicoliveMessage.owner(messageId, liveId, time, content, link, user, name),
+      NicoliveMessage.owner(messageId, connectionId, time, content, link, user, name),
     user: (content: string, user: NicoliveUser, is184: boolean, no: number | undefined, link?: string) =>
-      NicoliveMessage.user(messageId, liveId, time, content, link, user, is184, no),
+      NicoliveMessage.user(messageId, connectionId, time, content, link, user, is184, no),
   }),
   system: (
     messageId: string,
-    liveId: string,
+    connectionId: string,
     time: string,
     content: string,
     link: string | undefined,
     systemMessageType: SystemMessageType,
-  ): NicoliveMessage => ({
+  ): NicoliveMessageSystem => ({
     platformId: "nicolive",
     id: `nicolive#${messageId}`,
     messageId,
-    liveId,
+    connectionId,
     kind: "system",
     time,
     content,
     link: link ?? getLink(content),
     systemMessageType,
-    iconUrl: undefined,
     includeSharp: false,
     tempName: undefined,
   }),
   owner: (
     messageId: string,
-    liveId: string,
+    connectionId: string,
     time: string,
     content: string,
     link: string | undefined,
-    extUser: NicoliveUser,
+    user: NicoliveUser,
     name: string | undefined,
-  ): NicoliveMessage => ({
+  ): NicoliveMessageOwner => ({
     platformId: "nicolive",
     id: `nicolive#${messageId}`,
     messageId,
-    liveId,
+    connectionId,
     kind: "owner",
     time,
     content,
     link: link ?? getLink(content),
-    extUser,
-    iconUrl: getNicoliveIconUrl(extUser.storageUser.id, false, extUser.providerType),
+    user,
     no: undefined,
     includeSharp: false,
     tempName: name,
   }),
   user: (
     messageId: string,
-    liveId: string,
+    connectionId: string,
     time: string,
     content: string,
     link: string | undefined,
-    extUser: NicoliveUser,
+    user: NicoliveUser,
     is184: boolean,
     no: number | undefined,
-  ): NicoliveMessage => ({
+  ): NicoliveMessageUser => ({
     platformId: "nicolive",
     id: `nicolive#${messageId}`,
     messageId,
-    liveId,
+    connectionId,
     kind: "user",
     time,
     content,
     is184,
     no,
     link: link ?? getLink(content),
-    extUser,
-    iconUrl: getNicoliveIconUrl(extUser.storageUser.id, is184),
+    user,
     includeSharp: testIncludeSharp(content),
     tempName: undefined,
-  })
+    get isFirstComment() { return no != null && user.firstNo === no; },
+  }),
 } as const;
 
 
@@ -143,6 +142,7 @@ export const NicoliveUser = {
   ): NicoliveUser => ({
     providerType,
     platformId: PlatformsId.nicolive,
+    iconUrl: getNicoliveIconUrl(userId, is184),
     storageUser: {
       id: userId,
       name: name,

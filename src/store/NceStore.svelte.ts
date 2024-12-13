@@ -5,7 +5,6 @@ const _messages = $state<NceMessage[]>([]);
 export const NceMessageStore = {
   get messages() { return _messages; },
 
-  add: (message: NceMessage) => _messages.push(message),
   remove: (messageId: string): boolean => {
     const index = _messages.findIndex(message => message.id === messageId);
     if (index === -1) return false;
@@ -23,15 +22,15 @@ export const NceMessageStore = {
 export type PlatformId_User = NceUser["platformId"];
 export const NceUserStore = (() => {
   type UserRecord = { readonly [K in PlatformId_User]: Record<string, NceUser<K>> };
-  interface PlatformUserStore<ID extends PlatformId_User> {
-    readonly users: Record<string, NceUser<ID>>;
+  interface PlatformUserStore<P extends PlatformId_User> {
+    readonly users: Record<string, NceUser<P>>;
     /**
      * ユーザーを追加する\
      * すでに存在していた場合は何もしない
      * @returns `NceUserStore.users`から取り出したユーザー
      */
-    add(user: NceUser<ID>): NceUser<ID>;
-    get(userId: string | undefined): NceUser<ID> | undefined;
+    add(user: NceUser<P>): NceUser<P>;
+    get(userId: string | undefined): NceUser<P> | undefined;
     has(userId: string | undefined): boolean;
     remove(userId: string): void;
   }
@@ -46,8 +45,8 @@ export const NceUserStore = (() => {
   } as const;
 
 
-  function createPlatformUserStore<ID extends PlatformId_User>(platformId: ID): PlatformUserStore<ID> {
-    const users = _users[platformId] as Record<string, NceUser<ID>>;
+  function createPlatformUserStore<P extends PlatformId_User>(platformId: P): PlatformUserStore<P> {
+    const users = _users[platformId] as Record<string, NceUser<P>>;
     return {
       users,
 

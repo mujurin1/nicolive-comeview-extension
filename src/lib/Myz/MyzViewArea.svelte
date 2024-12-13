@@ -28,9 +28,6 @@
 </div>
 
 <style>
-  .myz-area {
-  }
-
   .myz-area-header-container {
     display: flex;
     align-items: center;

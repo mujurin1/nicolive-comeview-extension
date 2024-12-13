@@ -1,7 +1,7 @@
 import type { ExtMessageType } from ".";
 import { NceMessageStore } from "../store/NceStore.svelte";
 
-export type ExtentionMessage = ExtMessageType<"extention", "system"> & ExtentionMessageOption;
+export type ExtentionMessage = ExtMessageType<"nce", "system"> & ExtentionMessageOption;
 interface ExtentionMessageOption {
   expandMessage?: string;
   input?: {
@@ -26,14 +26,13 @@ export const ExtMessenger = {
     const message: ExtentionMessage = {
       ...opsions,
 
-      id: `extention#${NceMessageStore.messages.length + 1}`,
-      platformId: "extention",
+      id: `nce#${NceMessageStore.messages.length + 1}`,
+      platformId: "nce",
       messageId: (NceMessageStore.messages.length + 1) + "",
       kind: "system",
-      liveId: "extention",
+      connectionId: "nce",
 
       content,
-      iconUrl: undefined,
       // time: new Date().toLocaleTimeString("ja-JP"),
       time: undefined,
 
@@ -41,7 +40,7 @@ export const ExtMessenger = {
       includeSharp: false,
       tempName: "ｼｽﾃﾑ",
     };
-    NceMessageStore.add(message);
+    NceMessageStore.messages.push(message);
 
     return message.id;
   },
