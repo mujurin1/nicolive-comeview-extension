@@ -2,7 +2,7 @@ export * from "./OBS";
 export * from "./type";
 
 
-import type { Template } from "../../comejene_edit/Template/Templates";
+import type { ComejeneTemplate } from "../../comejene_edit/Template/ComejeneTemplate";
 import type { ReceiveContents } from "../type";
 import { ComejeneEnv_BrowserEx } from "./BrowserEx";
 import { ComejeneEnv_OBS } from "./OBS";
@@ -31,7 +31,7 @@ export class ComejeneSenderController {
   public senders = new Set<ComejeneSender>();
 
   constructor(
-    private readonly getTemplate: () => Template,
+    private readonly getTemplate: () => ComejeneTemplate,
   ) { }
 
   public initialize<SenderOptions extends any[]>(senders: SenderSets<SenderOptions>) {

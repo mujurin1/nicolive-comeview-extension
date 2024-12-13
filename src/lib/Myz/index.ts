@@ -4,7 +4,7 @@ interface MyzBase<TYPE extends MyzObjectType = MyzObjectType> { type: TYPE; disp
 export type MyzState<BLOCK extends { block: MyzObjects; } = MyzBlock> = {
   -readonly [K in keyof BLOCK["block"]]: BLOCK["block"][K] extends (infer T) ?
   T extends MyzBlock ? MyzState<T>
-  : T extends MyzSwitch ? InferSwitchState<T>
+  : T extends MyzSwitch<infer S, any> ? S
   : T extends MyzValue ? MyzStateExtra<T> : never : never;
 };
 type MyzStateExtra<T extends MyzValue> =
@@ -13,7 +13,7 @@ type MyzStateExtra<T extends MyzValue> =
   : MyzValueState<T>;
 
 type MyzValueState<T extends MyzValue> =
-  T extends MyzSwitch ? InferSwitchState<T>
+  T extends MyzSwitch<infer S, any> ? S
   : T extends MyzString ? string
   : T extends MyzNumber ? number
   : T extends MyzBoolean ? boolean
@@ -55,8 +55,8 @@ export interface MyzSwitch<
   BLOCKS extends Record<string, MyzSwitchBlock<STATE>> = Record<string, MyzSwitchBlock<STATE>>,
 > extends MyzBase<"switch"> {
   blocks: BLOCKS;
+  defaultSelectKey?: keyof BLOCKS;
 }
-type InferSwitchState<Switch extends MyzSwitch> = Switch extends MyzSwitch<infer S, any> ? S : never;
 //#region SWITCH
 interface MyzSwitchBlock<
   STATE extends MyzState = MyzState,
@@ -65,12 +65,16 @@ interface MyzSwitchBlock<
 > {
   key: KEY;
   block: BLOCK;
-  bind: (values: MyzState<{ block: BLOCK; }>) => STATE;
-  toBlockState: (state: STATE) => MyzState<{ block: BLOCK; }>;
+  // MEMO: 「MyzSwitchBlockを実装した型」を「MyzSwitchBlock」にダウンキャストした場合に
+  //       関数の引数の型は不正なキャストが発生するため、正しい型をつけることが不可能になっている
+  // bind: (value: MyzState<{ block: BLOCK; }>) => STATE;
+  // toBlockState: (state: STATE) => MyzState<{ block: BLOCK; }>;
+  bind: (value: unknown) => STATE;
+  toBlockState: (state: unknown) => MyzState<{ block: BLOCK; }>;
 }
 interface MysSwitchBuilder<
   STATE extends MyzState,
-  ITEMS extends Record<string, MyzSwitchBlock<STATE>>,
+  BLOCKS extends Record<string, MyzSwitchBlock<STATE>>,
 > {
   addBlock: <KEY extends string, BLOCK extends MyzObjects>(
     key: KEY,
@@ -79,9 +83,9 @@ interface MysSwitchBuilder<
     toBlockState: (state: STATE) => MyzState<{ block: BLOCK; }>,
   ) => MysSwitchBuilder<
     STATE,
-    ITEMS & { KEY: MyzSwitchBlock<STATE, KEY, BLOCK>; }
+    BLOCKS & { [K in KEY]: MyzSwitchBlock<STATE, KEY, BLOCK>; }
   >;
-  build: () => MyzSwitch<STATE, ITEMS>;
+  build: (defaultSelectKey?: keyof BLOCKS) => MyzSwitch<STATE, BLOCKS>;
 }
 //#endregion SWITCH
 //#endregion MyzRooter
@@ -142,11 +146,11 @@ export const myz = {
           key,
           block,
           bind: bind as any,
-          toBlockState,
+          toBlockState: toBlockState as any,
         };
         return builder as any;
       },
-      build: () => ({ ...toBase("switch", displayOrParams), blocks }),
+      build: defaultSelectKey => ({ ...toBase("switch", displayOrParams), blocks, defaultSelectKey }),
     };
 
     return builder;

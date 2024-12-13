@@ -1,9 +1,9 @@
 import { MessageContentLayout } from "../../comejene_share";
 
-export const MessageContainerTemplates = {
-  "L:I-{N_C}": () => MessageContentLayout.new(
+export const ComejeneTemplates_MessageContainer = {
+  "I-{N_/C}": () => MessageContentLayout.new(
     ["FIT", "FLEX"],
-    [50, "FIT", "FLEX"],
+    ["FIT", "FIT", "FLEX"],
     {
       icon: {
         row: { start: 1, end: 2 },
@@ -19,7 +19,7 @@ export const MessageContainerTemplates = {
       },
     },
   ),
-  "L:I-N-C": () => MessageContentLayout.new(
+  "I-N-C": () => MessageContentLayout.new(
     ["FLEX"],
     ["FIT", "FIT", "FLEX"],
     {
@@ -39,4 +39,4 @@ export const MessageContainerTemplates = {
   ),
 } as const satisfies Record<string, () => MessageContentLayout>;
 
-export const MessageContainerTemplateNames = Object.keys(MessageContainerTemplates) as (keyof typeof MessageContainerTemplates)[];
+export const MessageContainerTemplateNames = Object.keys(ComejeneTemplates_MessageContainer) as (keyof typeof ComejeneTemplates_MessageContainer)[];

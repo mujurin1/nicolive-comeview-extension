@@ -24,16 +24,19 @@
 
   const keys = Object.keys(_switch.blocks);
   let selectKey = notifierStore(
-    _switch.blocks[keys[0]].key,
+    _switch.blocks[_switch.defaultSelectKey ?? keys[0]].key,
     () => {
       itemState.state = _switch.blocks[selectKey.state].toBlockState(style);
     },
     () => _switch.blocks[keys[0]].key,
   );
   let selectItem = $derived(_switch.blocks[selectKey.state]);
-  let itemState = notifierStore(_switch.blocks[selectKey.state].toBlockState(style), () => {
-    style = selectItem.bind(itemState.state);
-  });
+  let itemState = notifierStore(
+    _switch.blocks[selectKey.state].toBlockState(style), //
+    () => {
+      style = selectItem.bind(itemState.state);
+    },
+  );
 </script>
 
 <div class="myz-switch">

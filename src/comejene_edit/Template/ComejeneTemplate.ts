@@ -1,8 +1,8 @@
 import { MessageContentsStyle, type MessageContent, type MotionNames, type MotionSettings } from "../../comejene_share";
-import { MessageContainerTemplates } from "./MessageContainer_Templates";
+import { ComejeneTemplates_MessageContainer } from "./ComejeneTemplates_MessageContainer";
 
 
-export interface Template<Name extends MotionNames = MotionNames> {
+export interface ComejeneTemplate<Name extends MotionNames = MotionNames> {
   motion: {
     name: Name;
     setting: MotionSettings[Name];
@@ -10,25 +10,25 @@ export interface Template<Name extends MotionNames = MotionNames> {
   style: MessageContent,
 }
 
-export const Templates = {
-  デバッグ用: (): Template<"sample"> => ({
+export const ComejeneTemplates = {
+  デバッグ用: (): ComejeneTemplate<"sample"> => ({
     motion: {
       name: "sample",
       setting: {},
     },
     style: {
-      ...Templates.縦並び().style,
-      containerLayout: MessageContainerTemplates["L:I-N-C"](),
+      ...ComejeneTemplates.縦並び().style,
+      containerLayout: ComejeneTemplates_MessageContainer["I-N-C"](),
     },
   }),
-  横並び: (): Template<"stack"> => {
-    const v = Templates.縦並び();
-    v.style.containerLayout = MessageContainerTemplates["L:I-N-C"]();
+  横並び: (): ComejeneTemplate<"stack"> => {
+    const v = ComejeneTemplates.縦並び();
+    v.style.containerLayout = ComejeneTemplates_MessageContainer["I-N-C"]();
     v.motion.setting.isVertical = false;
     v.motion.setting.verticalGrow = false;
     return v;
   },
-  縦並び: (): Template<"stack"> => ({
+  縦並び: (): ComejeneTemplate<"stack"> => ({
     motion: {
       name: "stack",
       setting: {
@@ -52,33 +52,37 @@ export const Templates = {
           bottom: 5,
         },
       },
-      containerLayout: MessageContainerTemplates["L:I-{N_C}"](),
+      containerLayout: ComejeneTemplates_MessageContainer["I-{N_/C}"](),
       contentsStyle: MessageContentsStyle.new(
         {
           position: { x: "center", y: "center" },
+          backColor: "#00000000",
+          padding: { top: 0, right: 5, bottom: 0, left: 5, },
           imgSize: { width: 30, height: 30 }
         },
         {
-          position: { x: "start", y: "center" },
+          position: { x: "center", y: "center" },
+          backColor: "#00000000",
+          padding: { top: 0, right: 5, bottom: 0, left: 5, },
           textSize: 13,
           textColor: "#000000",
-          backColor: "#00000000",
           banNewLine: true,
           noNewLine: true,
         },
         {
           position: { x: "center", y: "center" },
+          backColor: "#00000000",
+          padding: { top: 0, right: 0, bottom: 0, left: 0, },
           textSize: 13,
           textColor: "#000000",
-          backColor: "#00000000",
           banNewLine: false,
           noNewLine: true,
         },
       ),
     }
   }),
-} as const satisfies Record<string, () => Template>;
+} as const satisfies Record<string, () => ComejeneTemplate>;
 
 
-export const TemplateNames = Object.keys(Templates) as TemplateName[];
-export type TemplateName = keyof typeof Templates;
+export const TemplateNames = Object.keys(ComejeneTemplates) as TemplateName[];
+export type TemplateName = keyof typeof ComejeneTemplates;

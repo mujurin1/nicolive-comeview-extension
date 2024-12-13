@@ -9,7 +9,7 @@ export const MessageFrameState = {
       ".message-container": {
         backgroundColor: style.backColor,
         border: "1px solid purple",
-        padding: padToCss(style.padding),
+        padding: paddingToCss(style.padding),
       },
     };
 
@@ -17,7 +17,7 @@ export const MessageFrameState = {
   },
 } as const;
 
-function padToCss(padding: MessageFrameState["padding"]): string {
+export function paddingToCss(padding: MessageFrameState["padding"]): string {
   return [padding.top, padding.right, padding.bottom, padding.left]
     .map(p => `${p}px`)
     .join(" ");

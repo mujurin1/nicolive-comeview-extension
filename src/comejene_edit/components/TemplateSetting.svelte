@@ -1,6 +1,6 @@
 <script lang="ts">
   import { notifierStore } from "../../lib/CustomStore.svelte";
-  import { type Template } from "../Template/Templates";
+  import { type ComejeneTemplate } from "../Template/ComejeneTemplate";
   import TemplateSetting_ from "./TemplateSetting_.svelte";
 
   let {
@@ -8,7 +8,7 @@
     resetMotionSetting,
     resetMessageContent: resetMessageContent,
   }: {
-    template: Template;
+    template: ComejeneTemplate;
     resetMotionSetting: () => void;
     resetMessageContent: () => void;
   } = $props();

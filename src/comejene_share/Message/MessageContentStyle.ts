@@ -3,6 +3,7 @@ import { MessageContentToStyleType, type MessageContentFrame, type MessageConten
 import { myz } from "../../lib/Myz";
 import type { CustomCss } from "../func";
 import { FlexPosition, MessageContentRoot, type MessageContent } from "./MessageContent";
+import { paddingToCss } from "./MessageFrame";
 
 type MessageContentStyle = MessageContentStyle_Text | MessageContentStyle_Img;
 type MessageContentStyle_Text = MessageContent<typeof MessageContentStyleRootSet.text>;
@@ -14,7 +15,6 @@ export const MessageContentStyleRootSet = {
     {
       textSize: myz.number({ display: "文字サイズ", min: 10 }),
       textColor: myz.color("文字色"),
-      backColor: myz.color("背景色", "optional"),
       banNewLine: myz.boolean("改行禁止"),
       // TODO: こういう風に書きたい. controller を介することで依存関係を整理する
       // changed: (newValue, controller) => {
@@ -57,6 +57,8 @@ export const MessageContentStyle = {
   asCss_Base: (style: MessageContent): CSSObject => {
     return {
       justifyContent: FlexPosition.asCss(style.position.x),
+      backgroundColor: style.backColor,
+      padding: paddingToCss(style.padding),
       alignItems: FlexPosition.asCss(style.position.y),
       overflow: "clip",
     };
@@ -67,7 +69,6 @@ export const MessageContentStyle = {
     cssObj[".content"] = {
       fontSize: style.textSize,
       color: style.textColor,
-      background: style.backColor,
       whiteSpace: style.banNewLine ? "nowrap" : style.noNewLine ? "normal" : "pre-wrap",
     };
     return cssObj;

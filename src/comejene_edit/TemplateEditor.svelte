@@ -11,16 +11,21 @@
   import { notifierStore } from "../lib/CustomStore.svelte";
   import MyzView from "../lib/Myz/MyzView.svelte";
   import MyzViewArea from "../lib/Myz/MyzViewArea.svelte";
-  import { TemplateNames, Templates, type Template, type TemplateName } from "./Template/Templates";
+  import {
+    ComejeneTemplates,
+    TemplateNames,
+    type ComejeneTemplate,
+    type TemplateName,
+  } from "./Template/ComejeneTemplate";
   import TemplateSetting from "./components/TemplateSetting.svelte";
   import { getDummyComment } from "./utils";
 
   let templateName = notifierStore<TemplateName>("縦並び", () => {
-    template = Templates[$templateName]();
+    template = ComejeneTemplates[$templateName]();
     senderReset();
   });
 
-  let template = $state<Template>(Templates[$templateName]());
+  let template = $state<ComejeneTemplate>(ComejeneTemplates[$templateName]());
 
   let motionDefinition = $derived<MotionDefinition<MotionNames>>(
     MotionDefinitions[template.motion.name],
