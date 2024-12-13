@@ -40,7 +40,7 @@ export function notifierStore<T>(
           untrack(() => {
             state = newState;
             w.set(newState);
-            changeBind();
+            // MEMO: ここで changeBind を呼び出すとビュー外での更新で変化が発生するためダメ
           });
         });
       }
