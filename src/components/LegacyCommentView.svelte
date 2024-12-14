@@ -9,7 +9,7 @@
 <script lang="ts">
   import { tick } from "svelte";
   import { getCssClassNameFromMessage } from "../function/CssStyle.svelte";
-  import { type ExtentionMessage, type NceUserType, type NicoliveMessage, type NicoliveUser } from "../Platform";
+  import { getNicoliveUserName, type ExtentionMessage, type NceUserType, type NicoliveMessage } from "../Platform";
   import { NceMessageStore } from "../store/NceStore.svelte";
   import { checkVisibleYomiage_Visible, SettingStore } from "../store/SettingStore.svelte";
   import LegacyCommentViewItem from "./LegacyCommentViewItem.svelte";
@@ -28,16 +28,6 @@
       });
     }
   });
-
-  function getNicoliveUserName(user: NicoliveUser) {
-    if(SettingStore.state.general.useKotehan && user.storageUser.kotehan != null)
-      return user.storageUser.kotehan;
-    if(user.storageUser.name != null)
-      return user.storageUser.name;
-    if(SettingStore.state.general.nameToNo && user.noName184 != null)
-      return user.noName184;
-    return user.storageUser.id;
-  }
 
   function checkVisible(message: NicoliveMessage): boolean {
     if (message.kind === "owner") return true;

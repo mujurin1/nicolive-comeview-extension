@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import MessageContainer from "../../Message/MessageContainer.svelte";
+  import ComejeneMessageContainer from "../../Message/ComejeneMessageContainer.svelte";
   import { SampleMotionState, type SampleMotionSetting } from "./SampleState.svelte";
 
   let {
@@ -18,6 +18,6 @@
 
 <div class="comejene-container">
   {#each state.messages as message (message)}
-    <MessageContainer {message} />
+    <ComejeneMessageContainer {message} />
   {/each}
 </div>

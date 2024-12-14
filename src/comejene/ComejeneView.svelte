@@ -1,6 +1,6 @@
-<script generics="Setting extends MotionSetting, State extends MotionState" lang="ts">
-  import { type MotionState } from "../comejene_share";
-  import type { MotionSetting } from "../comejene_share/Motion/Interface";
+<script generics="Setting extends ComejeneMotionSetting, State extends ComejeneMotionState" lang="ts">
+  import { type ComejeneMotionState } from "../comejene_share";
+  import type { ComejeneMotionSetting } from "../comejene_share/Motion/type";
   import type { ComejeneViewState } from "./ComejeneViewState.svelte";
 
   let { viewState }: { viewState: ComejeneViewState<Setting, State> } = $props();

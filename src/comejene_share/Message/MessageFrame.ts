@@ -1,63 +1,84 @@
+import { css } from "@emotion/css";
 import type { CSSObject } from "@emotion/css/create-instance";
-import { myz, type MyzState } from "../../lib/Myz";
 import type { CustomCss } from "../func";
+import type { ComejeneContentKeys } from "./ContentType";
 
-export type MessageFrameState = MyzState<typeof MessageFrameRoot>;
-export const MessageFrameState = {
-  updateCss: (customCss: CustomCss, style: MessageFrameState): void => {
-    const baseCss: CSSObject = {
-      ".message-container": {
-        backgroundColor: style.backColor,
-        border: "1px solid purple",
-        padding: paddingToCss(style.padding),
+export interface ComejeneMessageFrame {
+  rows: ComejeneMessageGridSize[];
+  cols: ComejeneMessageGridSize[];
+  contents: Record<ComejeneContentKeys, ContentFrameLayout | undefined>;
+}
+
+export const ComejeneMessageFrame = {
+  new: (
+    rows: ComejeneMessageGridSize[],
+    cols: ComejeneMessageGridSize[],
+    contents: Record<ComejeneContentKeys, ContentFrameLayout | undefined>,
+  ): ComejeneMessageFrame => ({
+    rows,
+    cols,
+    contents,
+  }),
+  updateCss: (customCss: CustomCss, { rows, cols, contents }: ComejeneMessageFrame): void => {
+    const cssObj: CSSObject = {
+      ".comejene-container": {
+        overflow: "clip",
+        width: "100%",
+        height: "100%",
       },
+
+      ".motion": {},
+      ".content-frame": {
+        display: "flex",
+        flexWrap: "wrap",
+      },
+
+      ".message-container": {
+        display: "grid",
+        gridTemplateRows: rows.map(ComejeneMessageGridSize.asCss).join(" "),
+        gridTemplateColumns: cols.map(ComejeneMessageGridSize.asCss).join(" "),
+      },
+      // .content-frame.フレーム名 は下で追加する
     };
 
-    customCss.updateCss("MessageFrameState", [baseCss]);
+    for (const [frameName, content] of Object.entries(contents)) {
+      if (content == null) {
+        cssObj[`.content-frame.${frameName}`] = { display: "none" };
+      } else {
+        cssObj[`.content-frame.${frameName}`] = {
+          gridRow: GridPoint.asCss(content.row),
+          gridColumn: GridPoint.asCss(content.col),
+        };
+      }
+    }
+
+    css(cssObj);
+    customCss.updateCss("ComejeneMessageFrame", [cssObj]);
+  }
+} as const;
+
+/** number:*px FIT:auto FLEX:1fr */
+type ComejeneMessageGridSize = number | "FIT" | "FLEX";
+const ComejeneMessageGridSize = {
+  asCss: (size: ComejeneMessageGridSize): string => {
+    if (typeof size === "number") return `${size}px`;
+    return size === "FIT" ? "auto" : "1fr";
   },
 } as const;
 
-export function paddingToCss(padding: MessageFrameState["padding"]): string {
-  return [padding.top, padding.right, padding.bottom, padding.left]
-    .map(p => `${p}px`)
-    .join(" ");
+
+interface ContentFrameLayout {
+  row: GridPoint;
+  col: GridPoint;
 }
 
-export const MessageFrameRoot = myz.root({
-  backColor: myz.color("背景色", "optional"),
-  padding: myz.switch<{
-    top: number;
-    right: number;
-    bottom: number;
-    left: number;
-  }>("余白")
-    .addBlock(
-      "上下左右",
-      {
-        padding: myz.number("上下左右"),
-      },
-      ({ padding }) => ({ top: padding, right: padding, bottom: padding, left: padding }),
-      ({ top }) => ({ padding: top }),
-    )
-    .addBlock(
-      "上下と左右",
-      {
-        topBottom: myz.number("上下"),
-        leftRight: myz.number("左右"),
-      },
-      ({ topBottom, leftRight }) => ({ top: topBottom, bottom: topBottom, left: leftRight, right: leftRight }),
-      ({ top, left }) => ({ topBottom: top, leftRight: left }),
-    )
-    .addBlock(
-      "個別",
-      {
-        top: myz.number("上"),
-        bottom: myz.number("下"),
-        left: myz.number("左"),
-        right: myz.number("右"),
-      },
-      values => values,
-      values => values,
-    )
-    .build(),
-});
+interface GridPoint {
+  /** グリッドの座標 (開始位置) */
+  start: number;
+  /** グリッドの座標 (終了位置) */
+  end: number;
+}
+const GridPoint = {
+  // css では半開区間 (終わりを含まない) ので +1 する
+  asCss: (point: GridPoint): string => `${point.start} / ${point.end + 1}`,
+} as const;

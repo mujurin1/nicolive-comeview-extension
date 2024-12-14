@@ -1,30 +1,30 @@
 import { myz, type Ignore, type MyzObjects, type MyzRoot, type MyzState } from "../../lib/Myz";
 import type { CustomCss } from "../func";
-import type { ReceiveContents } from "../type";
+import type { ComejeneContent } from "../type";
 
-export type MotionSettingRoot<R extends MyzObjects = MyzObjects> = MyzRoot<R & Default_Objects>;
-export type MotionSetting<D extends MotionSettingRoot = MotionSettingRoot> = MyzState<D>;
+export type ComejeneMotionSettingRoot<R extends MyzObjects = MyzObjects> = MyzRoot<R & ComejeneMotionDefaultBase>;
+export type ComejeneMotionSetting<D extends ComejeneMotionSettingRoot = ComejeneMotionSettingRoot> = MyzState<D>;
 
 /** 全モーション共通で定義したい設定がある時に備えて */
-const Default_Objects = {
+const ComejeneMotionDefaultBase = {
   // d: myz.block("", {
   //   a: myz.boolean(""),
   // }),
 } as const satisfies MyzObjects;
-type Default_Objects = typeof Default_Objects;
+type ComejeneMotionDefaultBase = typeof ComejeneMotionDefaultBase;
 
-export interface MotionSettingStyle<Root extends MotionSettingRoot> {
+interface ComejeneMotionStyle<Root extends ComejeneMotionSettingRoot> {
   root: Root,
-  updateCss: (customCss: CustomCss, setting: MotionSetting<Root>) => void,
+  updateCss: (customCss: CustomCss, setting: ComejeneMotionSetting<Root>) => void,
 }
 
-export const MotionSettingStyle = {
-  create: <Objects extends Ignore<MyzObjects, Default_Objects>>(
+export const ComejeneMotionStyle = {
+  create: <Objects extends Ignore<MyzObjects, ComejeneMotionDefaultBase>>(
     objects: Objects,
-    updateCss: (customCss: CustomCss, setting: MotionSetting<MotionSettingRoot<Objects>>) => void,
-  ): MotionSettingStyle<MotionSettingRoot<Objects>> => ({
+    updateCss: (customCss: CustomCss, setting: ComejeneMotionSetting<ComejeneMotionSettingRoot<Objects>>) => void,
+  ): ComejeneMotionStyle<ComejeneMotionSettingRoot<Objects>> => ({
     root: myz.root({
-      ...Default_Objects,
+      ...ComejeneMotionDefaultBase,
       ...objects,
     }),
     updateCss,
@@ -35,17 +35,17 @@ export const MotionSettingStyle = {
 /**
  * コメジェネ内で生成して利用するメッセージ
  */
-export interface MotionMessage {
+export interface ComejeneMotionMessage {
   node: HTMLDivElement;
-  readonly contents: ReceiveContents;
+  readonly content: ComejeneContent;
 }
 
 /**
  * モーションの状態
  */
-export interface MotionState<
-  Setting extends MotionSetting = MotionSetting,
-  Message extends MotionMessage = MotionMessage,
+export interface ComejeneMotionState<
+  Setting extends ComejeneMotionSetting = ComejeneMotionSetting,
+  Message extends ComejeneMotionMessage = ComejeneMotionMessage,
 > {
   readonly setting: Setting;
   readonly messages: Message[];
@@ -69,7 +69,7 @@ export interface MotionState<
 
   /**
    * メッセージを追加する
-   * @param contents 受信したコンテンツ
+   * @param content 受信したコンテンツ
    */
-  addMessage(contents: ReceiveContents): Promise<void>;
+  addMessage(content: ComejeneContent): Promise<void>;
 }

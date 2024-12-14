@@ -1,22 +1,22 @@
 import type { CSSObject } from "@emotion/css/create-instance";
 import { tick } from "svelte";
-import type { ReceiveContents } from "../../type";
-import { MotionSettingStyle, type MotionSetting, type MotionState } from "../Interface";
+import type { ComejeneContent } from "../../type";
+import { ComejeneMotionStyle, type ComejeneMotionSetting, type ComejeneMotionState } from "../type";
 import { SampleMotionMessage } from "./SampleMotionMessage.svelte";
 
 
-export type SampleMotionSetting = MotionSetting<typeof SampleMotionSettingStyle.root>;
-export const SampleMotionSettingStyle = MotionSettingStyle.create(
+export type SampleMotionSetting = ComejeneMotionSetting<typeof SampleMotionStyle.root>;
+export const SampleMotionStyle = ComejeneMotionStyle.create(
   {},
   (customCss, _) => {
     const cssObj: CSSObject = {};
 
-    customCss.updateCss("SampleMotionSettingStyle", [cssObj]);
+    customCss.updateCss("SampleMotionStyle", [cssObj]);
   }
 );
 
 
-export class SampleMotionState implements MotionState<
+export class SampleMotionState implements ComejeneMotionState<
   SampleMotionSetting,
   SampleMotionMessage
 > {
@@ -40,8 +40,8 @@ export class SampleMotionState implements MotionState<
 
   public async resetLayout() { }
 
-  public async addMessage(contents: ReceiveContents) {
-    const message = new SampleMotionMessage(contents);
+  public async addMessage(content: ComejeneContent) {
+    const message = new SampleMotionMessage(content);
     this.messages.push(message);
     // await tick するまでは message.node は生成されない
     await tick();

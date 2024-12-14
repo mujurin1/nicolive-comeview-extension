@@ -13,7 +13,10 @@ input[type=radio],
 button,
 select {
   cursor: pointer;
+}
 
+input,
+button {
   &:disabled {
     cursor: not-allowed !important;
   }

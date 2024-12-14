@@ -3,6 +3,7 @@ import { resolve } from "path";
 import { defineConfig } from "vite";
 // import zipPack from "vite-plugin-zip-pack";
 
+// コメジェネビューア用のビルド設定
 export default defineConfig({
   root: "./src/comejene",
 

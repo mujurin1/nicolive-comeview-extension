@@ -1,15 +1,14 @@
 <script lang="ts">
   import {
-    MessageContent,
-    MessageContentFrames,
-    MessageContentStyleRootSet,
-    MessageContentToStyleType,
-    MessageFrameRoot,
-    MotionDefinitions,
-    type MessageContentFrame,
-    type MotionDefinition,
-    type MotionNames,
-    type MotionSetting,
+      ComejeneContentKeyToType,
+      ComejeneContentKeys,
+      ComejeneContentStyleRootSet,
+      ComejeneMessageStyleRoot,
+      ComejeneMotionDefinitions,
+      ComejeneStyle,
+      type ComejeneMotionDefinition,
+      type ComejeneMotionNames,
+      type ComejeneMotionSetting
   } from "../../comejene_share";
   import { notifierStore } from "../../lib/CustomStore.svelte";
   import MyzRootView from "../../lib/Myz/MyzRootView.svelte";
@@ -17,23 +16,23 @@
 
   let {
     motionName,
-    messageContent: _messageContent = $bindable(),
+    comejeneStyle: _comejeneStyle = $bindable(),
     motionSetting: _motionSetting = $bindable(),
   }: {
-    motionName: MotionNames;
-    messageContent: MessageContent;
-    motionSetting: MotionSetting;
+    motionName: ComejeneMotionNames;
+    comejeneStyle: ComejeneStyle;
+    motionSetting: ComejeneMotionSetting;
   } = $props();
 
-  let messageContent = notifierStore(_messageContent, () => {
-    _messageContent = messageContent.state;
+  let comejeneStyle = notifierStore(_comejeneStyle, () => {
+    _comejeneStyle = comejeneStyle.state;
   });
   let motionSetting = notifierStore(_motionSetting, () => {
     _motionSetting = motionSetting.state;
   });
 
-  let motionDefinition = $derived<MotionDefinition<MotionNames>>(MotionDefinitions[motionName]);
-  let selectContent = $state<MessageContentFrame>("message");
+  let motionDefinition = $derived<ComejeneMotionDefinition<ComejeneMotionNames>>(ComejeneMotionDefinitions[motionName]);
+  let selectContent = $state<ComejeneContentKeys>("message");
 </script>
 
 <MyzViewArea title="モーション設定">
@@ -43,15 +42,15 @@
 <MyzViewArea title="メッセージ枠">
   <MyzRootView
     path="message"
-    root={MessageFrameRoot}
-    bind:style={$messageContent.frameSate as any}
+    root={ComejeneMessageStyleRoot}
+    bind:style={$comejeneStyle.frameSate as any}
   />
 </MyzViewArea>
 
 <MyzViewArea title="コンテンツ">
   {#snippet headerItem()}
     <select bind:value={selectContent}>
-      {#each MessageContentFrames as content (content)}
+      {#each ComejeneContentKeys as content (content)}
         <option value={content}>{content}</option>
       {/each}
     </select>
@@ -59,11 +58,11 @@
 
   {@const fr = selectContent}
   {#key fr}
-    {#if $messageContent.contentsStyle[fr] == null}
+    {#if $comejeneStyle.contentsStyle[fr] == null}
       <div>noen</div>
     {:else}
-      {@const root = MessageContentStyleRootSet[MessageContentToStyleType[fr]]}
-      <MyzRootView path="content" {root} bind:style={$messageContent.contentsStyle[fr] as any} />
+      {@const root = ComejeneContentStyleRootSet[ComejeneContentKeyToType[fr]]}
+      <MyzRootView path="content" {root} bind:style={$comejeneStyle.contentsStyle[fr] as any} />
     {/if}
   {/key}
 </MyzViewArea>

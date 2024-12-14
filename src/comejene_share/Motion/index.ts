@@ -1,48 +1,47 @@
-export * from "./Interface";
 export * from "./Sample/SampleMotion.svelte";
 export * from "./Sample/SampleMotionMessage.svelte";
 export * from "./Sample/SampleState.svelte";
 export * from "./Stack/StackMotion.svelte";
 export * from "./Stack/StackMotionMessage.svelte";
 export * from "./Stack/StackState.svelte";
-
+export * from "./type";
 
 import type { Component } from "svelte";
-import type { MotionSetting, MotionState } from "./Interface";
 import SampleMotion from "./Sample/SampleMotion.svelte";
-import { SampleMotionSettingStyle, type SampleMotionSetting } from "./Sample/SampleState.svelte";
+import { SampleMotionStyle, type SampleMotionSetting } from "./Sample/SampleState.svelte";
 import StackMotion from "./Stack/StackMotion.svelte";
-import { StackMotionSettingStyle, type StackMotionSetting } from "./Stack/StackState.svelte";
+import { StackMotionStyle, type StackMotionSetting } from "./Stack/StackState.svelte";
+import type { ComejeneMotionSetting, ComejeneMotionState } from "./type";
 
-export const MotionDefinitions = {
+export const ComejeneMotionDefinitions = {
   sample: {
     name: "sample",
     component: SampleMotion,
-    css: SampleMotionSettingStyle,
+    css: SampleMotionStyle,
   },
   stack: {
     name: "stack",
     component: StackMotion,
-    css: StackMotionSettingStyle,
+    css: StackMotionStyle,
   },
 } as const;
 
-export type MotionNames = "sample" | "stack";
+export type ComejeneMotionNames = "sample" | "stack";
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-export type MotionSettings = {
+export type ComejeneMotionSettings = {
   sample: SampleMotionSetting,
   stack: StackMotionSetting,
 };
 
-export interface MotionDefinition<Name extends MotionNames> {
+export interface ComejeneMotionDefinition<Name extends ComejeneMotionNames> {
   name: Name;
-  component: typeof MotionDefinitions[Name]["component"];
-  css: typeof MotionDefinitions[Name]["css"];
+  component: typeof ComejeneMotionDefinitions[Name]["component"];
+  css: typeof ComejeneMotionDefinitions[Name]["css"];
 }
 
-export type MotionComponent<
-  Setting extends MotionSetting = MotionSetting,
-  State extends MotionState = MotionState<Setting>,
+export type ComejeneMotionComponent<
+  Setting extends ComejeneMotionSetting = ComejeneMotionSetting,
+  State extends ComejeneMotionState = ComejeneMotionState<Setting>,
 > = Component<
   {
     setting: Setting;

@@ -1,13 +1,13 @@
-import { MessageContentsStyle, type MessageContent, type MotionNames, type MotionSettings } from "../../comejene_share";
+import { ComejeneContentStyleSet, type ComejeneMotionNames, type ComejeneMotionSettings, type ComejeneStyle } from "../../comejene_share";
 import { ComejeneTemplates_MessageContainer } from "./ComejeneTemplates_MessageContainer";
 
 
-export interface ComejeneTemplate<Name extends MotionNames = MotionNames> {
+export interface ComejeneTemplate<Name extends ComejeneMotionNames = ComejeneMotionNames> {
   motion: {
     name: Name;
-    setting: MotionSettings[Name];
+    setting: ComejeneMotionSettings[Name];
   };
-  style: MessageContent,
+  style: ComejeneStyle,
 }
 
 export const ComejeneTemplates = {
@@ -53,7 +53,7 @@ export const ComejeneTemplates = {
         },
       },
       containerLayout: ComejeneTemplates_MessageContainer["I-{N_/C}"](),
-      contentsStyle: MessageContentsStyle.new(
+      contentsStyle: ComejeneContentStyleSet.new(
         {
           position: { x: "center", y: "center" },
           backColor: "#00000000",

@@ -1,4 +1,5 @@
 import type { NicoliveInfoProviderType } from "@mujurin/nicolive-api-ts";
+import { SettingStore } from "../store/SettingStore.svelte";
 import { PlatformsId, type ExtMessageType, type NceUserType } from "./index";
 
 /**
@@ -186,4 +187,15 @@ function getLink(text: string): string | undefined {
 
   const smId = /.*(sm\d+).*/.exec(text)?.[1];
   if (smId != null) return `https://www.nicovideo.jp/watch/${smId}`;
+}
+
+
+export function getNicoliveUserName(user: NicoliveUser) {
+  if (SettingStore.state.general.useKotehan && user.storageUser.kotehan != null)
+    return user.storageUser.kotehan;
+  if (user.storageUser.name != null)
+    return user.storageUser.name;
+  if (SettingStore.state.general.nameToNo && user.noName184 != null)
+    return user.noName184;
+  return user.storageUser.id;
 }

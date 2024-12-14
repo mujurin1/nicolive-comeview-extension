@@ -40,7 +40,7 @@ export function createRandomGenerator<T>(items: [number, T][]): { get(): T; } {
 
 
 let _lastComment = "";
-export function getDummyComment(): string {
+export function getDummyContent(): string {
   let comment: string;
   do {
     const ary = dummyComments.get();

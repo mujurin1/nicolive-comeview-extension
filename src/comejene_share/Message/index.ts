@@ -1,39 +1,23 @@
-import type { CustomCss } from "../func";
-import { MessageContentLayout } from "./MessageContentLayout";
-import { MessageContentsStyle } from "./MessageContentStyle";
-import { MessageFrameState } from "./MessageFrame";
-
-export * from "./MessageContainer.svelte";
-export * from "./MessageContent";
-export * from "./MessageContentLayout";
-export * from "./MessageContentStyle";
+export * from "./ContentStyle";
+export * from "./ContentType";
 export * from "./MessageFrame";
+export * from "./MessageStyle";
 
-/** コメジェネで表示するコンテンツの種類 */
-export const MessageContentFrames = ["icon", "name", "message"] as const;
-export type MessageContentFrames = typeof MessageContentFrames;
-export type MessageContentFrame = MessageContentFrames[number];
+import type { CustomCss } from "../func";
+import { ComejeneContentStyleSet } from "./ContentStyle";
+import { ComejeneMessageFrame } from "./MessageFrame";
+import { ComejeneMessageStyle } from "./MessageStyle";
 
-export const MessageContentTypes = ["img", "text"] as const;
-export type MessageContentTypes = typeof MessageContentTypes;
-export type MessageContentType = MessageContentTypes[number];
-
-export const MessageContentToStyleType = {
-  icon: "img",
-  name: "text",
-  message: "text",
-} as const satisfies Record<MessageContentFrame, MessageContentType>;
-
-
-export interface MessageContent {
-  frameSate: MessageFrameState;
-  containerLayout: MessageContentLayout;
-  contentsStyle: MessageContentsStyle;
+export interface ComejeneStyle {
+  frameSate: ComejeneMessageStyle;
+  containerLayout: ComejeneMessageFrame;
+  contentsStyle: ComejeneContentStyleSet;
 }
-export const MessageContent = {
-  updateCss: (customCss: CustomCss, style: MessageContent): void => {
-    MessageFrameState.updateCss(customCss, style.frameSate);
-    MessageContentLayout.updateCss(customCss, style.containerLayout);
-    MessageContentsStyle.updateCss(customCss, style.contentsStyle);
+
+export const ComejeneStyle = {
+  updateCss: (customCss: CustomCss, style: ComejeneStyle): void => {
+    ComejeneMessageStyle.updateCss(customCss, style.frameSate);
+    ComejeneMessageFrame.updateCss(customCss, style.containerLayout);
+    ComejeneContentStyleSet.updateCss(customCss, style.contentsStyle);
   },
 } as const;

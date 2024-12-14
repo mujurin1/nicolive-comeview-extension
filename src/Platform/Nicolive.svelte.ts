@@ -1,11 +1,10 @@
 export * from "./NicoliveType";
 
 import { type AbortAndPromise, type INicoliveServerConnector, type NicoliveId, type NicoliveMessageServerConnector, type NicolivePageData, NicoliveRejectReason, NicoliveRejectReasonDisplay, NicoliveUtility, NicoliveWebSocketReconnectError, type NicoliveWsServerConnector, abortErrorWrap, type dwango, getNicoliveId, isAbortError, promiser, sleep, timestampToMs } from "@mujurin/nicolive-api-ts";
-import { NceMessageStore, NceUserStore } from "../store/NceStore.svelte";
+import { NceService } from "../service/NceService";
+import { NceUserStore } from "../store/NceStore.svelte";
 import { SettingStore } from "../store/SettingStore.svelte";
 import { StorageUserStore } from "../store/StorageUserStore.svelte";
-import { CommentViewCss } from "../system/commentViewCss";
-import { speach } from "../system/speach";
 import { timeString } from "../utils";
 import { ExtMessenger, type ExtentionMessage } from "./Extention.svelte";
 import type { NceConnection, NceConnectionSetting, NceConnectionState } from "./NceConnection";
@@ -15,7 +14,6 @@ export class NicoliveConnection implements NceConnection<"nicolive"> {
   public readonly connectionId: string;
   public get state() { return this._connector?.state ?? "none"; }
   public setting = $state<NceConnectionSetting>({ isSpeak: true });
-  // public canFetchBackward: boolean = false;
   public get canFetchBackward() { return this._connector?.canFetchBackward ?? false; }
   public isFetchingBackward: boolean = false;
   public messages = $state<NicoliveMessage[]>([]);
@@ -24,8 +22,6 @@ export class NicoliveConnection implements NceConnection<"nicolive"> {
   public url = $state("");
   public isSpeack = true;
 
-  /** 接続開始時の過去コメを読み上げないためのフラグ */
-  private _canSpeak = false;
   private _connector = $state<Connector>();
 
   public get pageData() { return this._connector?.pageData; }
@@ -51,7 +47,6 @@ export class NicoliveConnection implements NceConnection<"nicolive"> {
     if (!await this._connector.connect()) return false;
 
     // 接続完了
-    this._canSpeak = true;
     this._connector.connectPromise!
       .finally(() => ExtMessenger.add("接続を終了しました"))
       .catch((e: unknown) => ExtMessenger.addMessage("エラーが発生したので接続を終了します", `${e}`));
@@ -64,7 +59,6 @@ export class NicoliveConnection implements NceConnection<"nicolive"> {
     if (!await this._connector.reconnect()) return false;
 
     // 再接続完了
-    this._canSpeak = true;
     ExtMessenger.add("再接続しました");
     this._connector.connectPromise!
       .finally(() => ExtMessenger.add("接続を終了しました"))
@@ -74,7 +68,6 @@ export class NicoliveConnection implements NceConnection<"nicolive"> {
   }
 
   public close() {
-    this._canSpeak = false;
     this._connector?.close();
   }
 
@@ -97,13 +90,12 @@ export class NicoliveConnection implements NceConnection<"nicolive"> {
   }
 
   private readonly onMessage = (message: NicoliveMessage) => {
-    if (!this._canSpeak && this.setting.isSpeak) speach(message);
     this.messages.push(message);
-    NceMessageStore.messages.push(message);
+    NceService.onMessage.emit(message, this);
   };
   private readonly onMessageOld = (messages: NicoliveMessage[]) => {
     this.messages.unshift(...messages);
-    NceMessageStore.messages.unshift(...messages);
+    NceService.onMessageOld.emit(messages);
   };
 }
 
@@ -352,7 +344,6 @@ class Connector {
       try {
         const iter = serverConnector.getIterator();
         for await (const message of iter) {
-          // _show_dbg(message);
           this.onChunkedMessage(message);
         }
         // イテレーターが終わるのは接続が終了したとき
@@ -510,10 +501,9 @@ class Connector {
  * @returns `NceUserStore.nicolive.users` から取り出したユーザー
  */
 function upsertUser(user: NicoliveUser, comment: string, no?: number): NicoliveUser {
-  // svelte の更新のルールに則る
+  const isNew = NceUserStore.nicolive.has(user.storageUser.id);
+  // $state からの参照を得るための代入
   user = NceUserStore.nicolive.add(user);
-  if (StorageUserStore.nicolive.users[user.storageUser.id] != null)
-    user.storageUser = StorageUserStore.nicolive.users[user.storageUser.id];
 
   if (no != null && (user.firstNo == null || no < user.firstNo)) {
     user.firstNo = no;
@@ -528,13 +518,7 @@ function upsertUser(user: NicoliveUser, comment: string, no?: number): NicoliveU
     StorageUserStore.nicolive.upsert(user.storageUser);
   }
 
-  // if (isNew) {
-  //   this.onFirstComment(user);
-  // }
-  // > private onFirstComment(user: NicoliveUser) {
-  // >   this._cleanupAutoUpdateComentCss.push(autoUpdateCommentCss(user.storageUser.id));
-  // > }
-  CommentViewCss.hook("nicolive", user.storageUser.id);
+  NceService.onUser.emit(user, isNew);
 
   return user;
 }

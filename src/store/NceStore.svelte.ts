@@ -1,4 +1,5 @@
 import type { NceMessage, NceUser } from "../Platform";
+import { StorageUserStore } from "./StorageUserStore.svelte";
 
 const _messages = $state<NceMessage[]>([]);
 
@@ -44,15 +45,17 @@ export const NceUserStore = (() => {
     nicolive: createPlatformUserStore("nicolive"),
   } as const;
 
-
   function createPlatformUserStore<P extends PlatformId_User>(platformId: P): PlatformUserStore<P> {
     const users = _users[platformId] as Record<string, NceUser<P>>;
     return {
       users,
 
       add: user => {
-        if (users[user.storageUser.id] == null)
+        if (users[user.storageUser.id] == null) {
           users[user.storageUser.id] = user;
+          if (StorageUserStore.nicolive.users[user.storageUser.id] != null)
+            users[user.storageUser.id].storageUser = StorageUserStore.nicolive.users[user.storageUser.id];
+        }
         return users[user.storageUser.id];
       },
       get: userId => users[userId!],

@@ -1,7 +1,7 @@
-import { MessageContentLayout } from "../../comejene_share";
+import { ComejeneMessageFrame } from "../../comejene_share";
 
 export const ComejeneTemplates_MessageContainer = {
-  "I-{N_/C}": () => MessageContentLayout.new(
+  "I-{N_/C}": () => ComejeneMessageFrame.new(
     ["FIT", "FLEX"],
     ["FIT", "FIT", "FLEX"],
     {
@@ -19,7 +19,7 @@ export const ComejeneTemplates_MessageContainer = {
       },
     },
   ),
-  "I-N-C": () => MessageContentLayout.new(
+  "I-N-C": () => ComejeneMessageFrame.new(
     ["FLEX"],
     ["FIT", "FIT", "FLEX"],
     {
@@ -37,6 +37,6 @@ export const ComejeneTemplates_MessageContainer = {
       },
     },
   ),
-} as const satisfies Record<string, () => MessageContentLayout>;
+} as const satisfies Record<string, () => ComejeneMessageFrame>;
 
 export const MessageContainerTemplateNames = Object.keys(ComejeneTemplates_MessageContainer) as (keyof typeof ComejeneTemplates_MessageContainer)[];

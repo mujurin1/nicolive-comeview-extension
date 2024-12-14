@@ -6,11 +6,11 @@
   let {
     template = $bindable(),
     resetMotionSetting,
-    resetMessageContent: resetMessageContent,
+    resetComejeneStyle: resetComejeneStyle,
   }: {
     template: ComejeneTemplate;
     resetMotionSetting: () => void;
-    resetMessageContent: () => void;
+    resetComejeneStyle: () => void;
   } = $props();
 
   let editTemplate = notifierStore(template, () => {
@@ -21,14 +21,14 @@
     editTemplate.state.motion.setting = motionSetting.state;
     resetMotionSetting();
   });
-  let messageContent = notifierStore($editTemplate.style, () => {
-    editTemplate.state.style = messageContent.state;
-    resetMessageContent();
+  let comejeneStyle = notifierStore($editTemplate.style, () => {
+    editTemplate.state.style = comejeneStyle.state;
+    resetComejeneStyle();
   });
 </script>
 
 <TemplateSetting_
   motionName={$editTemplate.motion.name}
   bind:motionSetting={$motionSetting}
-  bind:messageContent={$messageContent}
+  bind:comejeneStyle={$comejeneStyle}
 />

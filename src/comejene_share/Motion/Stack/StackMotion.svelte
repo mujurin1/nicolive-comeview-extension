@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import MessageContainer from "../../Message/MessageContainer.svelte";
+  import ComejeneMessageContainer from "../../Message/ComejeneMessageContainer.svelte";
   import { StackMotionState, type StackMotionSetting } from "./StackState.svelte";
 
   let {
@@ -21,7 +21,7 @@
     <div bind:this={state.paddingDiv} class="padding"></div>
     <!-- TODO: each-key を正しい値に設定する -->
     {#each state.messages as message (message)}
-      <MessageContainer {message} />
+      <ComejeneMessageContainer {message} />
     {/each}
   </div>
 </div>

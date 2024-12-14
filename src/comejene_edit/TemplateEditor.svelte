@@ -1,16 +1,14 @@
 <script lang="ts">
   import App from "../comejene/App.svelte";
   import {
-    comejeneEnvs,
-    MotionDefinitions,
-    type MotionDefinition,
-    type MotionNames,
+    ComejeneMotionDefinitions,
+    type ComejeneMotionDefinition,
+    type ComejeneMotionNames,
   } from "../comejene_share";
-
-  import { ComejeneSenderController } from "../comejene_share/ViewEnvironment";
   import { notifierStore } from "../lib/CustomStore.svelte";
   import MyzView from "../lib/Myz/MyzView.svelte";
   import MyzViewArea from "../lib/Myz/MyzViewArea.svelte";
+  import { ComejeneSenderController } from "../service/ComejeneSenderController.svelte";
   import {
     ComejeneTemplates,
     TemplateNames,
@@ -18,7 +16,7 @@
     type TemplateName,
   } from "./Template/ComejeneTemplate";
   import TemplateSetting from "./components/TemplateSetting.svelte";
-  import { getDummyComment } from "./utils";
+  import { getDummyContent } from "./utils";
 
   let templateName = notifierStore<TemplateName>("縦並び", () => {
     template = ComejeneTemplates[$templateName]();
@@ -27,29 +25,31 @@
 
   let template = $state<ComejeneTemplate>(ComejeneTemplates[$templateName]());
 
-  let motionDefinition = $derived<MotionDefinition<MotionNames>>(
-    MotionDefinitions[template.motion.name],
+  let motionDefinition = $derived<ComejeneMotionDefinition<ComejeneMotionNames>>(
+    ComejeneMotionDefinitions[template.motion.name],
   );
 
-  let senders = new ComejeneSenderController(() => template);
-  void senders.initialize([
-    [comejeneEnvs.obs.createSender("OBS"), { wsUrl: `ws://localhost:${4455}` }],
-    [comejeneEnvs.browserEx.createSender("browser")],
-  ]);
+  ComejeneSenderController._set(() => template);
+  Promise.all([
+    ComejeneSenderController.createAndConnect("obs", { url: `ws://localhost:${4455}` }),
+    ComejeneSenderController.createAndConnect("browserEx"),
+  ]).then(() => {
+    ComejeneSenderController.connect();
+  });
 
   function senderReset() {
-    senders.sendReset();
+    ComejeneSenderController.sendReset();
   }
   function resetMotionSetting() {
-    senders.sendMotionSetting();
+    ComejeneSenderController.sendMotionSetting();
   }
-  function resetMessageContent() {
-    senders.sendMessageContent();
+  function resetComejeneStyle() {
+    ComejeneSenderController.sendComejeneStyle();
   }
 
-  function dbg_add(icon = "", name = "あname", message = getDummyComment()) {
-    const contents = { icon, name, message };
-    senders.sendComment(contents);
+  function dbg_send_content(icon = "", name = "あname", message = getDummyContent()) {
+    const content = { icon, name, message };
+    ComejeneSenderController.sendContent(content);
   }
 </script>
 
@@ -72,11 +72,11 @@
     </MyzViewArea>
 
     <MyzViewArea title="コメントテスト">
-      <button onclick={() => dbg_add()} type="button">コメントテスト</button>
+      <button onclick={() => dbg_send_content()} type="button">コメントテスト</button>
     </MyzViewArea>
 
     {#key template}
-      <TemplateSetting {resetMessageContent} {resetMotionSetting} bind:template />
+      <TemplateSetting {resetComejeneStyle} {resetMotionSetting} bind:template />
     {/key}
   </div>
 

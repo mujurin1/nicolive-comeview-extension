@@ -1,13 +1,13 @@
 import type { CSSObject } from "@emotion/css/create-instance";
 import { tick } from "svelte";
 import { myz } from "../../../lib/Myz";
-import type { ReceiveContents } from "../../type";
-import { MotionSettingStyle, type MotionSetting, type MotionState } from "../Interface";
+import type { ComejeneContent } from "../../type";
+import { ComejeneMotionStyle, type ComejeneMotionSetting, type ComejeneMotionState } from "../type";
 import { StackMotionMessage } from "./StackMotionMessage.svelte";
 
 
-export type StackMotionSetting = MotionSetting<typeof StackMotionSettingStyle.root>;
-export const StackMotionSettingStyle = MotionSettingStyle.create(
+export type StackMotionSetting = ComejeneMotionSetting<typeof StackMotionStyle.root>;
+export const StackMotionStyle = ComejeneMotionStyle.create(
   {
     /**
      * メッセージを縦(flex-direction:column)に並べるか
@@ -99,12 +99,12 @@ export const StackMotionSettingStyle = MotionSettingStyle.create(
       },
     };
 
-    customCss.updateCss("StackMotionSettingStyle", [baseCss, animationCss]);
+    customCss.updateCss("StackMotionStyle", [baseCss, animationCss]);
   },
 );
 
 
-export class StackMotionState implements MotionState<
+export class StackMotionState implements ComejeneMotionState<
   StackMotionSetting,
   StackMotionMessage
 > {
@@ -167,8 +167,8 @@ export class StackMotionState implements MotionState<
     });
   }
 
-  public async addMessage(contents: ReceiveContents) {
-    const message = new StackMotionMessage(contents);
+  public async addMessage(content: ComejeneContent) {
+    const message = new StackMotionMessage(content);
     this.messages.push(message);
     // await tick するまでは message.node は生成されない
     await tick();

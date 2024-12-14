@@ -1,39 +1,39 @@
-import { MessageContent, MotionDefinitions, type MotionComponent, type MotionDefinition, type MotionNames, type MotionSetting, type MotionState, type ReceiveContents } from "../comejene_share";
+import { type ComejeneContent, type ComejeneMotionComponent, type ComejeneMotionDefinition, ComejeneMotionDefinitions, type ComejeneMotionNames, type ComejeneMotionSetting, type ComejeneMotionState, ComejeneStyle } from "../comejene_share";
 import { createCustomCss } from "../comejene_share/func";
 
-export class ComejeneViewState<Setting extends MotionSetting, State extends MotionState> {
+export class ComejeneViewState<Setting extends ComejeneMotionSetting, State extends ComejeneMotionState> {
   private readonly _customCss = createCustomCss();
 
-  public readonly motionDefinition: MotionDefinition<MotionNames>;
+  public readonly motionDefinition: ComejeneMotionDefinition<ComejeneMotionNames>;
 
-  public get Component(): MotionComponent<Setting, State> {
-    return this.motionDefinition.component as unknown as MotionComponent<Setting, State>;
+  public get Component(): ComejeneMotionComponent<Setting, State> {
+    return this.motionDefinition.component as unknown as ComejeneMotionComponent<Setting, State>;
   }
 
-  public component = $state<ReturnType<MotionComponent<Setting, State>>>(null!);
+  public component = $state<ReturnType<ComejeneMotionComponent<Setting, State>>>(null!);
   private _motionSetting = $state<Setting>(null!);
-  private _messageContent = $state<MessageContent>(null!);
+  private _comejeneStyle = $state<ComejeneStyle>(null!);
 
   public get motionSetting() { return this._motionSetting; }
-  public get messageContent() { return this._messageContent; }
+  public get comejeneStyle() { return this._comejeneStyle; }
 
   public constructor(
-    motionName: MotionNames,
+    motionName: ComejeneMotionNames,
     motionSetting: Setting,
-    messageContent: MessageContent,
+    comejeneStyle: ComejeneStyle,
   ) {
-    this.motionDefinition = MotionDefinitions[motionName];
+    this.motionDefinition = ComejeneMotionDefinitions[motionName];
     this.setMotionSetting(motionSetting);
-    this.setMessageContent(messageContent);
+    this.setComejeneStyle(comejeneStyle);
   }
 
   public dispose(): void {
     this._customCss.removeAll();
   }
 
-  public addContents(contents: ReceiveContents): void {
+  public addContents(content: ComejeneContent): void {
     if (this.component == null) return;
-    void this.component.state.addMessage(contents);
+    void this.component.state.addMessage(content);
   }
 
   public setMotionSetting(motionSetting: Setting): void {
@@ -43,10 +43,10 @@ export class ComejeneViewState<Setting extends MotionSetting, State extends Moti
     void this.component.state.resetMotionLayout(this._motionSetting);
   }
 
-  public setMessageContent(messageContent: MessageContent): void {
-    this._messageContent = messageContent;
+  public setComejeneStyle(comejeneStyle: ComejeneStyle): void {
+    this._comejeneStyle = comejeneStyle;
 
-    MessageContent.updateCss(this._customCss, this._messageContent);
+    ComejeneStyle.updateCss(this._customCss, this._comejeneStyle);
     if (this.component == null) return;
     void this.component.state.resetLayout();
   }
