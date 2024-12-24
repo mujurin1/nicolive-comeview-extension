@@ -82,6 +82,7 @@ const defaultConfig = tsEslint.config({
     "@typescript-eslint/prefer-enum-initializers": "error",
     "@typescript-eslint/prefer-readonly": "warn",
     "@typescript-eslint/prefer-regexp-exec": "error",
+    "@typescript-eslint/prefer-optional-chain": "off",
     "@typescript-eslint/restrict-plus-operands": "off",
     "@typescript-eslint/restrict-template-expressions": "off",
     "@typescript-eslint/consistent-type-assertions": "off",

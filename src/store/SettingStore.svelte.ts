@@ -2,9 +2,6 @@ import { storages } from "../lib/Storage";
 import { SystemMessageType } from "../Platform";
 import { safeOverwrite, type DeepReadonly } from "../utils";
 
-export const Talker = ["none", "bouyomiChan"] as const;
-export type Talker = typeof Talker[number];
-
 export const SpeachNames = ["none", "mae", "ato"] as const;
 export type SpeachNames = typeof SpeachNames[number];
 
@@ -128,7 +125,7 @@ export interface SettingState {
   };
 }
 
-export const SettingState: DeepReadonly<SettingState> = {
+const SettingStateDefault: DeepReadonly<SettingState> = {
   general: {
     /** 接続時に過去コメントを取得するか */
     fetchConnectingBackward: true,
@@ -204,7 +201,7 @@ export interface SettingStore {
 }
 
 export const SettingStore: SettingStore = (() => {
-  const state = $state(structuredClone(SettingState) as SettingState);
+  const state = $state(structuredClone(SettingStateDefault) as SettingState);
 
   const externalStoreController = storages.chromeExtentionStorage.addUse(
     "setting",
@@ -229,7 +226,7 @@ export const SettingStore: SettingStore = (() => {
       await SettingStore.save();
     },
     async resetAllData() {
-      safeOverwrite(state, SettingState);
+      safeOverwrite(state, SettingStateDefault);
       await SettingStore.save();
     },
   };

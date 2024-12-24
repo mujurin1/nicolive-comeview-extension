@@ -3,7 +3,7 @@
   import { handleElementInteraction } from "../lib/DomEvent";
   import type { ColorPickerState } from "./ColorPicker.svelte";
 
-  let { colorPickerState }: { colorPickerState: ColorPickerState } = $props(); 
+  let { colorPickerState }: { colorPickerState: ColorPickerState } = $props();
 
   let pickerPanel: HTMLDivElement;
   let hueSlider: HTMLDivElement;
@@ -155,7 +155,7 @@
         --pick-top: 50%;
         --pick-left: calc(var(--picker-alpha) * 100%);
         --pick-color: var(--picker-hsl);
-        --pick-alpha: var(--picker-alpha)
+        --pick-alpha: var(--picker-alpha);
       }
     }
   }

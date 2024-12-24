@@ -1,7 +1,7 @@
 import { css } from "@emotion/css";
 import type { CSSObject } from "@emotion/css/create-instance";
 import type { CustomCss } from "../func";
-import type { ComejeneContentKeys } from "./ContentType";
+import { ComejeneContentKeys } from "./ContentType";
 
 export interface ComejeneMessageFrame {
   rows: ComejeneMessageGridSize[];
@@ -41,7 +41,8 @@ export const ComejeneMessageFrame = {
       // .content-frame.フレーム名 は下で追加する
     };
 
-    for (const [frameName, content] of Object.entries(contents)) {
+    for (const frameName of ComejeneContentKeys) {
+      const content = contents[frameName];
       if (content == null) {
         cssObj[`.content-frame.${frameName}`] = { display: "none" };
       } else {

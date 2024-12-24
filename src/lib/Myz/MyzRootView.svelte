@@ -1,6 +1,6 @@
 <script generics="Root extends MyzRoot, Setting extends MyzState<Root>" lang="ts">
-  import ColorPicker from "svelte-awesome-color-picker";
   import type { MyzRoot, MyzState } from ".";
+  import ColorPicker from "../../components/ColorPicker.svelte";
   import { notifierStore } from "../CustomStore.svelte";
   import Self from "./MyzRootView.svelte";
   import MyzSwitchView from "./MyzSwitchView.svelte";
@@ -49,8 +49,8 @@
       <input id={forId} type="checkbox" bind:checked={$style[key] as boolean} />
     </MyzView>
   {:else if object.type === "color"}
-    <MyzView {object}>
-      <div class="color-picker-wrap">
+    <MyzView {forId} {object}>
+      <!-- <div class="color-picker-wrap">
         <ColorPicker
           --input-size="15px"
           --picker-height="150px"
@@ -60,7 +60,8 @@
           nullable={object.extra.optional}
           bind:hex={$style[key]}
         />
-      </div>
+      </div> -->
+    <ColorPicker {forId} bind:_hex={$style[key]}/>
     </MyzView>
   {:else if object.type === "list"}
     <MyzView {forId} {object}>

@@ -31,18 +31,21 @@ export class NicoliveConnection implements NceConnection<"nicolive"> {
   }
 
   public async connect(): Promise<boolean> {
-    if (this._connector == null) {
-      const liveId = getNicoliveId(this.url);
-      if (liveId == null) return false;
-      this.url = liveId;
-
-      this._connector = new Connector(
-        this.connectionId,
-        liveId,
-        this.onMessage,
-        this.onMessageOld,
-      );
+    if (this._connector != null) {
+      this._connector.close();
     }
+    // TODO: 再接続時にコメントを削除する
+
+    const liveId = getNicoliveId(this.url);
+    if (liveId == null) return false;
+    this.url = liveId;
+
+    this._connector = new Connector(
+      this.connectionId,
+      liveId,
+      this.onMessage,
+      this.onMessageOld,
+    );
 
     if (!await this._connector.connect()) return false;
 
@@ -145,25 +148,25 @@ class Connector {
 
   public async connect() {
     if (this.state !== "none" && this.state !== "closed") return false;
+    this.state = "connecting";
 
-    const connect = promiser();
+    const connect = promiser<boolean>();
     this.connectPromise = this._connect(connect.resolve);
 
-    await connect.promise;
-    return true;
+    return await connect.promise;
   }
 
-  private async _connect(opened: () => void) {
+  private async _connect(opened: (connected: boolean) => void) {
     try {
       this.pageData = await this.setAbort(NicoliveUtility.fetchNicolivePageData(this.liveId));
       if (this.checkReject(this.pageData)) return;
       await this.setupConnector(this.pageData);
       createOwner(this.pageData!);
       await this.onOpen(true);
-      opened();
+      opened(true);
       await this.connectReaderWaitAnyClose();
     } finally {
-      opened();
+      opened(false);
       this.connectPromise = undefined;
       this.close();
     }

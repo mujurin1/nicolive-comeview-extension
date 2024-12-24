@@ -18,7 +18,7 @@ type MyzValueState<T extends MyzValue> =
   : T extends MyzNumber ? number
   : T extends MyzBoolean ? boolean
   : T extends MyzList ? T["choices"][number]
-  : T extends MyzColor ? `#${string}`
+  : T extends MyzColor ? `#${string}` | undefined
   : never;
 
 

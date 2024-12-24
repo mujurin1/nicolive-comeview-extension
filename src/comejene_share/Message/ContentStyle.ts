@@ -2,32 +2,28 @@ import type { CSSObject } from "@emotion/css/create-instance";
 import { myz, type Ignore, type MyzObjects, type MyzState } from "../../lib/Myz";
 import type { CustomCss } from "../func";
 import { _ComejeneContentStyle, _ComejeneContentStyleBase, type _ComejeneContentStyle_Img, type _ComejeneContentStyle_Text, type _ComejeneContentStyleRoot } from "./ContentStyle_inner";
-import { ComejeneContentKeyToType, type ComejeneContentKeys, type ComejeneContentTypes } from "./ContentType";
+import { ComejeneContentKeys, ComejeneContentKeyToType, type ComejeneContentTypes } from "./ContentType";
 
 export type ComejeneContentStyle<D extends _ComejeneContentStyleRoot = _ComejeneContentStyleRoot> = MyzState<D>;
 
 export interface ComejeneContentStyleSet {
-  icon: _ComejeneContentStyle_Img | undefined;
-  name: _ComejeneContentStyle_Text | undefined;
-  message: _ComejeneContentStyle_Text | undefined;
+  icon: _ComejeneContentStyle_Img;
+  name: _ComejeneContentStyle_Text;
+  message: _ComejeneContentStyle_Text;
 }
 
 export const ComejeneContentStyleSet = {
-  new: (
-    icon: _ComejeneContentStyle_Img | undefined,
-    name: _ComejeneContentStyle_Text | undefined,
-    message: _ComejeneContentStyle_Text | undefined,
-  ): ComejeneContentStyleSet => ({
-    icon,
-    name,
-    message,
-  }),
+  new: (params: {
+    icon: _ComejeneContentStyle_Img,
+    name: _ComejeneContentStyle_Text,
+    message: _ComejeneContentStyle_Text,
+  }): ComejeneContentStyleSet => params,
   updateCss: (customCss: CustomCss, style: ComejeneContentStyleSet): void => {
     const cssObj: CSSObject = {};
 
-    for (const [frameName_, content] of Object.entries(style)) {
-      const frameName = frameName_ as ComejeneContentKeys;
-      if (content == null) {
+    for (const frameName of ComejeneContentKeys) {
+      const content = style[frameName];
+      if (!content.visible) {
         cssObj[`.content-frame.${frameName}`] = { display: "none" };
       } else {
         cssObj[`.content-frame.${frameName}`] = _ComejeneContentStyle.asCss(

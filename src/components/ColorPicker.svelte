@@ -21,12 +21,15 @@
     hsv = $bindable([0, 0, 1]),
     alpha = $bindable(1),
     _hex = $bindable("#FFFFFF"),
+    forId,
   }: {
+    /** ラベルタグと対応づける値 */
+    forId?: string;
     /** 色相:0-1 彩度:0-1 明度:0-1 */
     hsv?: Colors;
     alpha?: number;
     /** `"#RRGGBB"`または`"#RRGGBBAA"`. 読み取り専用(値を変更しても反映されません) */
-    _hex?: string,
+    _hex?: string;
   } = $props();
 
   let showPanel = $state(false);
@@ -59,6 +62,8 @@
     setFromRgbaText,
   });
 
+  // 初期値をHEXで設定します
+  setFromRgbaText(_hex);
   let inputHex = $state(getRgb());
 
   $effect(() => {
@@ -160,6 +165,7 @@
 >
   <button
     bind:this={colorPickerButton}
+    id={forId}
     class="color-picker-button"
     aria-label="color-picker-switch"
     onclick={() => {
@@ -167,7 +173,9 @@
     }}
     tabindex="-1"
     type="button"
-  ></button>
+  >
+    <div class="color-picker-button-bg"></div>
+  </button>
   {#if showPanel}
     <div class="panel-wrap">
       <ColorPickerPanel {colorPickerState} />
@@ -180,6 +188,8 @@
     --translate-image: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill-opacity=".1"><path d="M8 0h8v8H8zM0 8h8v8H0z" /></svg>');
     --picker-height: 220px;
     --picker-width: 200px;
+    --picker-button-height: 14px;
+    --picker-button-width: 14px;
     --picker-back-color: #333;
     --picker-slider-height: 24px;
     --picker-ring-color: white;
@@ -193,8 +203,8 @@
 
   .color-picker {
     display: inline-block;
-    position: relative;
     user-select: none;
+    position: relative;
 
     --picker-hsl: hsl(
       calc(var(--picker-hue) * 360)
@@ -205,18 +215,25 @@
 
   .color-picker-button {
     box-sizing: border-box;
-    width: 32px;
-    height: 32px;
-    background-color: var(--picker-hsl);
     margin: 1px;
     border: 2px solid white;
     border-radius: 2px;
+    padding: 0;
     outline: #ccc solid 1px;
+    background-image: var(--translate-image);
+
+    .color-picker-button-bg {
+      width: var(--picker-button-width);
+      height: var(--picker-button-height);
+      background-color: var(--picker-hsl);
+      opacity: var(--picker-alpha);
+    }
   }
 
   .panel-wrap {
     position: absolute;
-    bottom: 0;
-    left: 100%;
+    bottom: 100%;
+    left: -100px;
+    padding: 5px 0;
   }
 </style>

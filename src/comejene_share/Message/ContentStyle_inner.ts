@@ -56,6 +56,8 @@ const FlexPosition = {
 export type _ComejeneContentStyleBase = typeof _ComejeneContentStyleBase;
 /** 全タイプの共通のデータ */
 export const _ComejeneContentStyleBase = {
+  /** この項目を表示するかどうか */
+  visible: myz.boolean("表示"),
   /** X,Y 軸上の寄せ */
   position: myz.block("位置(寄せ)", {
     x: myz.list("よこ", FlexPositions),

@@ -27,10 +27,11 @@ export const ComejeneTemplates_MessageContainer = {
         row: { start: 1, end: 1 },
         col: { start: 1, end: 1 },
       },
-      name: {
-        row: { start: 1, end: 1 },
-        col: { start: 2, end: 2 },
-      },
+      // name: {
+      //   row: { start: 1, end: 1 },
+      //   col: { start: 2, end: 2 },
+      // },
+      name: undefined,
       message: {
         row: { start: 1, end: 1 },
         col: { start: 3, end: 3 },

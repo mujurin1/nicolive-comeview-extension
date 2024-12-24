@@ -1,5 +1,6 @@
 <script lang="ts">
   import {
+      ComejeneContentKeyNames,
       ComejeneContentKeyToType,
       ComejeneContentKeys,
       ComejeneContentStyleRootSet,
@@ -33,6 +34,9 @@
 
   let motionDefinition = $derived<ComejeneMotionDefinition<ComejeneMotionNames>>(ComejeneMotionDefinitions[motionName]);
   let selectContent = $state<ComejeneContentKeys>("message");
+  let root = $derived(ComejeneContentStyleRootSet[ComejeneContentKeyToType[selectContent]]);
+
+  let notExistInMessageFrame = $derived($comejeneStyle.containerLayout.contents[selectContent] == null);
 </script>
 
 <MyzViewArea title="モーション設定">
@@ -51,18 +55,27 @@
   {#snippet headerItem()}
     <select bind:value={selectContent}>
       {#each ComejeneContentKeys as content (content)}
-        <option value={content}>{content}</option>
+        <option value={content}>{ComejeneContentKeyNames[content]}</option>
       {/each}
     </select>
   {/snippet}
 
-  {@const fr = selectContent}
-  {#key fr}
-    {#if $comejeneStyle.contentsStyle[fr] == null}
-      <div>noen</div>
-    {:else}
-      {@const root = ComejeneContentStyleRootSet[ComejeneContentKeyToType[fr]]}
-      <MyzRootView path="content" {root} bind:style={$comejeneStyle.contentsStyle[fr] as any} />
+  <!-- これがないと状態が正しく変化しない (svelte の不具合) -->
+  {#key selectContent}
+    {#if notExistInMessageFrame}
+      <div class="hide-content-message">※メッセージ枠で割り当てられていない項目です</div>
+    <!-- TODO: メッセージフレームとは関係なく非表示にする項目で false の部分を決定する -->
+    {:else if !$comejeneStyle.contentsStyle[selectContent].visible}
+      <div class="hide-content-message">※この項目は非表示になっています</div>
     {/if}
+    <MyzRootView path="content" {root} bind:style={$comejeneStyle.contentsStyle[selectContent] as any} />
   {/key}
 </MyzViewArea>
+
+<style>
+  .hide-content-message {
+    color: red;
+    font-weight: bold;
+    font-size: 1.1em;
+  }
+</style>
