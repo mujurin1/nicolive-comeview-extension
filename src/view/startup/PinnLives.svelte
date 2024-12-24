@@ -1,7 +1,6 @@
 <script lang="ts">
   import { getNicoliveId } from "@mujurin/nicolive-api-ts";
   import { Nicolive } from "../../Platform";
-  import type { SettingState } from "../../store/SettingStore.svelte";
   import { settingViewStore } from "../view";
 
   let newPinn = $state<SettingState["nicolive"]["pinnLives"][number]>({

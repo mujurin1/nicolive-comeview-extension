@@ -9,15 +9,15 @@ export const chromeExtentionStorage: IStorage = {
   addUse<
     StoreName extends string,
     Items extends { [ItemKey in string]: any },
-  >(storeName: StoreName, user: StorageObserver<Items>): StorageController<Items> {
-    if (!storeName || storeName.includes("#"))
-      throw new Error(`ストア名は "#" を含まない１文字以上の文字です. StoreName:${storeName}`);
+  >(name: StoreName, observer: StorageObserver<Items>): StorageController<Items> {
+    if (!name || name.includes("#"))
+      throw new Error(`ストア名は "#" を含まない１文字以上の文字です. StoreName:${name}`);
 
-    storageUsers[storeName] = user;
+    storageUsers[name] = observer;
 
     return {
-      update: items => update(storeName, items),
-      remove: itemKeys => remove(storeName, itemKeys),
+      update: items => update(name, items),
+      remove: itemKeys => remove(name, itemKeys),
     };
   }
 } as const;
@@ -110,6 +110,7 @@ async function setAndRemove(): Promise<void> {
     }
   });
 
+  // MEMO: このスリープの意味は？
   await sleep(100);
 
   saveLock = false;

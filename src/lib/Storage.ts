@@ -4,6 +4,13 @@ export type KeysOf<T> = T extends Record<infer K, any> ? K : never;
 
 export interface IStorage {
   init(): Promise<void>;
+  /**
+   * ストレージの利用するための登録を行う\
+   * `name`毎にデータが独立しており、保存/更新イベントも`name`毎に独立している
+   * @param name 使用するストレージのキー名. `#`を含んではダメ
+   * @param observer ストレージが更新された場合に呼び出されるイベント
+   * @returns データの更新・削除を行うオブジェクト
+   */
   addUse<
     StoreName extends string,
     Items extends { [ItemKey in string]: any },

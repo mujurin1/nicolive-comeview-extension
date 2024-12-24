@@ -47,7 +47,11 @@
     ComejeneSenderController.sendComejeneStyle();
   }
 
-  function dbg_send_content(icon = "", name = "あname", message = getDummyContent()) {
+  function dbg_send_content(
+    icon = "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/defaults/blank.jpg",
+    name = undefined,
+    message = getDummyContent(),
+  ) {
     const content = { icon, name, message };
     ComejeneSenderController.sendContent(content);
   }
