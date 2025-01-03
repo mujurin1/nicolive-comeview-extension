@@ -50,18 +50,7 @@
     </MyzView>
   {:else if object.type === "color"}
     <MyzView {forId} {object}>
-      <!-- <div class="color-picker-wrap">
-        <ColorPicker
-          --input-size="15px"
-          --picker-height="150px"
-          --picker-width="150px"
-          isTextInput={false}
-          label={$style[key] ?? "透明"}
-          nullable={object.extra.optional}
-          bind:hex={$style[key]}
-        />
-      </div> -->
-    <ColorPicker {forId} bind:_hex={$style[key]}/>
+      <ColorPicker {forId} bind:_hex={$style[key]}/>
     </MyzView>
   {:else if object.type === "list"}
     <MyzView {forId} {object}>
@@ -95,26 +84,5 @@
   .myz-block-label {
     cursor: default;
     padding-left: var(--indent);
-  }
-
-  /* svelte-awesome-color-picker 内のCSSを変えているのでバージョンが変わると壊れる可能性 */
-  .color-picker-wrap {
-    display: flex;
-
-    /* #7桁以外の値をいれると重くなる対策 */
-    :global(& input[type="color"]) {
-      display: none;
-    }
-
-    :global(& > * .color-picker > label) {
-      display: flex;
-      align-items: center;
-      margin: 0;
-    }
-
-    :global(& > * .wrapper) {
-      top: 0px;
-      transform: translate(-50%, -100%);
-    }
   }
 </style>

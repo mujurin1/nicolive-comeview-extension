@@ -6,7 +6,7 @@
     children,
     headerItem,
   }: {
-    title: string;
+    title?: string;
     children: Snippet;
     headerItem?: Snippet;
   } = $props();
@@ -38,6 +38,12 @@
     & > .myz-area-header-title {
       flex: 0 0 fit-content;
       font-size: 1.2em;
+
+      /* 1文字分の高さを確保 */
+      &::before {
+        content: "";
+        display: inline-block;
+      }
     }
     & > .myz-area-header-item {
       flex: 1 1 100%;

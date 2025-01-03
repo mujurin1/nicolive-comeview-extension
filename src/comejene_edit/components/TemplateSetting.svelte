@@ -1,16 +1,13 @@
 <script lang="ts">
   import { notifierStore } from "../../lib/CustomStore.svelte";
+  import { ComejeneSenderController } from "../../service/ComejeneSenderController.svelte";
   import { type ComejeneTemplate } from "../Template/ComejeneTemplate";
   import TemplateSetting_ from "./TemplateSetting_.svelte";
 
   let {
     template = $bindable(),
-    resetMotionSetting,
-    resetComejeneStyle: resetComejeneStyle,
   }: {
     template: ComejeneTemplate;
-    resetMotionSetting: () => void;
-    resetComejeneStyle: () => void;
   } = $props();
 
   let editTemplate = notifierStore(template, () => {
@@ -19,11 +16,11 @@
 
   let motionSetting = notifierStore($editTemplate.motion.setting, () => {
     editTemplate.state.motion.setting = motionSetting.state;
-    resetMotionSetting();
+    ComejeneSenderController.sendMotionSetting();
   });
   let comejeneStyle = notifierStore($editTemplate.style, () => {
     editTemplate.state.style = comejeneStyle.state;
-    resetComejeneStyle();
+    ComejeneSenderController.sendComejeneStyle();
   });
 </script>
 

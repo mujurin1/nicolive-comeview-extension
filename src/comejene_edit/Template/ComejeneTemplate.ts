@@ -3,15 +3,17 @@ import { ComejeneTemplates_MessageContainer } from "./ComejeneTemplates_MessageC
 
 
 export interface ComejeneTemplate<Name extends ComejeneMotionNames = ComejeneMotionNames> {
+  name: string;
   motion: {
     name: Name;
     setting: ComejeneMotionSettings[Name];
   };
-  style: ComejeneStyle,
+  style: ComejeneStyle;
 }
 
 export const ComejeneTemplates = {
   デバッグ用: (): ComejeneTemplate<"sample"> => ({
+    name: "デバッグ用",
     motion: {
       name: "sample",
       setting: {},
@@ -23,12 +25,14 @@ export const ComejeneTemplates = {
   }),
   横並び: (): ComejeneTemplate<"stack"> => {
     const v = ComejeneTemplates.縦並び();
+    v.name = "横並び";
     v.style.containerLayout = ComejeneTemplates_MessageContainer["I-N-C"]();
     v.motion.setting.isVertical = false;
     v.motion.setting.verticalGrow = false;
     return v;
   },
   縦並び: (): ComejeneTemplate<"stack"> => ({
+    name: "縦並び",
     motion: {
       name: "stack",
       setting: {

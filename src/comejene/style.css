@@ -13,7 +13,8 @@ input {
   padding: 0;
 
   &[type=number],
-  &[type=range] {
+  &[type=range],
+  &[type=text] {
     width: 100%;
   }
 }
