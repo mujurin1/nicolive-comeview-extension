@@ -91,5 +91,5 @@ export const ComejeneTemplates = {
 } as const satisfies Record<string, () => ComejeneTemplate>;
 
 
-export const TemplateNames = Object.keys(ComejeneTemplates) as TemplateName[];
-export type TemplateName = keyof typeof ComejeneTemplates;
+// export const TemplateNames = Object.keys(ComejeneTemplates) as TemplateName[];
+// export type TemplateName = keyof typeof ComejeneTemplates;

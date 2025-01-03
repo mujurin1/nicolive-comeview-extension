@@ -40,7 +40,7 @@ async function load() {
     const item = data[key];
 
     // MEMO: 現在は {"ストア名#アイテム名": null } は許可しない
-    if (item == null) return;
+    if (item == null) continue;
 
     const parsed = parseStoreItemKey(key);
     if (parsed == null) continue;

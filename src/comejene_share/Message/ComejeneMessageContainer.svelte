@@ -11,8 +11,6 @@
     if (img.src === nicoliveNoneIcon) return;
     img.src = nicoliveNoneIcon;
   }
-
-  console.log($state.snapshot(message.content.name));
 </script>
 
 <!--

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { notifierStore } from "../../lib/CustomStore.svelte";
   import { ComejeneSenderController } from "../../service/ComejeneSenderController.svelte";
-  import { type ComejeneTemplate } from "../Template/ComejeneTemplate";
+  import type { ComejeneTemplate } from "../Template/ComejeneTemplate";
   import TemplateSetting_ from "./TemplateSetting_.svelte";
 
   let {

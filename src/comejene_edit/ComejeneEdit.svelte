@@ -1,29 +1,45 @@
 <script lang="ts">
   import { sleep } from "@mujurin/nicolive-api-ts";
+  import { untrack } from "svelte";
   import App from "../comejene/App.svelte";
   import { notifierStore } from "../lib/CustomStore.svelte";
   import MyzView from "../lib/Myz/MyzView.svelte";
   import MyzViewArea from "../lib/Myz/MyzViewArea.svelte";
+  import { storageInit } from "../lib/Storage";
   import { ComejeneSenderController } from "../service/ComejeneSenderController.svelte";
+  import { ComejeneStore } from "../store/ComejeneStore.svelte";
   import SimpleList from "./components/SimpleList.svelte";
   import TemplateSetting from "./components/TemplateSetting.svelte";
-  import {
-    ComejeneTemplates,
-    type ComejeneTemplate,
-    type TemplateName,
-  } from "./Template/ComejeneTemplate";
+  import { type ComejeneTemplate } from "./Template/ComejeneTemplate";
   import { getDummyContent } from "./utils";
 
-  let templateNames = $state(Object.keys(ComejeneTemplates) as TemplateName[]);
-  let selectTemplateId = notifierStore<TemplateName>("縦並び", () => {
-    editTemplate = ComejeneTemplates[$selectTemplateId]();
-    ComejeneSenderController.sendReset();
-    sleep(100).then(() => {
-      for (let i = 0; i < 5; i++) dbg_send_content();
-    });
-  });
+  storageInit();
+  let storageTemplates = $derived(ComejeneStore.state.templates);
+  // svelte-ignore state_referenced_locally
+  let selectTemplateId = notifierStore(
+    Object.keys(storageTemplates)[0],
+    () => {
+      let newTemplate = storageTemplates[$selectTemplateId];
+      if (newTemplate == null) {
+        selectTemplateId.state = Object.keys(storageTemplates)[0];
+        newTemplate = storageTemplates[$selectTemplateId];
+      }
+      resetEditTemplate(newTemplate);
+    },
+    () => {
+      const newId = Object.keys(storageTemplates)[0];
+      const newTemplate = storageTemplates[newId];
+      untrack(() => {
+        if (!editing) resetEditTemplate(newTemplate);
+      });
+      return newId;
+    },
+  );
 
-  let editTemplate = $state<ComejeneTemplate>(ComejeneTemplates[$selectTemplateId]());
+  // svelte-ignore state_referenced_locally
+  let editTemplate = $state<ComejeneTemplate>(
+    structuredClone($state.snapshot(storageTemplates[$selectTemplateId])),
+  );
   let editing = $state(false);
 
   ComejeneSenderController._set(() => editTemplate);
@@ -49,6 +65,7 @@
 
   function edit() {
     editing = true;
+    // TODO: 編集可能なのは1ウィンドウのみにしたい
   }
 
   function clone() {
@@ -56,10 +73,24 @@
   }
 
   function save() {
-    // TODO:
+    storageTemplates[$selectTemplateId] = editTemplate;
+    ComejeneStore.save();
+  }
+
+  let sleepAbortController: AbortController | undefined;
+  function resetEditTemplate(newTemplate: ComejeneTemplate) {
+    editTemplate = structuredClone($state.snapshot(newTemplate));
+
+    ComejeneSenderController.sendReset();
+    sleepAbortController?.abort();
+    sleepAbortController = new AbortController();
+    sleep(100, sleepAbortController.signal).then(() => {
+      for (let i = 0; i < 5; i++) dbg_send_content();
+    });
   }
 
   function disposeEditing() {
+    // TODO: 変更を保存していない場合に通知する
     editing = false;
   }
 </script>
@@ -80,7 +111,7 @@
 
       <div class="buttons">
         <button onclick={save} type="button">保存</button>
-        <button onclick={disposeEditing} type="button">内容を破棄して戻る</button>
+        <button onclick={disposeEditing} type="button">編集を終了する</button>
       </div>
 
       <MyzViewArea title="コメントテスト">
@@ -91,7 +122,11 @@
     {:else}
       <MyzViewArea title="テンプレート">
         <MyzView object={{ display: "テンプレート一覧" }}>
-          <SimpleList size={1} bind:items={templateNames} bind:value={$selectTemplateId} />
+          <SimpleList
+            items={Object.values(storageTemplates).map(x => x.name)}
+            size={1}
+            bind:value={$selectTemplateId}
+          />
         </MyzView>
 
         <MyzView object={{ display: "モーション" }}>
