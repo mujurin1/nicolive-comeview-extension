@@ -9,7 +9,7 @@
   import { ComejeneSenderController } from "../service/ComejeneSenderController.svelte";
   import { ComejeneStore } from "../store/ComejeneStore.svelte";
   import TemplateSetting from "./components/TemplateSetting.svelte";
-  import { type ComejeneTemplate } from "./Template/ComejeneTemplate";
+  import type { ComejeneTemplate } from "./Template/ComejeneTemplate";
   import { getDummyContent, getNavigatorLock } from "./utils";
 
   storageInit();

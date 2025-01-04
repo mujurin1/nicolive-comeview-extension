@@ -64,6 +64,7 @@
     --switch-brder-width: 2px;
 
     .myz-switch-header > .myz-switch-selector {
+      width: auto;
       background-color: var(--switch-back-color);
       border: var(--switch-brder-width) solid var(--switch-brder-color);
       border-bottom-width: 0;
