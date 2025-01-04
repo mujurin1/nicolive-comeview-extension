@@ -9,7 +9,11 @@
   import { ComejeneSenderController } from "../service/ComejeneSenderController.svelte";
   import { ComejeneStore } from "../store/ComejeneStore.svelte";
   import TemplateSetting from "./components/TemplateSetting.svelte";
-  import type { ComejeneTemplate } from "./Template/ComejeneTemplate";
+  import {
+    ComejeneTemplateFirstId,
+    ComejeneTemplates,
+    type ComejeneTemplate,
+  } from "./Template/ComejeneTemplate";
   import { getDummyContent, getNavigatorLock } from "./utils";
 
   storageInit();
@@ -34,6 +38,7 @@
     },
   );
   let selectTemplate = $derived(storageTemplates[$selectTemplateId]);
+  let selectTemplateIsDefault = $derived($selectTemplateId.startsWith(ComejeneTemplateFirstId));
 
   //#region editState
   type EditState = EditState_None | EditState_Edit;
@@ -104,7 +109,22 @@
   }
 
   function clone() {
-    // TODO:
+    const id = crypto.randomUUID();
+    storageTemplates[id] = structuredClone($state.snapshot(selectTemplate));
+    storageTemplates[id].name = `${storageTemplates[id].name} - コピー`;
+    selectTemplateId.set(id);
+    ComejeneStore.save();
+  }
+
+  function remove() {
+    if (selectTemplateIsDefault) {
+      const id = $selectTemplateId as keyof typeof ComejeneTemplates;
+      storageTemplates[id] = structuredClone(ComejeneTemplates[id]);
+    } else {
+      delete storageTemplates[$selectTemplateId];
+      selectTemplateId.set(Object.keys(storageTemplates)[0]);
+    }
+    ComejeneStore.save();
   }
 
   function save() {
@@ -143,7 +163,14 @@
       <!-- テンプレート編集 -->
       <MyzViewArea title="テンプレート">
         <MyzView object={{ display: "名前" }}>
-          <input type="text" bind:value={editState.template.name} />
+          <input
+            disabled={selectTemplateIsDefault}
+            title={selectTemplateIsDefault
+              ? "最初から存在するテンプレートは名前を変えられません"
+              : ""}
+            type="text"
+            bind:value={editState.template.name}
+          />
         </MyzView>
         <MyzView object={{ display: "モーション" }}>
           <div>{editState.template.motion.name}</div>
@@ -178,6 +205,14 @@
       </MyzViewArea>
 
       <div class="buttons">
+        <button
+          class="delete"
+          onclick={remove}
+          title="最初から存在するテンプレートは削除出来ません"
+          type="button"
+        >
+          {selectTemplateIsDefault ? "初期化" : "削除"}
+        </button>
         <button onclick={clone} type="button">複製</button>
         <button onclick={edit} type="button">編集</button>
       </div>
@@ -238,6 +273,11 @@
       &:hover {
         filter: contrast(110%);
       }
+    }
+
+    .delete {
+      background-color: #ffbaba;
+      margin-right: 20px;
     }
   }
 

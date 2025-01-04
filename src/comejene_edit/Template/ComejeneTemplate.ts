@@ -88,10 +88,11 @@ const 縦並び = (): ComejeneTemplate<"stack"> => ({
   }
 });
 
+export const ComejeneTemplateFirstId = "$default$";
 export const ComejeneTemplates = {
-  default_template_Debug: デバッグ用(),
-  default_template_Tate: 横並び(),
-  default_template_Yoko: 縦並び(),
+  [`${ComejeneTemplateFirstId}Debug`]: デバッグ用(),
+  [`${ComejeneTemplateFirstId}Tate`]: 横並び(),
+  [`${ComejeneTemplateFirstId}Yoko`]: 縦並び(),
 } as const;
 
 
