@@ -7,11 +7,13 @@ import type { DeepReadonly } from "../utils";
 
 
 export interface ComejeneState {
+  useTemplateId: string;
   templates: Record<string, ComejeneTemplate>;
   frames: Record<string, ComejeneMessageFrame>;
 }
 
 const ComejeneStateDefault: DeepReadonly<ComejeneState> = {
+  useTemplateId: Object.keys(ComejeneTemplates)[0],
   templates: ComejeneTemplates,
   frames: {
     "I-{N_/C}": ComejeneTemplates_MessageContainer["I-{N_/C}"](),
@@ -33,10 +35,16 @@ export const ComejeneStore: ComejeneStore = (() => {
     "comejene",
     {
       onUpdated: (data: Partial<ComejeneState>, type) => {
-        // safeOverwrite(state, data);
-        // たぶんこれで良いはず
+        if (type === "load") {
+          // 初期読み込み時のみ変更する値
+          if (data.useTemplateId != null) state.useTemplateId = data.useTemplateId;
+        }
         if (data.frames != null) state.frames = data.frames;
         if (data.templates != null) state.templates = data.templates;
+
+        if (state.templates[state.useTemplateId] == null) {
+          state.useTemplateId = Object.keys(state.templates)[0];
+        }
       },
       onRemoved: (keys) => {
         // 削除はあり得ない

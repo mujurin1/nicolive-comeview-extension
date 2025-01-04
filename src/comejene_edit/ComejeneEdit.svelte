@@ -1,11 +1,9 @@
 <script lang="ts">
-  import { sleep } from "@mujurin/nicolive-api-ts";
   import { onMount, untrack } from "svelte";
   import App from "../comejene/App.svelte";
   import { notifierStore } from "../lib/CustomStore.svelte";
   import MyzView from "../lib/Myz/MyzView.svelte";
   import MyzViewArea from "../lib/Myz/MyzViewArea.svelte";
-  import { storageInit } from "../lib/Storage";
   import { ComejeneSenderController } from "../service/ComejeneSenderController.svelte";
   import { ComejeneStore } from "../store/ComejeneStore.svelte";
   import TemplateSetting from "./components/TemplateSetting.svelte";
@@ -16,15 +14,15 @@
   } from "./Template/ComejeneTemplate";
   import { getDummyContent, getNavigatorLock } from "./utils";
 
-  storageInit();
-
   let storageTemplates = $derived(ComejeneStore.state.templates);
   let storageTemplateIds = $derived(Object.keys(storageTemplates));
-  // svelte-ignore state_referenced_locally
   let selectTemplateId = notifierStore<string>(
-    Object.keys(storageTemplates)[0],
+    ComejeneStore.state.useTemplateId,
     () => {
+      selectTemplate = storageTemplates[$selectTemplateId];
       resetEditTemplate();
+      ComejeneStore.state.useTemplateId = $selectTemplateId;
+      ComejeneStore.save();
     },
     () => {
       let newId: string = untrack(() => $selectTemplateId);
@@ -32,12 +30,14 @@
         newId = Object.keys(storageTemplates)[0];
       }
       untrack(() => {
+        selectTemplate = storageTemplates[newId];
         if (!editing) resetEditTemplate();
       });
       return newId;
     },
   );
-  let selectTemplate = $derived(storageTemplates[$selectTemplateId]);
+  // svelte-ignore state_referenced_locally
+  let selectTemplate = $state(storageTemplates[$selectTemplateId]);
   let selectTemplateIsDefault = $derived($selectTemplateId.startsWith(ComejeneTemplateFirstId));
 
   //#region editState
@@ -116,7 +116,7 @@
     ComejeneStore.save();
   }
 
-  function remove() {
+  function deleteOrReset() {
     if (selectTemplateIsDefault) {
       const id = $selectTemplateId as keyof typeof ComejeneTemplates;
       storageTemplates[id] = structuredClone(ComejeneTemplates[id]);
@@ -128,29 +128,42 @@
   }
 
   function save() {
-    if (editState.state !== "editing") return;
-    storageTemplates[$selectTemplateId] = editState.template;
+    if (editState.state !== "editing" || !editState.edited) return;
+    checkForceClose = false;
+    storageTemplates[$selectTemplateId] = structuredClone($state.snapshot(editState.template));
     editState.edited = false;
     ComejeneStore.save();
   }
 
-  let sleepAbortController: AbortController | undefined;
+  let sendCommentsTimeout: number | undefined;
   function resetEditTemplate() {
     ComejeneSenderController.sendReset();
-    sleepAbortController?.abort();
-    sleepAbortController = new AbortController();
-    sleep(100, sleepAbortController.signal).then(() => {
-      for (let i = 0; i < 5; i++) dbg_send_content();
-    });
+
+    if (sendCommentsTimeout == null) {
+      sendCommentsTimeout = setTimeout(() => {
+        for (let i = 0; i < 5; i++) dbg_send_content();
+        sendCommentsTimeout = undefined;
+      }, 100);
+    }
   }
 
+  let checkForceClose = $state(false);
   function closeEditing() {
     if (editState.state !== "editing") return;
-    if (!editState.edited) {
-      // TODO: 変更を保存していない場合に通知する
+
+    const edited = editState.edited;
+    // 保存していない変更がある場合、１度は通知する
+    if (edited && !checkForceClose) {
+      checkForceClose = true;
+      return;
     }
+    checkForceClose = false;
     editState.lockRelease();
     editState = { state: "none", collision: false };
+
+    if (edited) {
+      resetEditTemplate();
+    }
   }
   //#endregion functions
 </script>
@@ -161,7 +174,7 @@
 
     {#if editState.state === "editing"}
       <!-- テンプレート編集 -->
-      <MyzViewArea title="テンプレート">
+      <MyzViewArea title="編集中のテンプレート">
         <MyzView object={{ display: "名前" }}>
           <input
             disabled={selectTemplateIsDefault}
@@ -177,10 +190,19 @@
         </MyzView>
       </MyzViewArea>
 
-      <div class="buttons">
-        <button onclick={save} type="button">保存</button>
-        <button onclick={closeEditing} type="button">編集を終了する</button>
-      </div>
+      {#if checkForceClose}
+        <div class="error">保存していない変更があります！</div>
+
+        <div class="buttons">
+          <button class="warn" onclick={closeEditing} type="button">保存せずに戻る</button>
+          <button onclick={save} type="button">保存する</button>
+        </div>
+      {:else}
+        <div class="buttons">
+          <button class="warn" onclick={closeEditing} type="button">戻る</button>
+          <button onclick={save} type="button">保存する</button>
+        </div>
+      {/if}
 
       <MyzViewArea title="コメントテスト">
         <button onclick={() => dbg_send_content()} type="button">コメントテスト</button>
@@ -189,8 +211,8 @@
       <TemplateSetting bind:template={editState.template} bind:edited={editState.edited} />
     {:else}
       <!-- テンプレート一覧表示 -->
-      <MyzViewArea title="テンプレート">
-        <MyzView object={{ display: "テンプレート一覧" }}>
+      <MyzViewArea title="テンプレート一覧">
+        <MyzView object={{ display: "名前" }}>
           <select class="simple-list" bind:value={$selectTemplateId}>
             {#each storageTemplateIds as id (id)}
               {@const name = storageTemplates[id].name}
@@ -206,21 +228,21 @@
 
       <div class="buttons">
         <button
-          class="delete"
-          onclick={remove}
+          class="warn"
+          onclick={deleteOrReset}
           title="最初から存在するテンプレートは削除出来ません"
           type="button"
         >
           {selectTemplateIsDefault ? "初期化" : "削除"}
         </button>
-        <button onclick={clone} type="button">複製</button>
+        <button class="sub" onclick={clone} type="button">複製</button>
         <button onclick={edit} type="button">編集</button>
       </div>
 
       {#if editState.collision}
-        <div class="warn">
+        <div class="error">
           <div>※このテンプレートは他のウィンドウで編集中です</div>
-          <div>※編集しているウィンドウで「編集を終了する」を押して下さい</div>
+          <div>※編集中のウィンドウで編集を終了して下さい</div>
         </div>
       {/if}
 
@@ -262,12 +284,13 @@
 
   .buttons {
     display: flex;
-    gap: 6px;
+    gap: 10px;
 
     button {
-      background-color: #e3c9ff;
+      background-color: #d1c9ff;
       padding: 5px 10px;
       border: none;
+
       border-radius: 4px;
 
       &:hover {
@@ -275,14 +298,19 @@
       }
     }
 
-    .delete {
-      background-color: #ffbaba;
+    .warn {
       margin-right: 20px;
+      background-color: #ffbaba;
+    }
+
+    .sub {
+      background-color: #9effb0;
     }
   }
 
-  .warn {
+  .error {
     color: red;
     font-size: 1em;
+    font-weight: bold;
   }
 </style>

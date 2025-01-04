@@ -1,6 +1,6 @@
 import { mount } from "svelte";
 import "../comejene/style.css";
-import TemplateEditor from "./ComejeneEdit.svelte";
+import TemplateEditor from "./Empty.svelte";
 
 export default mount(TemplateEditor, {
   target: document.getElementById("app")!,

@@ -91,10 +91,6 @@ const 縦並び = (): ComejeneTemplate<"stack"> => ({
 export const ComejeneTemplateFirstId = "$default$";
 export const ComejeneTemplates = {
   [`${ComejeneTemplateFirstId}Debug`]: デバッグ用(),
-  [`${ComejeneTemplateFirstId}Tate`]: 横並び(),
-  [`${ComejeneTemplateFirstId}Yoko`]: 縦並び(),
+  [`${ComejeneTemplateFirstId}Tate`]: 縦並び(),
+  [`${ComejeneTemplateFirstId}Yoko`]: 横並び(),
 } as const;
-
-
-// export const TemplateNames = Object.keys(ComejeneTemplates) as TemplateName[];
-// export type TemplateName = keyof typeof ComejeneTemplates;

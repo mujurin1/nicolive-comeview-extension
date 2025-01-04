@@ -4,7 +4,7 @@ import { comejeneEnvs, type ComejeneContent, type ComejeneEnvTypes, type Comejen
 const senders = $state<ComejeneSender[]>([]);
 let nextId = 1;
 
-let temp: () => ComejeneTemplate = () => ComejeneTemplates.default_template_Debug;
+let temp: () => ComejeneTemplate = () => ComejeneTemplates.$default$Debug;
 function getTemplate(): ComejeneTemplate {
   return temp();
 }
