@@ -1,3 +1,5 @@
+import { promiser } from "@mujurin/nicolive-api-ts";
+
 /**
  * 重み付きランダム選択を行うジェネレータ関数を作成します
  *
@@ -101,3 +103,19 @@ const dummyComments = createRandomGenerator<string[]>([
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
   ]],
 ]);
+
+/**
+ * `navigator.locks.request`でロックを獲得し、開放する関数を返す\
+ * ロックを獲得出来なかった場合は`undefined`を返す
+ * @param name ロックする名前
+ * @returns ロックを開放する関数
+ */
+export function getNavigatorLock(name: string): (() => void) | undefined {
+  const p = promiser();
+
+  const lock = navigator.locks.request(name, { ifAvailable: true }, () => p.promise);
+  // ロックの獲得に失敗した
+  if (lock == null) return;
+
+  return p.resolve;
+}

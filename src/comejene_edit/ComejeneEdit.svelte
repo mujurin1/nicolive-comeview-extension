@@ -8,41 +8,43 @@
   import { storageInit } from "../lib/Storage";
   import { ComejeneSenderController } from "../service/ComejeneSenderController.svelte";
   import { ComejeneStore } from "../store/ComejeneStore.svelte";
-  import SimpleList from "./components/SimpleList.svelte";
   import TemplateSetting from "./components/TemplateSetting.svelte";
   import { type ComejeneTemplate } from "./Template/ComejeneTemplate";
-  import { getDummyContent } from "./utils";
+  import { getDummyContent, getNavigatorLock } from "./utils";
 
   storageInit();
+
   let storageTemplates = $derived(ComejeneStore.state.templates);
+  let storageTemplateIds = $derived(Object.keys(storageTemplates));
   // svelte-ignore state_referenced_locally
-  let selectTemplateId = notifierStore(
+  let selectTemplateId = notifierStore<string>(
     Object.keys(storageTemplates)[0],
     () => {
-      let newTemplate = storageTemplates[$selectTemplateId];
-      if (newTemplate == null) {
-        selectTemplateId.state = Object.keys(storageTemplates)[0];
-        newTemplate = storageTemplates[$selectTemplateId];
-      }
-      resetEditTemplate(newTemplate);
+      resetEditTemplate();
     },
     () => {
-      const newId = Object.keys(storageTemplates)[0];
-      const newTemplate = storageTemplates[newId];
+      let newId: string = untrack(() => $selectTemplateId);
+      if (storageTemplates[newId] == null) {
+        newId = Object.keys(storageTemplates)[0];
+      }
       untrack(() => {
-        if (!editing) resetEditTemplate(newTemplate);
+        if (!editing) resetEditTemplate();
       });
       return newId;
     },
   );
+  let selectTemplate = $derived(storageTemplates[$selectTemplateId]);
 
-  // svelte-ignore state_referenced_locally
-  let editTemplate = $state<ComejeneTemplate>(
-    structuredClone($state.snapshot(storageTemplates[$selectTemplateId])),
-  );
-  let editing = $state(false);
+  interface EditState {
+    readonly template: ComejeneTemplate;
+    readonly lockRelease: () => void;
+    /** 最後に編集してから保存したか */
+    edited: boolean;
+  }
+  let editState = $state<EditState>();
+  let editing = $derived(editState != null);
 
-  ComejeneSenderController._set(() => editTemplate);
+  ComejeneSenderController._set(() => editState?.template ?? selectTemplate);
   Promise.all([
     ComejeneSenderController.createAndConnect("obs", { url: `ws://localhost:${4455}` }),
     ComejeneSenderController.createAndConnect("browserEx"),
@@ -63,9 +65,21 @@
     ComejeneSenderController.sendContent(content);
   }
 
-  function edit() {
-    editing = true;
-    // TODO: 編集可能なのは1ウィンドウのみにしたい
+  async function edit() {
+    if (editing) return;
+
+    // 同じテンプレートの編集は同時に1ウィンドウのみ
+    const lockRelease = getNavigatorLock(`comejene_edit_${$selectTemplateId}`);
+    if (lockRelease == null) {
+      // TODO: 他のウィンドウで編集中であることを通知する
+      return;
+    }
+
+    editState = {
+      lockRelease,
+      template: structuredClone($state.snapshot(selectTemplate)),
+      edited: false,
+    };
   }
 
   function clone() {
@@ -73,14 +87,14 @@
   }
 
   function save() {
-    storageTemplates[$selectTemplateId] = editTemplate;
+    if (editState == null) return;
+    storageTemplates[$selectTemplateId] = editState.template;
+    editState.edited = false;
     ComejeneStore.save();
   }
 
   let sleepAbortController: AbortController | undefined;
-  function resetEditTemplate(newTemplate: ComejeneTemplate) {
-    editTemplate = structuredClone($state.snapshot(newTemplate));
-
+  function resetEditTemplate() {
     ComejeneSenderController.sendReset();
     sleepAbortController?.abort();
     sleepAbortController = new AbortController();
@@ -89,9 +103,13 @@
     });
   }
 
-  function disposeEditing() {
-    // TODO: 変更を保存していない場合に通知する
-    editing = false;
+  function closeEditing() {
+    if (editState == null) return;
+    if (!editState.edited) {
+      // TODO: 変更を保存していない場合に通知する
+    }
+    editState.lockRelease();
+    editState = undefined;
   }
 </script>
 
@@ -99,38 +117,41 @@
   <div class="setting-container">
     <button onclick={senderReset} type="button">初期化</button>
 
-    {#if editing}
+    {#if editState != null}
+      <!-- テンプレート編集 -->
       <MyzViewArea title="テンプレート">
         <MyzView object={{ display: "名前" }}>
-          <input type="text" bind:value={editTemplate.name} />
+          <input type="text" bind:value={editState.template.name} />
         </MyzView>
         <MyzView object={{ display: "モーション" }}>
-          <div>{editTemplate.motion.name}</div>
+          <div>{editState.template.motion.name}</div>
         </MyzView>
       </MyzViewArea>
 
       <div class="buttons">
         <button onclick={save} type="button">保存</button>
-        <button onclick={disposeEditing} type="button">編集を終了する</button>
+        <button onclick={closeEditing} type="button">編集を終了する</button>
       </div>
 
       <MyzViewArea title="コメントテスト">
         <button onclick={() => dbg_send_content()} type="button">コメントテスト</button>
       </MyzViewArea>
 
-      <TemplateSetting bind:template={editTemplate} />
+      <TemplateSetting bind:template={editState.template} bind:edited={editState.edited} />
     {:else}
+      <!-- テンプレート一覧表示 -->
       <MyzViewArea title="テンプレート">
         <MyzView object={{ display: "テンプレート一覧" }}>
-          <SimpleList
-            items={Object.values(storageTemplates).map(x => x.name)}
-            size={1}
-            bind:value={$selectTemplateId}
-          />
+          <select class="simple-list" bind:value={$selectTemplateId}>
+            {#each storageTemplateIds as id (id)}
+              {@const name = storageTemplates[id].name}
+              <option class="item" value={id}>{name}</option>
+            {/each}
+          </select>
         </MyzView>
 
         <MyzView object={{ display: "モーション" }}>
-          <div>{editTemplate.motion.name}</div>
+          <div>{selectTemplate.motion.name}</div>
         </MyzView>
       </MyzViewArea>
 

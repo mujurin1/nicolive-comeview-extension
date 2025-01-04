@@ -12,11 +12,7 @@ export interface ComejeneState {
 }
 
 const ComejeneStateDefault: DeepReadonly<ComejeneState> = {
-  templates: {
-    デバッグ用: ComejeneTemplates.デバッグ用(),
-    横並び: ComejeneTemplates.横並び(),
-    縦並び: ComejeneTemplates.縦並び(),
-  },
+  templates: ComejeneTemplates,
   frames: {
     "I-{N_/C}": ComejeneTemplates_MessageContainer["I-{N_/C}"](),
     "I-N-C": ComejeneTemplates_MessageContainer["I-N-C"](),

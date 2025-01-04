@@ -30,3 +30,7 @@ select {
     cursor: not-allowed !important;
   }
 }
+
+select {
+  width: 100%;
+}
