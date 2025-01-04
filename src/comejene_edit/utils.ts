@@ -110,12 +110,16 @@ const dummyComments = createRandomGenerator<string[]>([
  * @param name ロックする名前
  * @returns ロックを開放する関数
  */
-export function getNavigatorLock(name: string): (() => void) | undefined {
+export async function getNavigatorLock(name: string): Promise<(() => void) | undefined> {
   const p = promiser();
 
-  const lock = navigator.locks.request(name, { ifAvailable: true }, () => p.promise);
+  const getLockCheck = promiser<boolean>();
+  void navigator.locks.request(name, { ifAvailable: true }, lock => {
+    getLockCheck.resolve(lock != null);
+    return p.promise;
+  });
   // ロックの獲得に失敗した
-  if (lock == null) return;
+  if (!await getLockCheck.promise) return;
 
   return p.resolve;
 }

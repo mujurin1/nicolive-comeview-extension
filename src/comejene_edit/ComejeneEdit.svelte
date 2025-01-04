@@ -1,6 +1,6 @@
 <script lang="ts">
   import { sleep } from "@mujurin/nicolive-api-ts";
-  import { untrack } from "svelte";
+  import { onMount, untrack } from "svelte";
   import App from "../comejene/App.svelte";
   import { notifierStore } from "../lib/CustomStore.svelte";
   import MyzView from "../lib/Myz/MyzView.svelte";
@@ -35,23 +35,42 @@
   );
   let selectTemplate = $derived(storageTemplates[$selectTemplateId]);
 
-  interface EditState {
+  //#region editState
+  type EditState = EditState_None | EditState_Edit;
+  interface EditState_None {
+    readonly state: "none";
+    /** 編集を始めようとしたが、他のウィンドウで編集中だった */
+    collision: boolean;
+    readonly template?: never;
+  }
+  interface EditState_Edit {
+    readonly state: "editing";
     readonly template: ComejeneTemplate;
     readonly lockRelease: () => void;
     /** 最後に編集してから保存したか */
     edited: boolean;
   }
-  let editState = $state<EditState>();
-  let editing = $derived(editState != null);
+  let editState = $state<EditState>({ state: "none", collision: false });
+  let editing = $derived(editState.state === "editing");
+  //#endregion editState
 
-  ComejeneSenderController._set(() => editState?.template ?? selectTemplate);
+  //#region initialize
+  onMount(() => {
+    return () => {
+      if (editState.state === "editing") editState.lockRelease();
+    };
+  });
+
+  ComejeneSenderController._set(() => editState.template ?? selectTemplate);
   Promise.all([
     ComejeneSenderController.createAndConnect("obs", { url: `ws://localhost:${4455}` }),
     ComejeneSenderController.createAndConnect("browserEx"),
   ]).then(() => {
     ComejeneSenderController.connect();
   });
+  //#endregion initialize
 
+  //#region functions
   function senderReset() {
     ComejeneSenderController.sendReset();
   }
@@ -66,16 +85,18 @@
   }
 
   async function edit() {
-    if (editing) return;
+    if (editState.state === "editing") return;
 
     // 同じテンプレートの編集は同時に1ウィンドウのみ
-    const lockRelease = getNavigatorLock(`comejene_edit_${$selectTemplateId}`);
+    const lockRelease = await getNavigatorLock(`comejene_edit_${$selectTemplateId}`);
     if (lockRelease == null) {
-      // TODO: 他のウィンドウで編集中であることを通知する
+      // 他のウィンドウで編集中だった
+      editState.collision = true;
       return;
     }
 
     editState = {
+      state: "editing",
       lockRelease,
       template: structuredClone($state.snapshot(selectTemplate)),
       edited: false,
@@ -87,7 +108,7 @@
   }
 
   function save() {
-    if (editState == null) return;
+    if (editState.state !== "editing") return;
     storageTemplates[$selectTemplateId] = editState.template;
     editState.edited = false;
     ComejeneStore.save();
@@ -104,20 +125,21 @@
   }
 
   function closeEditing() {
-    if (editState == null) return;
+    if (editState.state !== "editing") return;
     if (!editState.edited) {
       // TODO: 変更を保存していない場合に通知する
     }
     editState.lockRelease();
-    editState = undefined;
+    editState = { state: "none", collision: false };
   }
+  //#endregion functions
 </script>
 
 <div class="comejene-edit">
   <div class="setting-container">
     <button onclick={senderReset} type="button">初期化</button>
 
-    {#if editState != null}
+    {#if editState.state === "editing"}
       <!-- テンプレート編集 -->
       <MyzViewArea title="テンプレート">
         <MyzView object={{ display: "名前" }}>
@@ -160,6 +182,13 @@
         <button onclick={edit} type="button">編集</button>
       </div>
 
+      {#if editState.collision}
+        <div class="warn">
+          <div>※このテンプレートは他のウィンドウで編集中です</div>
+          <div>※編集しているウィンドウで「編集を終了する」を押して下さい</div>
+        </div>
+      {/if}
+
       <MyzViewArea title="コメントテスト">
         <button onclick={() => dbg_send_content()} type="button">コメントテスト</button>
       </MyzViewArea>
@@ -187,10 +216,6 @@
     row-gap: 5px;
     padding: 5px;
     overflow-y: auto;
-
-    /* & > div {
-      width: 100%;
-    } */
   }
 
   .preview-container {
@@ -214,5 +239,10 @@
         filter: contrast(110%);
       }
     }
+  }
+
+  .warn {
+    color: red;
+    font-size: 1em;
   }
 </style>
