@@ -22,7 +22,7 @@
   <fieldset>
     <legend>背景色</legend>
     <div style:display="flex" class="item" class:setted={!isDefault && format.backgroundColor != null}>
-      <ColorPicker --picker-z-index=1 bind:value={$formatS.backgroundColor}/>
+      <ColorPicker --picker-z-index=1 bind:value={$formatS.backgroundColor} />
       <input
         style:width="100%"
         placeholder={isDefault ? "透明" :`デフォルト (${SettingStore.state.commentView.commentFormats.default.backgroundColor ?? "透明"})`}

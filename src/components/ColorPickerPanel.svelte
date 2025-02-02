@@ -34,40 +34,25 @@
     if (e.target == null) return;
     const { x, y } = pickerPanel.getBoundingClientRect();
 
-    pickerState.setHsvAlpha(
-      [
-        pickerState.hsv?.[0] ?? 0,
-        Math.max(0, Math.min(1, (e.clientX - x) / pickerPanel.clientWidth)),
-        1 - Math.max(0, Math.min(1, (e.clientY - y) / pickerPanel.clientHeight)),
-      ],
-      pickerState.alpha
-    );
-    // if (colorPickerState.hsv == null) colorPickerState.hsv = [0, 0, 0];
-    // colorPickerState.hsv[1] = Math.max(0, Math.min(1, (e.clientX - x) / pickerPanel.clientWidth));
-    // colorPickerState.hsv[2] = 1 - Math.max(0, Math.min(1, (e.clientY - y) / pickerPanel.clientHeight));
+    pickerState.hsv = [
+      pickerState.hsv?.[0] ?? 0,
+      Math.max(0, Math.min(1, (e.clientX - x) / pickerPanel.clientWidth)),
+      1 - Math.max(0, Math.min(1, (e.clientY - y) / pickerPanel.clientHeight)),
+    ];
   }
   function setHue(e: MouseEvent) {
     if (e.target == null) return;
     const { x } = hueSlider.getBoundingClientRect();
-    pickerState.setHsvAlpha(
-      [
-        Math.max(0, Math.min(1, (e.clientX - x) / hueSlider.clientWidth)),
-        pickerState.hsv?.[1] ?? 0,
-        pickerState.hsv?.[2] ?? 0,
-      ],
-      pickerState.alpha
-    );
-    // if (colorPickerState.hsv == null) colorPickerState.hsv = [0, 0, 0];
-    // colorPickerState.hsv[0] = Math.max(0, Math.min(1, (e.clientX - x) / hueSlider.clientWidth));
+    pickerState.hsv = [
+      Math.max(0, Math.min(1, (e.clientX - x) / hueSlider.clientWidth)),
+      pickerState.hsv?.[1] ?? 0,
+      pickerState.hsv?.[2] ?? 0,
+    ];
   }
   function setAlpha(e: MouseEvent) {
     if (e.target == null) return;
     const { x } = alphaSlider.getBoundingClientRect();
-    pickerState.setHsvAlpha(
-      pickerState.hsv,
-      Math.max(0, Math.min(1, (e.clientX - x) / alphaSlider.clientWidth))
-    );
-    // colorPickerState.alpha = Math.max(0, Math.min(1, (e.clientX - x) / alphaSlider.clientWidth));
+    pickerState.alpha = Math.max(0, Math.min(1, (e.clientX - x) / alphaSlider.clientWidth));
   }
 </script>
 

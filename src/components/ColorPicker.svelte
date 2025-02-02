@@ -161,10 +161,10 @@
   export interface ColorPickerStateBase {
     /** `#RRGGBB` `#RRGGBBAA` `NamedColor` */
     value: string | undefined;
-    /** 色相:0-1 彩度:0-1 明度:0-1 */
-    hsv: Colors | undefined;
     /** `"#RRGGBB"`または`"#RRGGBBAA"` */
     hex: string | undefined;
+    /** 色相:0-1 彩度:0-1 明度:0-1 */
+    hsv: Colors | undefined;
     /** 透明度:0-1 */
     alpha: number;
   }
@@ -303,11 +303,16 @@
 
   let colorPickerButton: HTMLButtonElement;
 
+  let _value = $state<string>();
+  let _hex = $state<string>();
+  let _hsv = $state<Colors>();
+  let _alpha = $state(1);
   export const pickerState = $state<ColorPickerState>({
-    get value() { return value; },
+    get value() { return _value; },
     set value(v) {
-      value = v;
-      if (value == null) {
+      if (_value === v) return;
+      _value = v;
+      if (v == null) {
         pickerState.setHsvAlpha(undefined, 1);
       } else {
         const color = customColorToHsv(v);
@@ -315,28 +320,31 @@
         pickerState.setHsvAlpha(color[0], color[1]);
       }
     },
-    get hsv() { return hsv; },
-    set hsv(v) {
-      hsv = v;
-    },
-    get hex() { return hex; },
+    get hex() { return _hex; },
     set hex(v) {
+      if (_hex === v) return;
+      _hex = v;
       const color = hexToHsvAlpha(v);
       if (color == null) return;
       pickerState.setHsvAlpha(color[0], color[1]);
     },
-
-    get alpha() { return alpha; },
+    get hsv() { return _hsv; },
+    set hsv(v) {
+      pickerState.setHsvAlpha(v, _alpha);
+    },
+    get alpha() { return _alpha; },
     set alpha(v) {
-      alpha = v;
+      pickerState.setHsvAlpha(_hsv, v);
     },
 
-    setHsvAlpha: (hsv, alpha) => {
-      pickerState.hsv = hsv;
-      pickerState.alpha = alpha;
-      hex = hsvToHex(pickerState.hsv, alpha);
-      if (hex !== getNamedColor(value))
-        value = pickerState.hex;
+    setHsvAlpha: (h, a) => {
+      hsv = _hsv = h;
+      alpha = _alpha = a;
+      hex = _hex = hsvToHex(_hsv, _alpha);
+      if (_hex !== getNamedColor(_value)) {
+        _value = _hex;
+      }
+      value = _value;
     },
   });
 
@@ -345,9 +353,8 @@
     document.addEventListener("mousedown", checkFocus);
     const parent = colorPickerButton.parentElement!;
 
-    inited = true;
     // 最初の色として使う優先度は
-    // value > hex > hsv And alpha
+    // value > hex > hsv & alpha
     if (value != null) {
       pickerState.value = value;
     } else if (hex != null) {
@@ -356,6 +363,7 @@
       pickerState.setHsvAlpha(hsv, alpha ?? 1);
     }
 
+    inited = true;
     return () => {
       document.removeEventListener("mousedown", checkFocus);
     }
@@ -391,7 +399,7 @@
     })
   });
 
-  let hsl = $derived(hsvToHsl(hsv));
+  let hsl = $derived(hsvToHsl(pickerState.hsv));
 </script>
 
 <div
