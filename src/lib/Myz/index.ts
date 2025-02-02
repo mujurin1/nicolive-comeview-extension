@@ -48,6 +48,7 @@ export interface MyzValueable<
 //#region MyzRooter
 export interface MyzBlock<BLOCK extends MyzObjects = MyzObjects> extends MyzBase<"block"> {
   block: BLOCK;
+  defaultShow?: boolean;
 }
 
 export interface MyzSwitch<
@@ -94,6 +95,7 @@ interface MysSwitchBuilder<
 //#region VALUEABLE
 export interface MyzString<EXTRA extends MyzExtraTypes = never> extends MyzValueable<"string", EXTRA> { }
 export interface MyzNumber<EXTRA extends MyzExtraTypes = never> extends MyzValueable<"number", EXTRA> {
+  /** @default `"range"` */
   control: "number" | "range";
   min?: number;
   max?: number;

@@ -2,6 +2,7 @@
   import type { MyzRoot, MyzState } from ".";
   import ColorPicker from "../../components/ColorPicker.svelte";
   import { notifierStore } from "../CustomStore.svelte";
+    import Expand from "./Expand.svelte";
   import Self from "./MyzRootView.svelte";
   import MyzSwitchView from "./MyzSwitchView.svelte";
   import MyzView from "./MyzView.svelte";
@@ -61,15 +62,16 @@
       </select>
     </MyzView>
   {:else if object.type === "block"}
-    <div class="myz-block-label">{object.display}</div>
-    <div style:--indent={`${indent}em`}>
-      <Self
-        indent={indent + 1}
-        path={path + key}
-        root={root.block[key] as any}
-        bind:style={$style[key]}
-      />
-    </div>
+    <Expand show={object.defaultShow} title={object.display}>
+      <div style:--indent={`${indent}em`}>
+        <Self
+          indent={indent + 1}
+          path={path + key}
+          root={root.block[key] as any}
+          bind:style={$style[key]}
+        />
+      </div>
+    </Expand>
   {:else if object.type === "switch"}
     <MyzSwitchView
       display={object.display}
@@ -79,10 +81,3 @@
     />
   {/if}
 {/each}
-
-<style>
-  .myz-block-label {
-    cursor: default;
-    padding-left: var(--indent);
-  }
-</style>

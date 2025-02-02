@@ -16,6 +16,10 @@ export const _ComejeneContentStyle = {
       padding: paddingToCss(style.padding),
       alignItems: FlexPosition.asCss(style.position.y),
       overflow: "clip",
+      borderStyle: style.border.style,
+      borderWidth: style.border.width,
+      borderColor: style.border.color,
+      borderRadius: style.border.radius,
     };
   },
   asCss_Text: (style: _ComejeneContentStyle_Text): CSSObject => {
@@ -52,6 +56,7 @@ const FlexPosition = {
     return `flex-${position}`;
   }
 } as const;
+const BorderStyles = ["none", "dotted", "dashed", "solid", "double", "groove", "ridge", "inset", "outset"] as const;
 
 export type _ComejeneContentStyleBase = typeof _ComejeneContentStyleBase;
 /** 全タイプの共通のデータ */
@@ -69,16 +74,14 @@ export const _ComejeneContentStyleBase = {
     bottom: number;
     left: number;
   }>("余白")
-    .addBlock(
-      "上下左右",
+    .addBlock("上下左右",
       {
         padding: myz.number("上下左右"),
       },
       ({ padding }) => ({ top: padding, right: padding, bottom: padding, left: padding }),
       ({ top }) => ({ padding: top }),
     )
-    .addBlock(
-      "上下と左右",
+    .addBlock("上下と左右",
       {
         topBottom: myz.number("上下"),
         leftRight: myz.number("左右"),
@@ -86,8 +89,7 @@ export const _ComejeneContentStyleBase = {
       ({ topBottom, leftRight }) => ({ top: topBottom, bottom: topBottom, left: leftRight, right: leftRight }),
       ({ top, left }) => ({ topBottom: top, leftRight: left }),
     )
-    .addBlock(
-      "個別",
+    .addBlock("個別",
       {
         top: myz.number("上"),
         bottom: myz.number("下"),
@@ -99,6 +101,12 @@ export const _ComejeneContentStyleBase = {
     )
     .build("上下と左右"),
   backColor: myz.color("背景色", "optional"),
+  border: myz.block("枠線", {
+    color: myz.color("色"),
+    width: myz.number({ display: "太さ", max: 20 }),
+    radius: myz.number({ display: "丸み", max: 50 }),
+    style: myz.list("スタイル", BorderStyles),
+  }),
 } as const satisfies MyzObjects;
 
 export function paddingToCss(padding: ComejeneContentStyle["padding"]): string {

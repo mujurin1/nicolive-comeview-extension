@@ -37,10 +37,6 @@
 
 <!-- この style は全てデバッグ用 -->
 <style>
-  .content-frame {
-    border: 1px solid red;
-  }
-
   .content {
     font-family: "Segoe UI Emoji";
   }

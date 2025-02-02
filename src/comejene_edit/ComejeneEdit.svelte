@@ -82,7 +82,7 @@
 
   function dbg_send_content(
     icon = "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/defaults/blank.jpg",
-    name = undefined,
+    name = "なまえ",
     message = getDummyContent(),
   ) {
     const content = { icon, name, message };
