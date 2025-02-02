@@ -2,7 +2,13 @@
   import type { Snippet } from "svelte";
   import { onErrorImage } from "../Platform";
 
-  let { no, iconUrl, name, time, content }: {
+  let {
+    no,
+    iconUrl,
+    name,
+    time,
+    content,
+  }: {
     no?: number;
     iconUrl?: string;
     name?: Snippet | string;

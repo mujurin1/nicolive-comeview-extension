@@ -3,7 +3,12 @@
 
   type NameDisplay = readonly (readonly [Name, string])[];
 
-  let { names, currentTab = $bindable(), content, switchedTab }: {
+  let {
+    names,
+    currentTab = $bindable(),
+    content,
+    switchedTab,
+  }: {
     names: readonly Name[] | NameDisplay;
     currentTab: Name;
     content: Snippet<[Name]>;
@@ -12,8 +17,8 @@
 
   const _names = $derived(
     typeof names[0] === "string"
-      ? names.map(name => [name, name] as const) as NameDisplay
-      : names as NameDisplay
+      ? (names.map(name => [name, name] as const) as NameDisplay)
+      : (names as NameDisplay),
   );
 
   function tabSwitch(newTab: Name) {
@@ -27,7 +32,12 @@
   <div class="tab-header" role="tablist">
     {#each _names as [name, displayName] (name)}
       {@const selected = name === currentTab}
-      <button class={`tab-name ${name}`} class:selected={selected} onclick={() => tabSwitch(name)} type="button">
+      <button
+        class={`tab-name ${name}`}
+        class:selected
+        onclick={() => tabSwitch(name)}
+        type="button"
+      >
         {displayName}
       </button>
     {/each}
@@ -66,7 +76,7 @@
         border-radius: 8px;
 
         &:not(.selected):hover {
-          opacity: .85;
+          opacity: 0.85;
         }
 
         &.selected {

@@ -1,10 +1,14 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
 
-  let { title, content, opened = $bindable() }: {
-    title: string | Snippet,
-    content: string | Snippet,
-    opened: bigint,
+  let {
+    title,
+    content,
+    opened = $bindable(),
+  }: {
+    title: string | Snippet;
+    content: string | Snippet;
+    opened: bigint;
   } = $props();
 </script>
 

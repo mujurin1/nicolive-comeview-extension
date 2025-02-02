@@ -3,9 +3,9 @@
   export const init = {
     get loaded() {
       return loaded;
-    }
+    },
   };
-  storageInit().then(() => loaded = true);
+  storageInit().then(() => (loaded = true));
 </script>
 
 <script lang="ts">

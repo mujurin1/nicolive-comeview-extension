@@ -108,7 +108,6 @@
           </button>
         {/if}
       </div>
-
     </div>
   </div>
 {/snippet}

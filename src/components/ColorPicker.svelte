@@ -1,6 +1,6 @@
 <script lang="ts" module>
   export type NamedColorKey = keyof typeof namedColors;
-  export type NamedColor = typeof namedColors[NamedColorKey];
+  export type NamedColor = (typeof namedColors)[NamedColorKey];
   export const namedColors = {
     aliceblue: "#F0F8FF",
     antiquewhite: "#FAEBD7",
@@ -193,7 +193,9 @@
    * @param text `#RRGGBB` `#RRGGBBAA` `NamedColor`
    * @returns `#RRGGBB` `#RRGGBBAA` `undefiend`
    */
-  function customColorToHsv(text: string | undefined): [hsv: Colors | undefined, alpha: number] | undefined {
+  function customColorToHsv(
+    text: string | undefined,
+  ): [hsv: Colors | undefined, alpha: number] | undefined {
     let color: string | undefined = getNamedColor(text);
     if (color == null) color = text;
     return hexToHsvAlpha(color);
@@ -207,7 +209,9 @@
    * * `"" | undefined` => `[undefined, 1]`
    * * 不正な文字列 => `undefined`
    */
-  function hexToHsvAlpha(hex: string | undefined): [hsv:Colors | undefined, alpha:number] | undefined {
+  function hexToHsvAlpha(
+    hex: string | undefined,
+  ): [hsv: Colors | undefined, alpha: number] | undefined {
     if (hex == null || hex == "") return [undefined, 1];
     if (!(hex.length === 7 || hex.length === 9)) return;
 
@@ -216,7 +220,7 @@
     const b = parseInt(hex.slice(5, 7), 16);
     const a = hex.length === 7 ? 1 : parseInt(hex.slice(7, 9), 16) / 255;
     if ([r, g, b, a].some(x => isNaN(x))) return;
-    return [rgbToHsv(r,g,b), a];
+    return [rgbToHsv(r, g, b), a];
   }
 
   /**
@@ -226,20 +230,27 @@
    * @returns `[h,s,v]`
    */
   function rgbToHsv(r: number, g: number, b: number): Colors {
-    r /= 255; g /= 255; b /= 255;
+    r /= 255;
+    g /= 255;
+    b /= 255;
 
     const max = Math.max(r, g, b);
     const min = Math.min(r, g, b);
     const diff = max - min;
-    let h, s, v = max;
+    let h: number;
+    let s: number;
+    let v = max;
     s = max === 0 ? 0 : diff / max;
 
     if (max === min) {
       h = 0;
     } else {
-      h = r === max ? (g - b) / diff + (g < b ? 6 : 0) :
-          g === max ? (b - r) / diff + 2 :
-          (r - g) / diff + 4;
+      h =
+        r === max
+          ? (g - b) / diff + (g < b ? 6 : 0)
+          : g === max
+            ? (b - r) / diff + 2
+            : (r - g) / diff + 4;
       h /= 6;
     }
 
@@ -247,7 +258,7 @@
   }
 
   function hsvToHsl(hsv: Colors | undefined): Colors | undefined {
-    if (hsv == null) return undefined
+    if (hsv == null) return undefined;
     const [h, s, v] = hsv;
     const l = v * (1 - s / 2);
     const newS = l === 0 || l === 1 ? 0 : (v - l) / Math.min(l, 1 - l);
@@ -255,10 +266,12 @@
     return [h, newS, l];
   }
 
-  function hsvToHex(hsv: Colors | undefined, alpha: number): string | undefined{
+  function hsvToHex(hsv: Colors | undefined, alpha: number): string | undefined {
     if (hsv == null) return undefined;
     const [h, s, v] = hsv;
-    let r = 0, g = 0, b = 0;
+    let r = 0;
+    let g = 0;
+    let b = 0;
     const i = Math.floor(h * 6);
     const f = h * 6 - i;
     const p = v * (1 - s);
@@ -266,12 +279,24 @@
     const t = v * (1 - (1 - f) * s);
 
     switch (i % 6) {
-      case 0: r = v, g = t, b = p; break;
-      case 1: r = q, g = v, b = p; break;
-      case 2: r = p, g = v, b = t; break;
-      case 3: r = p, g = q, b = v; break;
-      case 4: r = t, g = p, b = v; break;
-      case 5: r = v, g = p, b = q; break;
+      case 0:
+        (r = v), (g = t), (b = p);
+        break;
+      case 1:
+        (r = q), (g = v), (b = p);
+        break;
+      case 2:
+        (r = p), (g = v), (b = t);
+        break;
+      case 3:
+        (r = p), (g = q), (b = v);
+        break;
+      case 4:
+        (r = t), (g = p), (b = v);
+        break;
+      case 5:
+        (r = v), (g = p), (b = q);
+        break;
     }
 
     let hex = `#${toHex(r)}${toHex(g)}${toHex(b)}`;
@@ -308,7 +333,9 @@
   let _hsv = $state<Colors>();
   let _alpha = $state(1);
   export const pickerState = $state<ColorPickerState>({
-    get value() { return _value; },
+    get value() {
+      return _value;
+    },
     set value(v) {
       if (_value === v) return;
       _value = v;
@@ -320,7 +347,9 @@
         pickerState.setHsvAlpha(color[0], color[1]);
       }
     },
-    get hex() { return _hex; },
+    get hex() {
+      return _hex;
+    },
     set hex(v) {
       if (_hex === v) return;
       _hex = v;
@@ -328,11 +357,15 @@
       if (color == null) return;
       pickerState.setHsvAlpha(color[0], color[1]);
     },
-    get hsv() { return _hsv; },
+    get hsv() {
+      return _hsv;
+    },
     set hsv(v) {
       pickerState.setHsvAlpha(v, _alpha);
     },
-    get alpha() { return _alpha; },
+    get alpha() {
+      return _alpha;
+    },
     set alpha(v) {
       pickerState.setHsvAlpha(_hsv, v);
     },
@@ -366,7 +399,7 @@
     inited = true;
     return () => {
       document.removeEventListener("mousedown", checkFocus);
-    }
+    };
 
     function checkFocus(e: MouseEvent) {
       if (showPicker === "always") return;
@@ -380,23 +413,27 @@
     untrack(() => {
       if (!inited) return;
       pickerState.value = value;
-    })
+    });
   });
   $effect(() => {
     hex;
     untrack(() => {
       if (!inited) return;
       pickerState.hex = hex;
-    })
+    });
   });
   $effect(() => {
     hsv;
-    if (hsv != null) { hsv[0]; hsv[1]; hsv[2]; }
+    if (hsv != null) {
+      hsv[0];
+      hsv[1];
+      hsv[2];
+    }
     alpha;
     untrack(() => {
       if (!inited) return;
       pickerState.setHsvAlpha(hsv, alpha);
-    })
+    });
   });
 
   let hsl = $derived(hsvToHsl(pickerState.hsv));
@@ -461,9 +498,8 @@
     position: relative;
 
     --picker-hsl: hsl(
-      calc(var(--picker-hue) * 360)
-      calc(var(--picker-saturation) * 100%)
-      calc(var(--picker-lightness) * 100%)
+      calc(var(--picker-hue) * 360) calc(var(--picker-saturation) * 100%)
+        calc(var(--picker-lightness) * 100%)
     );
   }
 

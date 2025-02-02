@@ -4,7 +4,7 @@
     "priority": 1,
     "condition": {
       "regexFilter": "^[a-zA-Z]*://(.*\\.)?(nicovideo\\.jp|nimg\\.jp|dmc\\.nico)/",
-      "initiatorDomains": ["hggilkgnnelecejiioikdhhcomakjbpm"]
+      "initiatorDomains": [ "hggilkgnnelecejiioikdhhcomakjbpm" ]
     },
     "action": {
       "type": "modifyHeaders",

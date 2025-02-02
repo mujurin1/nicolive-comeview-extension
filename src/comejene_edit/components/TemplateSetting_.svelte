@@ -1,15 +1,15 @@
 <script lang="ts">
   import {
-      ComejeneContentKeyNames,
-      ComejeneContentKeyToType,
-      ComejeneContentKeys,
-      ComejeneContentStyleRootSet,
-      ComejeneMessageStyleRoot,
-      ComejeneMotionDefinitions,
-      ComejeneStyle,
-      type ComejeneMotionDefinition,
-      type ComejeneMotionNames,
-      type ComejeneMotionSetting
+    ComejeneContentKeyNames,
+    ComejeneContentKeyToType,
+    ComejeneContentKeys,
+    ComejeneContentStyleRootSet,
+    ComejeneMessageStyleRoot,
+    ComejeneMotionDefinitions,
+    ComejeneStyle,
+    type ComejeneMotionDefinition,
+    type ComejeneMotionNames,
+    type ComejeneMotionSetting,
   } from "../../comejene_share";
   import { notifierStore } from "../../lib/CustomStore.svelte";
   import MyzRootView from "../../lib/Myz/MyzRootView.svelte";
@@ -32,11 +32,15 @@
     _motionSetting = motionSetting.state;
   });
 
-  let motionDefinition = $derived<ComejeneMotionDefinition<ComejeneMotionNames>>(ComejeneMotionDefinitions[motionName]);
+  let motionDefinition = $derived<ComejeneMotionDefinition<ComejeneMotionNames>>(
+    ComejeneMotionDefinitions[motionName],
+  );
   let selectContent = $state<ComejeneContentKeys>("message");
   let root = $derived(ComejeneContentStyleRootSet[ComejeneContentKeyToType[selectContent]]);
 
-  let notExistInMessageFrame = $derived($comejeneStyle.containerLayout.contents[selectContent] == null);
+  let notExistInMessageFrame = $derived(
+    $comejeneStyle.containerLayout.contents[selectContent] == null,
+  );
 </script>
 
 <MyzViewArea title="モーション設定">
@@ -64,11 +68,15 @@
   {#key selectContent}
     {#if notExistInMessageFrame}
       <div class="hide-content-message">※メッセージ枠で割り当てられていない項目です</div>
-    <!-- TODO: メッセージフレームとは関係なく非表示にする項目で false の部分を決定する -->
+      <!-- TODO: メッセージフレームとは関係なく非表示にする項目で false の部分を決定する -->
     {:else if !$comejeneStyle.contentsStyle[selectContent].visible}
       <div class="hide-content-message">※この項目は非表示になっています</div>
     {/if}
-    <MyzRootView path="content" {root} bind:style={$comejeneStyle.contentsStyle[selectContent] as any} />
+    <MyzRootView
+      path="content"
+      {root}
+      bind:style={$comejeneStyle.contentsStyle[selectContent] as any}
+    />
   {/key}
 </MyzViewArea>
 

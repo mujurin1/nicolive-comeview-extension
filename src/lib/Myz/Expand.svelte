@@ -10,15 +10,9 @@
     show?: boolean;
     children: Snippet;
   } = $props();
-
 </script>
 
-<button
-  class="head-item"
-  data-expand={show}
-  onclick={() => show = !show}
-  type="button"
->
+<button class="head-item" data-expand={show} onclick={() => (show = !show)} type="button">
   {title}
 </button>
 
@@ -39,7 +33,7 @@
     &::before {
       content: "▶ ";
     }
-    &[data-expand=true] {
+    &[data-expand="true"] {
       &::before {
         content: "▼ ";
       }

@@ -1,7 +1,7 @@
 <script lang="ts">
-    import { notifierStore } from "../lib/CustomStore.svelte";
-    import { CommentFormat, SettingStore } from "../store/SettingStore.svelte";
-    import ColorPicker from "./ColorPicker.svelte";
+  import { notifierStore } from "../lib/CustomStore.svelte";
+  import { CommentFormat, SettingStore } from "../store/SettingStore.svelte";
+  import ColorPicker from "./ColorPicker.svelte";
 
   let { format = $bindable() }: { format: CommentFormat } = $props();
 
@@ -21,11 +21,17 @@
 <div class="grid-row">
   <fieldset>
     <legend>背景色</legend>
-    <div style:display="flex" class="item" class:setted={!isDefault && format.backgroundColor != null}>
-      <ColorPicker --picker-z-index=1 bind:value={$formatS.backgroundColor} />
+    <div
+      style:display="flex"
+      class="item"
+      class:setted={!isDefault && format.backgroundColor != null}
+    >
+      <ColorPicker --picker-z-index="1" bind:value={$formatS.backgroundColor} />
       <input
         style:width="100%"
-        placeholder={isDefault ? "透明" :`デフォルト (${SettingStore.state.commentView.commentFormats.default.backgroundColor ?? "透明"})`}
+        placeholder={isDefault
+          ? "透明"
+          : `デフォルト (${SettingStore.state.commentView.commentFormats.default.backgroundColor ?? "透明"})`}
         type="text"
         bind:value={$formatS.backgroundColor}
       />
@@ -35,10 +41,12 @@
   <fieldset>
     <legend>名前色</legend>
     <div class="item" class:setted={!isDefault && format.nameColor != null}>
-      <ColorPicker --picker-z-index=1 bind:value={$formatS.nameColor} />
+      <ColorPicker --picker-z-index="1" bind:value={$formatS.nameColor} />
       <input
         style:width="100%"
-        placeholder={isDefault ? "black" :`デフォルト (${SettingStore.state.commentView.commentFormats.default.nameColor ?? "black"})`}
+        placeholder={isDefault
+          ? "black"
+          : `デフォルト (${SettingStore.state.commentView.commentFormats.default.nameColor ?? "black"})`}
         type="text"
         bind:value={$formatS.nameColor}
       />
@@ -48,10 +56,12 @@
   <fieldset>
     <legend>コメント色</legend>
     <div class="item" class:setted={!isDefault && format.contentColor != null}>
-      <ColorPicker --picker-z-index=1 bind:value={$formatS.contentColor} />
+      <ColorPicker --picker-z-index="1" bind:value={$formatS.contentColor} />
       <input
         style:width="100%"
-        placeholder={isDefault ? "black" :`デフォルト (${SettingStore.state.commentView.commentFormats.default.contentColor ?? "black"})`}
+        placeholder={isDefault
+          ? "black"
+          : `デフォルト (${SettingStore.state.commentView.commentFormats.default.contentColor ?? "black"})`}
         type="text"
         bind:value={$formatS.contentColor}
       />
@@ -64,7 +74,9 @@
   <input
     class="item"
     class:setted={!isDefault && format.fontFamily != null}
-    placeholder={isDefault ? "既定値" :`デフォルト (${SettingStore.state.commentView.commentFormats.default.fontFamily ?? "既定値"})`}
+    placeholder={isDefault
+      ? "既定値"
+      : `デフォルト (${SettingStore.state.commentView.commentFormats.default.fontFamily ?? "既定値"})`}
     type="text"
     bind:value={$formatS.fontFamily}
   />
@@ -76,7 +88,9 @@
     <input
       class="item"
       class:setted={!isDefault && format.fontSize != null}
-      placeholder={isDefault ? "" :`デフォルト (${SettingStore.state.commentView.commentFormats.default.fontSize as unknown as string})`}
+      placeholder={isDefault
+        ? ""
+        : `デフォルト (${SettingStore.state.commentView.commentFormats.default.fontSize as unknown as string})`}
       type="number"
       bind:value={$formatS.fontSize}
     />
@@ -84,23 +98,32 @@
 
   <fieldset>
     <legend>太字</legend>
-    <select class="item" class:setted={!isDefault && format.isBold != null} bind:value={$formatS.isBold}>
+    <select
+      class="item"
+      class:setted={!isDefault && format.isBold != null}
+      bind:value={$formatS.isBold}
+    >
       <!-- ３つ目の値が undefined だと初期値が設定されてしまうため null を使う -->
       {#each trueFalseNull as value (value)}
-      <option selected={value === $formatS.isBold} {value}>
-        {value ?? `デフォルト (${SettingStore.state.commentView.commentFormats.default.isBold})`}
-      </option>
+        <option selected={value === $formatS.isBold} {value}>
+          {value ?? `デフォルト (${SettingStore.state.commentView.commentFormats.default.isBold})`}
+        </option>
       {/each}
     </select>
   </fieldset>
 
   <fieldset>
     <legend>イタリック体</legend>
-    <select class="item" class:setted={!isDefault && format.isItally != null} bind:value={$formatS.isItally}>
+    <select
+      class="item"
+      class:setted={!isDefault && format.isItally != null}
+      bind:value={$formatS.isItally}
+    >
       {#each trueFalseNull as value (value)}
-      <option {value}>
-        {value ?? `デフォルト (${SettingStore.state.commentView.commentFormats.default.isItally})`}
-      </option>
+        <option {value}>
+          {value ??
+            `デフォルト (${SettingStore.state.commentView.commentFormats.default.isItally})`}
+        </option>
       {/each}
     </select>
   </fieldset>

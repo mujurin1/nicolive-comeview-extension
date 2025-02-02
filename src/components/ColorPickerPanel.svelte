@@ -72,12 +72,7 @@
     </div>
   </div>
   <div class="input-area">
-    <input
-      class="hex-input"
-      placeholder="(未設定)"
-      type="text"
-      bind:value={pickerState.value}
-    />
+    <input class="hex-input" placeholder="(未設定)" type="text" bind:value={pickerState.value} />
   </div>
 </div>
 
@@ -90,7 +85,7 @@
 <style>
   * {
     box-sizing: border-box;
-    --picker-hsl-non-null: var(--picker-hsl, hsl(0, 0% , 0%));
+    --picker-hsl-non-null: var(--picker-hsl, hsl(0, 0%, 0%));
     --picker-hue-non-null: var(--picker-hue, 0);
   }
 
@@ -128,7 +123,14 @@
     flex: 0 0 auto;
     height: var(--picker-slider-height);
     background: linear-gradient(
-      90deg, red 0, #ff0 17%, #0f0 33%, #0ff 50%, #00f 67%, #f0f 83%, red
+      90deg,
+      red 0,
+      #ff0 17%,
+      #0f0 33%,
+      #0ff 50%,
+      #00f 67%,
+      #f0f 83%,
+      red
     );
 
     .picker-pick {

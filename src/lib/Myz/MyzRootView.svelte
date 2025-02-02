@@ -2,7 +2,7 @@
   import type { MyzRoot, MyzState } from ".";
   import ColorPicker from "../../components/ColorPicker.svelte";
   import { notifierStore } from "../CustomStore.svelte";
-    import Expand from "./Expand.svelte";
+  import Expand from "./Expand.svelte";
   import Self from "./MyzRootView.svelte";
   import MyzSwitchView from "./MyzSwitchView.svelte";
   import MyzView from "./MyzView.svelte";
@@ -51,7 +51,7 @@
     </MyzView>
   {:else if object.type === "color"}
     <MyzView {forId} {object}>
-      <ColorPicker --picker-left="-100px" {forId} bind:hex={$style[key]}/>
+      <ColorPicker --picker-left="-100px" {forId} bind:hex={$style[key]} />
     </MyzView>
   {:else if object.type === "list"}
     <MyzView {forId} {object}>

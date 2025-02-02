@@ -9,7 +9,12 @@
 <script lang="ts">
   import { tick } from "svelte";
   import { getCssClassNameFromMessage } from "../function/CssStyle.svelte";
-  import { getNicoliveUserName, type ExtentionMessage, type NceUserType, type NicoliveMessage } from "../Platform";
+  import {
+    getNicoliveUserName,
+    type ExtentionMessage,
+    type NceUserType,
+    type NicoliveMessage,
+  } from "../Platform";
   import { NceMessageStore } from "../store/NceStore.svelte";
   import { checkVisibleYomiage_Visible, SettingStore } from "../store/SettingStore.svelte";
   import LegacyCommentViewItem from "./LegacyCommentViewItem.svelte";
@@ -67,11 +72,7 @@
       </LegacyCommentViewItem>
     {:else}
       {@const user = message.user}
-      <LegacyCommentViewItem
-        iconUrl={message.user.iconUrl}
-        no={message.no}
-        time={message.time}
-      >
+      <LegacyCommentViewItem iconUrl={message.user.iconUrl} no={message.no} time={message.time}>
         {#snippet name()}
           {@const name = message.tempName ?? getNicoliveUserName(user)}
           <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -95,14 +96,15 @@
   </div>
 {/snippet}
 
-
 {#snippet ExtentionMessageContent(message: ExtentionMessage)}
   {message.content}
   {#if message.input != null}
     <input type={message.input.type} bind:value={message.input.value} />
   {/if}
   {#if message.button != null}
-    <button onclick={() => message.button!.func(message)} type="button">{message.button.text}</button>
+    <button onclick={() => message.button!.func(message)} type="button"
+      >{message.button.text}</button
+    >
   {/if}
 {/snippet}
 {#snippet ExtentionMessageView(message: ExtentionMessage)}
@@ -114,7 +116,7 @@
         {:else}
           <details class="extension-details">
             <summary>
-             {@render ExtentionMessageContent(message)}
+              {@render ExtentionMessageContent(message)}
             </summary>
             {message.expandMessage}
           </details>
