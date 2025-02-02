@@ -1,8 +1,9 @@
 <script lang="ts">
     import { notifierStore } from "../lib/CustomStore.svelte";
     import { CommentFormat, SettingStore } from "../store/SettingStore.svelte";
+    import ColorPicker from "./ColorPicker.svelte";
 
-  let { format = $bindable()}: { format: CommentFormat } = $props();
+  let { format = $bindable() }: { format: CommentFormat } = $props();
 
   const isDefault = format === SettingStore.state.commentView.commentFormats.default;
   const trueFalseNull = isDefault ? [true, false] : [null, true, false];
@@ -21,7 +22,7 @@
   <fieldset>
     <legend>背景色</legend>
     <div style:display="flex" class="item" class:setted={!isDefault && format.backgroundColor != null}>
-      <input type="color" bind:value={$formatS.backgroundColor} />
+      <ColorPicker --picker-z-index=1 bind:value={$formatS.backgroundColor}/>
       <input
         style:width="100%"
         placeholder={isDefault ? "透明" :`デフォルト (${SettingStore.state.commentView.commentFormats.default.backgroundColor ?? "透明"})`}
@@ -34,7 +35,7 @@
   <fieldset>
     <legend>名前色</legend>
     <div class="item" class:setted={!isDefault && format.nameColor != null}>
-      <input type="color" bind:value={$formatS.nameColor} />
+      <ColorPicker --picker-z-index=1 bind:value={$formatS.nameColor} />
       <input
         style:width="100%"
         placeholder={isDefault ? "black" :`デフォルト (${SettingStore.state.commentView.commentFormats.default.nameColor ?? "black"})`}
@@ -47,7 +48,7 @@
   <fieldset>
     <legend>コメント色</legend>
     <div class="item" class:setted={!isDefault && format.contentColor != null}>
-      <input type="color" bind:value={$formatS.contentColor} />
+      <ColorPicker --picker-z-index=1 bind:value={$formatS.contentColor} />
       <input
         style:width="100%"
         placeholder={isDefault ? "black" :`デフォルト (${SettingStore.state.commentView.commentFormats.default.contentColor ?? "black"})`}

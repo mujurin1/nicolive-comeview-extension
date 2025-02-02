@@ -60,14 +60,14 @@ const 縦並び = (): ComejeneTemplate<"stack"> => ({
       icon: {
         visible: true,
         position: { x: "center", y: "center" },
-        backColor: "#00000000",
+        backColor: undefined,
         padding: { top: 0, right: 5, bottom: 0, left: 5, },
         imgSize: { width: 30, height: 30 }
       },
       name: {
         visible: true,
         position: { x: "center", y: "center" },
-        backColor: "#00000000",
+        backColor: undefined,
         padding: { top: 0, right: 5, bottom: 0, left: 5, },
         textSize: 13,
         textColor: "#000000",
@@ -77,7 +77,7 @@ const 縦並び = (): ComejeneTemplate<"stack"> => ({
       message: {
         visible: true,
         position: { x: "center", y: "center" },
-        backColor: "#00000000",
+        backColor: undefined,
         padding: { top: 0, right: 0, bottom: 0, left: 0, },
         textSize: 13,
         textColor: "#000000",

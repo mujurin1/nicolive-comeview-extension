@@ -50,7 +50,7 @@
     </MyzView>
   {:else if object.type === "color"}
     <MyzView {forId} {object}>
-      <ColorPicker {forId} bind:_hex={$style[key]}/>
+      <ColorPicker --picker-left="-100px" {forId} bind:hex={$style[key]}/>
     </MyzView>
   {:else if object.type === "list"}
     <MyzView {forId} {object}>

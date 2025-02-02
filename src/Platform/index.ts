@@ -41,7 +41,6 @@ export interface NceUserType<PlatformId extends PlatformsId = PlatformsId> {
    * `StorageUser`に存在する情報は`NceUserType`で定義しない (二重管理になるため)
    */
   storageUser: StorageUser;
-
   iconUrl: string | undefined;
 }
 

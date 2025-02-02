@@ -31,38 +31,38 @@ export function checkVisibleYomiage_Visible(check: VisibleSpeachType): boolean {
 
 // MEMO: 空文字の値は CSSOM 側で無いものとして扱われるので null と "" は今は同じ挙動をしている
 export interface CommentFormat {
-  fontFamily: string | null;
-  fontSize: number | null;
-  isBold: boolean | null;
-  isItally: boolean | null;
+  fontFamily: string | undefined;
+  fontSize: number | undefined;
+  isBold: boolean | undefined;
+  isItally: boolean | undefined;
 
-  backgroundColor: string | null;
-  nameColor: string | null;
-  contentColor: string | null;
+  backgroundColor: string | undefined;
+  nameColor: string | undefined;
+  contentColor: string | undefined;
 }
 
 export const CommentFormat = {
   new: (format?: Partial<CommentFormat>) => ({
-    fontFamily: null,
-    fontSize: null,
-    isBold: null,
-    isItally: null,
-    backgroundColor: null,
-    nameColor: null,
-    contentColor: null,
+    fontFamily: undefined,
+    fontSize: undefined,
+    isBold: undefined,
+    isItally: undefined,
+    backgroundColor: undefined,
+    nameColor: undefined,
+    contentColor: undefined,
     ...format,
   }) satisfies CommentFormat as CommentFormat,
   /**
    * データを修正する (空文字を`null`にする)
    */
   fix: (format: CommentFormat) => {
-    if (format.fontFamily === "") format.fontFamily = null;
+    if (format.fontFamily === "") format.fontFamily = undefined;
     // format.fontSize
     // format.isBold
     // format.isItally
-    if (format.backgroundColor === "") format.backgroundColor = null;
-    if (format.nameColor === "") format.nameColor = null;
-    if (format.contentColor === "") format.contentColor = null;
+    // format.backgroundColor
+    if (format.nameColor === "") format.nameColor = undefined;
+    if (format.contentColor === "") format.contentColor = undefined;
   },
   safeOverwrite: (format: CommentFormat, newFormat: CommentFormat) => {
     format.fontFamily = newFormat.fontFamily;

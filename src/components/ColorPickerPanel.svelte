@@ -3,7 +3,7 @@
   import { handleElementInteraction } from "../lib/DomEvent";
   import type { ColorPickerState } from "./ColorPicker.svelte";
 
-  let { colorPickerState }: { colorPickerState: ColorPickerState } = $props();
+  let { pickerState }: { pickerState: ColorPickerState } = $props();
 
   let pickerPanel: HTMLDivElement;
   let hueSlider: HTMLDivElement;
@@ -28,24 +28,47 @@
     return () => {
       for (const dispose of disposes) dispose();
     };
-
-    function setSaturationAndLightness(e: MouseEvent) {
-      if (e.target == null) return;
-      const { x, y } = pickerPanel.getBoundingClientRect();
-      colorPickerState.hsv[1] = Math.max(0, Math.min(1, (e.clientX - x) / pickerPanel.clientWidth));
-      colorPickerState.hsv[2] = 1 - Math.max(0, Math.min(1, (e.clientY - y) / pickerPanel.clientHeight));
-    }
-    function setHue(e: MouseEvent) {
-      if (e.target == null) return;
-      const { x } = hueSlider.getBoundingClientRect();
-      colorPickerState.hsv[0] = Math.max(0, Math.min(1, (e.clientX - x) / hueSlider.clientWidth));
-    }
-    function setAlpha(e: MouseEvent) {
-      if (e.target == null) return;
-      const { x } = alphaSlider.getBoundingClientRect();
-      colorPickerState.alpha = Math.max(0, Math.min(1, (e.clientX - x) / alphaSlider.clientWidth));
-    }
   });
+
+  function setSaturationAndLightness(e: MouseEvent) {
+    if (e.target == null) return;
+    const { x, y } = pickerPanel.getBoundingClientRect();
+
+    pickerState.setHsvAlpha(
+      [
+        pickerState.hsv?.[0] ?? 0,
+        Math.max(0, Math.min(1, (e.clientX - x) / pickerPanel.clientWidth)),
+        1 - Math.max(0, Math.min(1, (e.clientY - y) / pickerPanel.clientHeight)),
+      ],
+      pickerState.alpha
+    );
+    // if (colorPickerState.hsv == null) colorPickerState.hsv = [0, 0, 0];
+    // colorPickerState.hsv[1] = Math.max(0, Math.min(1, (e.clientX - x) / pickerPanel.clientWidth));
+    // colorPickerState.hsv[2] = 1 - Math.max(0, Math.min(1, (e.clientY - y) / pickerPanel.clientHeight));
+  }
+  function setHue(e: MouseEvent) {
+    if (e.target == null) return;
+    const { x } = hueSlider.getBoundingClientRect();
+    pickerState.setHsvAlpha(
+      [
+        Math.max(0, Math.min(1, (e.clientX - x) / hueSlider.clientWidth)),
+        pickerState.hsv?.[1] ?? 0,
+        pickerState.hsv?.[2] ?? 0,
+      ],
+      pickerState.alpha
+    );
+    // if (colorPickerState.hsv == null) colorPickerState.hsv = [0, 0, 0];
+    // colorPickerState.hsv[0] = Math.max(0, Math.min(1, (e.clientX - x) / hueSlider.clientWidth));
+  }
+  function setAlpha(e: MouseEvent) {
+    if (e.target == null) return;
+    const { x } = alphaSlider.getBoundingClientRect();
+    pickerState.setHsvAlpha(
+      pickerState.hsv,
+      Math.max(0, Math.min(1, (e.clientX - x) / alphaSlider.clientWidth))
+    );
+    // colorPickerState.alpha = Math.max(0, Math.min(1, (e.clientX - x) / alphaSlider.clientWidth));
+  }
 </script>
 
 <div class="color-picker-panel">
@@ -66,9 +89,9 @@
   <div class="input-area">
     <input
       class="hex-input"
-      oninput={() => colorPickerState.setFromRgbaText(colorPickerState.inputHex)}
+      placeholder="(未設定)"
       type="text"
-      bind:value={colorPickerState.inputHex}
+      bind:value={pickerState.value}
     />
   </div>
 </div>
@@ -82,18 +105,8 @@
 <style>
   * {
     box-sizing: border-box;
-  }
-
-  .hex-input {
-    width: 100%;
-    height: 100%;
-    border: none;
-    font-size: var(--picker-text-size);
-    padding: 0 4px;
-
-    &:focus {
-      outline: none;
-    }
+    --picker-hsl-non-null: var(--picker-hsl, hsl(0, 0% , 0%));
+    --picker-hue-non-null: var(--picker-hue, 0);
   }
 
   .color-picker-panel {
@@ -115,13 +128,13 @@
     .picker-panel {
       height: 100%;
       background-image: linear-gradient(0deg, #000, #0000), linear-gradient(90deg, #fff, #0000);
-      background-color: hsl(calc(var(--picker-hue) * 360) 100% 50%);
+      background-color: hsl(calc(var(--picker-hue-non-null) * 360) 100% 50%);
       border-radius: inherit;
 
       .picker-pick {
         --pick-top: calc(var(--picker-panel-y) * 100%);
         --pick-left: calc(var(--picker-panel-x) * 100%);
-        --pick-color: var(--picker-hsl);
+        --pick-color: var(--picker-hsl-non-null);
       }
     }
   }
@@ -135,8 +148,8 @@
 
     .picker-pick {
       --pick-top: 50%;
-      --pick-left: calc(var(--picker-hue) * 100%);
-      --pick-color: hsl(calc(var(--picker-hue) * 360) 100% 50%);
+      --pick-left: calc(var(--picker-hue-non-null) * 100%);
+      --pick-color: hsl(calc(var(--picker-hue-non-null) * 360) 100% 50%);
     }
   }
 
@@ -149,12 +162,12 @@
     .alpha-slider-bg {
       width: 100%;
       height: 100%;
-      background-image: linear-gradient(90deg, #0000, var(--picker-hsl));
+      background-image: linear-gradient(90deg, #0000, var(--picker-hsl-non-null));
 
       .picker-pick {
         --pick-top: 50%;
         --pick-left: calc(var(--picker-alpha) * 100%);
-        --pick-color: var(--picker-hsl);
+        --pick-color: var(--picker-hsl-non-null);
         --pick-alpha: var(--picker-alpha);
       }
     }
@@ -162,6 +175,18 @@
   .input-area {
     flex: 0 0 auto;
     height: var(--picker-slider-height);
+
+    .hex-input {
+      width: 100%;
+      height: 100%;
+      border: none;
+      font-size: var(--picker-text-size);
+      padding: 0 4px;
+
+      &:focus {
+        outline: none;
+      }
+    }
   }
 
   .picker-pick {
