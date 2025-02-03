@@ -1,5 +1,6 @@
 import type { NicoliveInfoProviderType } from "@mujurin/nicolive-api-ts";
 import { SettingStore } from "../store/SettingStore.svelte";
+import { StorageUserStore, type StorageUser } from "../store/StorageUserStore.svelte";
 import { PlatformsId, type ExtMessageType, type NceUserType } from "./index";
 
 /**
@@ -135,25 +136,30 @@ export const NicoliveMessage = {
 
 export const NicoliveUser = {
   create: (
-    userId: string,
+    id: string,
     is184: boolean,
     name: string | undefined,
     no: number | undefined,
     providerType: NicoliveInfoProviderType,
-  ): NicoliveUser => ({
-    providerType,
-    platformId: PlatformsId.nicolive,
-    iconUrl: getNicoliveIconUrl(userId, is184),
-    storageUser: {
-      id: userId,
-      name: name,
-      kotehan: undefined,
-      yobina: undefined,
-    },
-    firstNo: no,
-    is184,
-    noName184: is184 && no != null ? `${no}コメ` : undefined,
-  })
+  ): NicoliveUser => {
+    const derivedUser: StorageUser | undefined = $derived(StorageUserStore.nicolive.users[id]);
+
+    return {
+      providerType,
+      platformId: PlatformsId.nicolive,
+      iconUrl: getNicoliveIconUrl(id, is184),
+      get storageUser() {
+        return derivedUser ?? { id, name };
+      },
+      set storageUser(v) {
+        if (StorageUserStore.nicolive.users[id] != null)
+          StorageUserStore.nicolive.users[id] = v;
+      },
+      firstNo: no,
+      is184,
+      noName184: is184 && no != null ? `${no}コメ` : undefined,
+    };
+  }
 } as const;
 
 

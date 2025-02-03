@@ -270,8 +270,9 @@
     background-color: #d4f6ff;
     display: flex;
     flex-direction: column;
-    row-gap: 5px;
+    row-gap: 10px;
     padding: 5px;
+    padding-bottom: 200px;
     overflow-y: auto;
   }
 

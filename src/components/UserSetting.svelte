@@ -1,7 +1,7 @@
 <script lang="ts">
   import { notifierStore } from "../lib/CustomStore.svelte";
   import { getNicoliveIconUrl, onErrorImage, type PlatformsId } from "../Platform";
-  import { NceUserStore } from "../store/NceStore.svelte";
+  import { NceUserStore } from "../store/NceUserStore.svelte";
   import { CommentFormat } from "../store/SettingStore.svelte";
   import { StorageUserStore, type StorageUser } from "../store/StorageUserStore.svelte";
   import FormatSetting from "./FormatSetting.svelte";
@@ -17,7 +17,7 @@
   } = $props();
 
   const userS = notifierStore<StorageUser>(
-    StorageUserStore[platformId].users[userId] ?? NceUserStore.nicolive.get(userId)?.storageUser,
+    StorageUserStore[platformId].users[userId] ?? NceUserStore.nicolive.get(userId)!.storageUser,
     () => StorageUserStore[platformId].upsert(userS.state),
     // このオブジェクトはセーブデータ上で `undefiend` になる(存在しない)時があるため derived が必要
     () => {
@@ -29,7 +29,6 @@
 
   let opened = $state(noAccordion);
   let hasStored = $derived(StorageUserStore[platformId].users[userId] != null);
-  let hasFormat = $derived(userS.state.format != null);
 
   function removeUser() {
     StorageUserStore[platformId].remove(userId);
@@ -48,13 +47,13 @@
     {#if $userS.name}
       <div class="user-name">{$userS.name}</div>
     {/if}
-    {#if $userS.kotehan}
+    {#if $userS.kotehan != null}
       <div style:color="green" title="コテハン">{`@${$userS.kotehan}`}</div>
     {/if}
-    {#if $userS.yobina}
+    {#if $userS.yobina != null}
       <div style:color="blue" title="呼び名">{`@${$userS.yobina}`}</div>
     {/if}
-    {#if hasFormat}
+    {#if $userS.format != null}
       <div style:color="orange" title="フォーマットが設定されています">★</div>
     {/if}
   </div>
@@ -83,10 +82,17 @@
       {/if}
 
       <div class="content-bottom">
-        {#if $userS.format == null}
+        {#if userS.state.format == null}
           <button
             style:color="royalblue"
-            onclick={() => ($userS.format = CommentFormat.new())}
+            onclick={() => {
+              // $userS.format = CommentFormat.new();
+              const s = $state.snapshot(userS.state);
+              s.format = CommentFormat.new();
+              userS.set(s);
+              // TODO: なぜここで呼ばないとエラーが出るのか意味がわからん！！！！
+              // StorageUserStore[platformId].upsert(userS.state);
+            }}
             type="button"
           >
             コメントフォーマットの作成

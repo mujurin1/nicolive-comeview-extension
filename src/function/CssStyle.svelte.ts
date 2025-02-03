@@ -1,5 +1,5 @@
 import type { NicoliveMessage } from "../Platform";
-import { NceUserStore, type PlatformId_User } from "../store/NceStore.svelte";
+import { NceUserStore, type PlatformId_User } from "../store/NceUserStore.svelte";
 import { SettingStore, type CommentFormat } from "../store/SettingStore.svelte";
 
 function createStyleElement() {

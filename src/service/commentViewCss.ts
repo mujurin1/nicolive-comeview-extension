@@ -1,5 +1,5 @@
 import { autoUpdateCommentCss } from "../function/CssStyle.svelte";
-import type { PlatformId_User } from "../store/NceStore.svelte";
+import type { PlatformId_User } from "../store/NceUserStore.svelte";
 
 const cssHooks = {
   nicolive: new Map<string, () => void>(),

@@ -62,7 +62,6 @@
       {@render Pick()}
     </div>
   </div>
-  <div class="picker-dummy"></div>
   <div bind:this={hueSlider} class="hue-slider">
     {@render Pick()}
   </div>
@@ -101,7 +100,7 @@
 
   .picker-panel-wrap {
     flex: 1 1 0;
-    padding-bottom: 12px;
+    padding-bottom: var(--picker-color-dummy-height);
     background-color: black;
     border-radius: 8px 8px 0 0;
 
@@ -181,7 +180,7 @@
     width: var(--picker-ring-size);
     height: var(--picker-ring-size);
     transform: translate(-50%, -50%);
-    border: 3px solid var(--picker-ring-color);
+    border: var(--picker-ring-border) solid var(--picker-ring-color);
     border-radius: 50%;
 
     top: var(--pick-top);

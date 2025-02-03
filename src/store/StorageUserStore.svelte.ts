@@ -2,7 +2,7 @@ import { EventEmitter, type IEventEmitter } from "@mujurin/nicolive-api-ts";
 import { storages } from "../lib/Storage";
 import type { PlatformsId } from "../Platform";
 import type { DeepReadonly } from "../utils";
-import { CommentFormat } from "./SettingStore.svelte";
+import type { CommentFormat } from "./SettingStore.svelte";
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 type StorageUserUpdate =
@@ -41,6 +41,7 @@ export interface StorageUserStore {
 
 export interface PlatformStorageUserStore {
   readonly users: Record<string, StorageUser>;
+  /** TODO: 適切なコメントを書く */
   readonly updated: IEventEmitter<StorageUserUpdate>;
   /**
    * ユーザー情報を更新する\
@@ -106,7 +107,7 @@ export const StorageUserStore: StorageUserStore = (() => {
             // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
             delete users[platformId][userId];
           } else {
-            safeOverwriteStorageUser(users[platformId], newUser);
+            users[platformId][newUser.id] = newUser;
           }
           userStore[platformId].updated.emit(event, users[platformId][userId]);
         }
@@ -138,8 +139,10 @@ export const StorageUserStore: StorageUserStore = (() => {
       get users() { return users.nicolive; },
       updated: new EventEmitter<StorageUserUpdate>(),
       upsert: user => {
+        console.log("change", $state.snapshot(user));
+        fixStorageUser(user);
         const event = users[platformId][user.id] == null ? "new" : "update";
-        safeOverwriteStorageUser(users[platformId], user);
+        users[platformId][user.id] = user;
 
         const storageUserId = storageUserKey_combine(platformId, user.id);
         void externalStoreController.update({ [storageUserId]: $state.snapshot(user) });
@@ -170,22 +173,10 @@ function storageUserKey_parse<PlatformId extends PlatformsId>(key: StorageUserKe
   return [parsed[0] as any, parsed[1]];
 }
 
-/**
- * `UserStore`レコードのユーザーデータを安全に上書きする
- * @param users 対象のレコード
- * @param user 新しいユーザーデータ
- */
-function safeOverwriteStorageUser(users: Record<string, StorageUser>, user: StorageUser) {
-  const userId = user.id;
-  users[userId] ??= {} as any;
-  users[userId].id = user.id;
-  if (user.name == null || user.name === "") delete users[userId].name;
-  else users[userId].name = user.name;
-  if (user.kotehan == null || user.kotehan === "") delete users[userId].kotehan;
-  else users[userId].kotehan = user.kotehan;
-  if (user.yobina == null || user.yobina === "") delete users[userId].yobina;
-  else users[userId].yobina = user.yobina;
-  if (user.format == null) delete users[userId].format;
-  else if (users[userId].format == null) users[userId].format = user.format;
-  else CommentFormat.safeOverwrite(users[userId].format, user.format);
+function fixStorageUser(storageUser: StorageUser): StorageUser {
+  if (storageUser.kotehan === "") storageUser.kotehan = undefined;
+  if (storageUser.name === "") storageUser.name = undefined;
+  if (storageUser.yobina === "") storageUser.yobina = undefined;
+
+  return storageUser;
 }

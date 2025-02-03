@@ -477,10 +477,13 @@
     --picker-button-height: 14px;
     --picker-button-width: 14px;
     --picker-back-color: #333;
+
     --picker-slider-height: 24px;
+    --picker-color-dummy-height: 12px;
     --picker-ring-color: white;
     --picker-ring-size: 28px;
-    --picker-text-size: 16px;
+    --picker-ring-border: 3px;
+    --picker-text-size: 1.2em;
     --picker-text-color: white;
     --picker-text-back-color: #121212;
     --picker-z-index: 1;

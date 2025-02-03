@@ -10,6 +10,7 @@
 </script>
 
 <div class="main">
+  <!-- このエラーは svelte の不具合ぽいので無視する -->
   <Tab currentTab="pinned" {names}>
     {#snippet content(tabId)}
       <div class="content">

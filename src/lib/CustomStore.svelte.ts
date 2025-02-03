@@ -22,9 +22,11 @@ export function notifierStore<T>(
   changeBind: () => void,
   derived?: () => T,
 ) {
-  let updater = $state(true);
   // 状態を更新する時は必ず state と w の両方更新する. `state = newState` `w.set(newState)`
   let state = $state(value);
+
+  let changeBindCaller: () => void = null!;
+
   const w = writable(state, () => {
     const cleanUp = $effect.root(() => {
       if (derived != null) {
@@ -45,18 +47,7 @@ export function notifierStore<T>(
         });
       }
 
-
-      // set の中で changeBind を呼び出すと１度のサイクルで複数回実行される可能性があるため $effect を使う
-      let isFirst = true;
-      $effect(() => {
-        // eslint-disable-next-line no-unused-expressions
-        updater;
-        if (isFirst) {
-          isFirst = false;
-          return;
-        }
-        untrack(changeBind);
-      });
+      changeBindCaller = oneCallOfOneCycle(changeBind);
     });
 
     return cleanUp;
@@ -71,7 +62,7 @@ export function notifierStore<T>(
         state = newState;
         w.set(state);
       }
-      updater = !updater;
+      changeBindCaller();
     },
     changeBind,
 
@@ -82,5 +73,27 @@ export function notifierStore<T>(
         w.set(state);
       }
     },
+  };
+}
+
+/**
+ * 即時呼び出しつつ1サイクルに2度呼び出されるのを防ぐための関数\
+ * ※`$effect`を使っているのでコンポーネント外で使用する場合は`$effect.root`で囲う
+ * @param fn 呼び出したい関数
+ * @returns `fn`を1サイクルで1回のみ呼び出す関数
+ */
+export function oneCallOfOneCycle(fn: () => void): () => void {
+  let called = $state(false);
+
+  $effect(() => {
+    // eslint-disable-next-line no-unused-expressions
+    called;
+    called = false;
+  });
+
+  return () => {
+    if (called) return;
+    called = true;
+    fn();
   };
 }

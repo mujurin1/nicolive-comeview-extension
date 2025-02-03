@@ -1,7 +1,7 @@
 <script lang="ts">
   import UserSetting from "../../components/UserSetting.svelte";
   import { Nicolive } from "../../Platform";
-  import { NceUserStore } from "../../store/NceStore.svelte";
+  import { NceUserStore } from "../../store/NceUserStore.svelte";
   import { StorageUserStore, type StorageUser } from "../../store/StorageUserStore.svelte";
 
   let {

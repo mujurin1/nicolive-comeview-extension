@@ -1,5 +1,5 @@
 import type { ExtMessageType } from ".";
-import { NceMessageStore } from "../store/NceStore.svelte";
+import { NceMessageStore } from "../store/NceMessageStore.svelte";
 
 export type ExtentionMessage = ExtMessageType<"nce", "system"> & ExtentionMessageOption;
 interface ExtentionMessageOption {

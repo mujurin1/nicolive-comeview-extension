@@ -43,5 +43,13 @@
     height: 200px;
     position: sticky;
     overflow-y: auto;
+
+    /* カラーピッカーのサイズ調整 */
+    --picker-width: 100px;
+    --picker-height: 120px;
+    --picker-color-dummy-height: 10px;
+    --picker-slider-height: 18px;
+    --picker-ring-size: 20px;
+    --picker-ring-border: 2px;
   }
 </style>

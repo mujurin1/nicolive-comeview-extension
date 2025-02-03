@@ -15,7 +15,8 @@
     type NceUserType,
     type NicoliveMessage,
   } from "../Platform";
-  import { NceMessageStore } from "../store/NceStore.svelte";
+
+  import { NceMessageStore } from "../store/NceMessageStore.svelte";
   import { checkVisibleYomiage_Visible, SettingStore } from "../store/SettingStore.svelte";
   import LegacyCommentViewItem from "./LegacyCommentViewItem.svelte";
 

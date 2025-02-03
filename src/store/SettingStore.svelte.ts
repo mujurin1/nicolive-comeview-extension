@@ -53,25 +53,16 @@ export const CommentFormat = {
     ...format,
   }) satisfies CommentFormat as CommentFormat,
   /**
-   * データを修正する (空文字を`null`にする)
+   * データを修正する
    */
   fix: (format: CommentFormat) => {
     if (format.fontFamily === "") format.fontFamily = undefined;
     // format.fontSize
     // format.isBold
     // format.isItally
-    // format.backgroundColor
+    if (format.backgroundColor === "") format.backgroundColor = undefined;
     if (format.nameColor === "") format.nameColor = undefined;
     if (format.contentColor === "") format.contentColor = undefined;
-  },
-  safeOverwrite: (format: CommentFormat, newFormat: CommentFormat) => {
-    format.fontFamily = newFormat.fontFamily;
-    format.fontSize = newFormat.fontSize;
-    format.isBold = newFormat.isBold;
-    format.isItally = newFormat.isItally;
-    format.backgroundColor = newFormat.backgroundColor;
-    format.nameColor = newFormat.nameColor;
-    format.contentColor = newFormat.contentColor;
   }
 } as const;
 

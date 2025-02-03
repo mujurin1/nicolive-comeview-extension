@@ -1,14 +1,14 @@
-export * from "./NicoliveType";
+export * from "./NicoliveType.svelte";
 
 import { type AbortAndPromise, type INicoliveServerConnector, type NicoliveId, type NicoliveMessageServerConnector, type NicolivePageData, NicoliveRejectReason, NicoliveRejectReasonDisplay, NicoliveUtility, NicoliveWebSocketReconnectError, type NicoliveWsServerConnector, abortErrorWrap, type dwango, getNicoliveId, isAbortError, promiser, sleep, timestampToMs } from "@mujurin/nicolive-api-ts";
 import { NceService } from "../service/NceService";
-import { NceUserStore } from "../store/NceStore.svelte";
+import { NceUserStore } from "../store/NceUserStore.svelte";
 import { SettingStore } from "../store/SettingStore.svelte";
 import { StorageUserStore } from "../store/StorageUserStore.svelte";
 import { timeString } from "../utils";
 import { ExtMessenger, type ExtentionMessage } from "./Extention.svelte";
 import type { NceConnection, NceConnectionSetting, NceConnectionState } from "./NceConnection";
-import { NicoliveMessage, NicoliveUser, type SystemMessageType } from "./NicoliveType";
+import { NicoliveMessage, NicoliveUser, type SystemMessageType } from "./NicoliveType.svelte";
 
 export class NicoliveConnection implements NceConnection<"nicolive"> {
   public readonly connectionId: string;
@@ -104,16 +104,7 @@ export class NicoliveConnection implements NceConnection<"nicolive"> {
 
 export const Nicolive = new NicoliveConnection("id");
 
-// TODO: 以下の適切な場所について考える
-StorageUserStore.nicolive.updated.on("remove", userId => {
-  const user = NceUserStore.nicolive.get(userId);
-  if (user == null) return;
-
-  user.storageUser = {
-    id: user.storageUser.id,
-    name: user.storageUser.name,
-  };
-});
+// TODO: 以下2つの適切な場所について考える
 StorageUserStore.nicolive.updated.on("new", user => {
   const userState = NceUserStore.nicolive.get(user.id);
   if (userState == null) return;
@@ -505,8 +496,9 @@ class Connector {
  */
 function upsertUser(user: NicoliveUser, comment: string, no?: number): NicoliveUser {
   const isNew = NceUserStore.nicolive.has(user.storageUser.id);
-  // $state からの参照を得るための代入
-  user = NceUserStore.nicolive.add(user);
+  // // $state からの参照を得るための代入
+  // user = NceUserStore.nicolive.add(user);
+  NceUserStore.nicolive.add(user);
 
   if (no != null && (user.firstNo == null || no < user.firstNo)) {
     user.firstNo = no;
@@ -516,9 +508,10 @@ function upsertUser(user: NicoliveUser, comment: string, no?: number): NicoliveU
   const koteyobi = parseKotehanAndYobina(comment);
 
   if (koteyobi != null) {
-    if (koteyobi.kotehan != null) user.storageUser.kotehan = koteyobi.kotehan === 0 ? undefined : koteyobi.kotehan;
-    if (koteyobi.yobina != null) user.storageUser.yobina = koteyobi.yobina === 0 ? undefined : koteyobi.yobina;
-    StorageUserStore.nicolive.upsert(user.storageUser);
+    const storageUser = user.storageUser;
+    if (koteyobi.kotehan != null) storageUser.kotehan = koteyobi.kotehan === 0 ? undefined : koteyobi.kotehan;
+    if (koteyobi.yobina != null) storageUser.yobina = koteyobi.yobina === 0 ? undefined : koteyobi.yobina;
+    StorageUserStore.nicolive.upsert(storageUser);
   }
 
   NceService.onUser.emit(user, isNew);
@@ -541,8 +534,7 @@ function createMessage(
         user = NicoliveUser.create(userId, is184, is184 ? undefined : data.value.name, data.value.no, "user");
       }
 
-      //  この代入は user:null だった場合にも $state である NceUserStore.nicolive.users から参照を取るため
-      user = upsertUser(user, data.value.content, data.value.no);
+      upsertUser(user, data.value.content, data.value.no);
       const message = builder.user(data.value.content, user, is184, data.value.no);
       return message;
     } else {
