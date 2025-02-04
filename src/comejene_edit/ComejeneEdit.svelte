@@ -31,7 +31,7 @@
       }
       untrack(() => {
         selectTemplate = storageTemplates[newId];
-        if (!editing) resetEditTemplate();
+        resetEditTemplate();
       });
       return newId;
     },
@@ -40,33 +40,15 @@
   let selectTemplate = $state(storageTemplates[$selectTemplateId]);
   let selectTemplateIsDefault = $derived($selectTemplateId.startsWith(ComejeneTemplateFirstId));
 
-  //#region editState
-  type EditState = EditState_None | EditState_Edit;
-  interface EditState_None {
-    readonly state: "none";
-    /** 編集を始めようとしたが、他のウィンドウで編集中だった */
-    collision: boolean;
-    readonly template?: never;
-  }
-  interface EditState_Edit {
-    readonly state: "editing";
-    readonly template: ComejeneTemplate;
-    readonly lockRelease: () => void;
-    /** 最後に編集してから保存したか */
-    edited: boolean;
-  }
-  let editState = $state<EditState>({ state: "none", collision: false });
-  let editing = $derived(editState.state === "editing");
-  //#endregion editState
-
   //#region initialize
   onMount(() => {
     return () => {
-      if (editState.state === "editing") editState.lockRelease();
+      lockRelease?.();
     };
   });
 
-  ComejeneSenderController._set(() => editState.template ?? selectTemplate);
+  // TODO: コメジェネに送信するスタイルの取得関数について
+  ComejeneSenderController._set(() => selectTemplate);
   Promise.all([
     ComejeneSenderController.createAndConnect("obs", { url: `ws://localhost:${4455}` }),
     ComejeneSenderController.createAndConnect("browserEx"),
@@ -89,23 +71,20 @@
     ComejeneSenderController.sendContent(content);
   }
 
-  async function edit() {
-    if (editState.state === "editing") return;
+  let lockRelease = $state<() => void>();
+  let isEditing = $derived(lockRelease != null);
+  let otherWindowEditing = $state(false);
+
+  async function startEdit() {
+    if (lockRelease != null) return;
 
     // 同じテンプレートの編集は同時に1ウィンドウのみ
-    const lockRelease = await getNavigatorLock(`comejene_edit_${$selectTemplateId}`);
+    lockRelease = await getNavigatorLock(`comejene_edit_${$selectTemplateId}`);
     if (lockRelease == null) {
       // 他のウィンドウで編集中だった
-      editState.collision = true;
+      otherWindowEditing = true;
       return;
     }
-
-    editState = {
-      state: "editing",
-      lockRelease,
-      template: structuredClone($state.snapshot(selectTemplate)),
-      edited: false,
-    };
   }
 
   function clone() {
@@ -127,12 +106,15 @@
     ComejeneStore.save();
   }
 
-  function save() {
-    if (editState.state !== "editing" || !editState.edited) return;
-    checkForceClose = false;
-    storageTemplates[$selectTemplateId] = structuredClone($state.snapshot(editState.template));
-    editState.edited = false;
+  function save(template: ComejeneTemplate) {
+    storageTemplates[$selectTemplateId] = structuredClone(template);
     ComejeneStore.save();
+  }
+
+  function closeEditing() {
+    lockRelease?.();
+    lockRelease = undefined;
+    ComejeneSenderController._set(() => selectTemplate);
   }
 
   let sendCommentsTimeout: number | undefined;
@@ -147,24 +129,6 @@
     }
   }
 
-  let checkForceClose = $state(false);
-  function closeEditing() {
-    if (editState.state !== "editing") return;
-
-    const edited = editState.edited;
-    // 保存していない変更がある場合、１度は通知する
-    if (edited && !checkForceClose) {
-      checkForceClose = true;
-      return;
-    }
-    checkForceClose = false;
-    editState.lockRelease();
-    editState = { state: "none", collision: false };
-
-    if (edited) {
-      resetEditTemplate();
-    }
-  }
   //#endregion functions
 </script>
 
@@ -172,43 +136,17 @@
   <div class="setting-container">
     <button onclick={senderReset} type="button">初期化</button>
 
-    {#if editState.state === "editing"}
-      <!-- テンプレート編集 -->
-      <MyzViewArea title="編集中のテンプレート">
-        <MyzView object={{ display: "名前" }}>
-          <input
-            disabled={selectTemplateIsDefault}
-            title={selectTemplateIsDefault
-              ? "最初から存在するテンプレートは名前を変えられません"
-              : ""}
-            type="text"
-            bind:value={editState.template.name}
-          />
-        </MyzView>
-        <MyzView object={{ display: "モーション" }}>
-          <div>{editState.template.motion.name}</div>
-        </MyzView>
-      </MyzViewArea>
-
-      {#if checkForceClose}
-        <div class="error">保存していない変更があります！</div>
-
-        <div class="buttons">
-          <button class="warn" onclick={closeEditing} type="button">保存せずに戻る</button>
-          <button onclick={save} type="button">保存する</button>
-        </div>
-      {:else}
-        <div class="buttons">
-          <button class="warn" onclick={closeEditing} type="button">戻る</button>
-          <button onclick={save} type="button">保存する</button>
-        </div>
-      {/if}
-
-      <MyzViewArea title="コメントテスト">
-        <button onclick={() => dbg_send_content()} type="button">コメントテスト</button>
-      </MyzViewArea>
-
-      <TemplateSetting bind:template={editState.template} bind:edited={editState.edited} />
+    {#if isEditing}
+      <!-- 編集するたびにコンポーネントを再生成するため -->
+      {#key isEditing}
+        <TemplateSetting
+          {closeEditing}
+          {commentTest}
+          {save}
+          {selectTemplate}
+          templateIsDefault={selectTemplateIsDefault}
+        />
+      {/key}
     {:else}
       <!-- テンプレート一覧表示 -->
       <MyzViewArea title="テンプレート一覧">
@@ -236,19 +174,17 @@
           {selectTemplateIsDefault ? "初期化" : "削除"}
         </button>
         <button class="sub" onclick={clone} type="button">複製</button>
-        <button onclick={edit} type="button">編集</button>
+        <button onclick={startEdit} type="button">編集</button>
       </div>
 
-      {#if editState.collision}
+      {#if otherWindowEditing}
         <div class="error">
           <div>※このテンプレートは他のウィンドウで編集中です</div>
           <div>※編集中のウィンドウで編集を終了して下さい</div>
         </div>
       {/if}
 
-      <MyzViewArea title="コメントテスト">
-        <button onclick={() => dbg_send_content()} type="button">コメントテスト</button>
-      </MyzViewArea>
+      {@render commentTest()}
     {/if}
   </div>
 
@@ -256,6 +192,12 @@
     <App />
   </div>
 </div>
+
+{#snippet commentTest()}
+  <MyzViewArea title="コメントテスト">
+    <button onclick={() => dbg_send_content()} type="button">コメントテスト</button>
+  </MyzViewArea>
+{/snippet}
 
 <style>
   .comejene-edit {
@@ -281,37 +223,5 @@
     /* MEMO: Flex Box の最小幅は自身のコンテンツなのでこれより小さくするための指定 */
     min-width: 0;
     background-color: #b5ffe5;
-  }
-
-  .buttons {
-    display: flex;
-    gap: 10px;
-
-    button {
-      background-color: #d1c9ff;
-      padding: 5px 10px;
-      border: none;
-
-      border-radius: 4px;
-
-      &:hover {
-        filter: contrast(110%);
-      }
-    }
-
-    .warn {
-      margin-right: 20px;
-      background-color: #ffbaba;
-    }
-
-    .sub {
-      background-color: #9effb0;
-    }
-  }
-
-  .error {
-    color: red;
-    font-size: 1em;
-    font-weight: bold;
   }
 </style>
