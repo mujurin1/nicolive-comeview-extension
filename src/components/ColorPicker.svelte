@@ -332,7 +332,7 @@
   let _hex = $state<string>();
   let _hsv = $state<Colors>();
   let _alpha = $state(1);
-  export const pickerState = $state<ColorPickerState>({
+  let pickerState = $state<ColorPickerState>({
     get value() {
       return _value;
     },
@@ -464,7 +464,7 @@
   </button>
   {#if showPicker}
     <div class="panel-wrap">
-      <ColorPickerPanel {pickerState} />
+      <ColorPickerPanel bind:pickerState />
     </div>
   {/if}
 </div>

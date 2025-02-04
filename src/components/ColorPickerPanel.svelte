@@ -3,7 +3,7 @@
   import { handleElementInteraction } from "../lib/DomEvent";
   import type { ColorPickerState } from "./ColorPicker.svelte";
 
-  let { pickerState }: { pickerState: ColorPickerState } = $props();
+  let { pickerState = $bindable() }: { pickerState: ColorPickerState } = $props();
 
   let pickerPanel: HTMLDivElement;
   let hueSlider: HTMLDivElement;
