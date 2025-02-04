@@ -51,7 +51,7 @@
   <MyzRootView
     path="message"
     root={ComejeneMessageStyleRoot}
-    bind:style={$comejeneStyle.frameSate as any}
+    bind:style={$comejeneStyle.frameSate}
   />
 </MyzViewArea>
 
@@ -72,11 +72,7 @@
     {:else if !$comejeneStyle.contentsStyle[selectContent].visible}
       <div class="hide-content-message">※この項目は非表示になっています</div>
     {/if}
-    <MyzRootView
-      path="content"
-      {root}
-      bind:style={$comejeneStyle.contentsStyle[selectContent] as any}
-    />
+    <MyzRootView path="content" {root} bind:style={$comejeneStyle.contentsStyle[selectContent]} />
   {/key}
 </MyzViewArea>
 

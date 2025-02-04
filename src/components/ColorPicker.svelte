@@ -314,7 +314,7 @@
 </script>
 
 <script lang="ts">
-  import { onMount, untrack } from "svelte";
+  import { onMount, tick, untrack } from "svelte";
   import ColorPickerPanel from "./ColorPickerPanel.svelte";
 
   let {
@@ -371,12 +371,17 @@
     },
 
     setHsvAlpha: (h, a) => {
-      hsv = _hsv = h;
-      alpha = _alpha = a;
-      hex = _hex = hsvToHex(_hsv, _alpha);
+      _hsv = h;
+      _alpha = a;
+      _hex = hsvToHex(_hsv, _alpha);
       if (_hex !== getNamedColor(_value)) {
         _value = _hex;
       }
+
+      if (!inited) return;
+      hsv = _hsv;
+      alpha = _alpha;
+      hex = _hex;
       value = _value;
     },
   });
@@ -396,7 +401,7 @@
       pickerState.setHsvAlpha(hsv, alpha ?? 1);
     }
 
-    inited = true;
+    tick().then(() => (inited = true));
     return () => {
       document.removeEventListener("mousedown", checkFocus);
     };
