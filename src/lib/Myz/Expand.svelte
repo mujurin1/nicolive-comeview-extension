@@ -12,7 +12,7 @@
   } = $props();
 </script>
 
-<button class="head-item" data-expand={show} onclick={() => (show = !show)} type="button">
+<button class="head-item no-style" data-expand={show} onclick={() => (show = !show)} type="button">
   {title}
 </button>
 
@@ -22,11 +22,6 @@
 
 <style>
   .head-item {
-    font-size: 1em;
-    text-align: left;
-    border: none;
-    background-color: unset;
-    padding: unset;
     width: 100%;
     padding-left: var(--indent);
 

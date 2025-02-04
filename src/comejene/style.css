@@ -34,3 +34,11 @@ select {
 select {
   width: 100%;
 }
+
+button.no-style {
+  font-size: 1em;
+  text-align: left;
+  border: none;
+  background-color: unset;
+  padding: unset;
+}

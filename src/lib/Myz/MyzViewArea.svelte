@@ -3,10 +3,12 @@
 
   let {
     title,
+    opened = $bindable(true),
     children,
     headerItem,
   }: {
     title?: string;
+    opened?: boolean;
     children: Snippet;
     headerItem?: Snippet;
   } = $props();
@@ -14,7 +16,9 @@
 
 <div class="myz-area">
   <div class="myz-area-header-container">
-    <div class="myz-area-header-title">{title}</div>
+    <button class="myz-area-header-title no-style" onclick={() => (opened = !opened)} type="button">
+      {title}
+    </button>
     {#if headerItem != null}
       <div class="myz-area-header-item">
         {@render headerItem()}
@@ -22,9 +26,11 @@
     {/if}
   </div>
 
-  <div class="myz-area-content">
-    {@render children()}
-  </div>
+  {#if opened}
+    <div class="myz-area-content">
+      {@render children()}
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -45,8 +51,11 @@
         display: inline-block;
       }
     }
-    & > .myz-area-header-item {
+
+    & > :last-child {
       flex: 1 1 100%;
+    }
+    & > .myz-area-header-item {
     }
   }
 
