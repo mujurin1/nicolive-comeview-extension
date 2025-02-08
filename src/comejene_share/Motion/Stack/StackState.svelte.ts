@@ -202,10 +202,10 @@ export class StackMotionState implements ComejeneMotionState<
     const rect = message.node!.getBoundingClientRect();
 
     if (this.setting.isVertical) {
-      this.paddingSize += rect.height;
+      this.paddingSize += rect.height + this.setting.gap;
       this.paddingDiv.style.height = `${this.paddingSize}px`;
     } else {
-      this.paddingSize += rect.width;
+      this.paddingSize += rect.width + this.setting.gap;
       this.paddingDiv.style.width = `${this.paddingSize}px`;
     }
   }
