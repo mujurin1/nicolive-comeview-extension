@@ -2,8 +2,7 @@
   generics="Setting extends ComejeneMotionSetting, State extends ComejeneMotionState"
   lang="ts"
 >
-  import { type ComejeneMotionState } from "../comejene_share";
-  import type { ComejeneMotionSetting } from "../comejene_share/Motion/type";
+  import type { ComejeneMotionSetting, ComejeneMotionState } from "../comejene_share/Motion";
   import type { ComejeneViewState } from "./ComejeneViewState.svelte";
 
   let { viewState }: { viewState: ComejeneViewState<Setting, State> } = $props();

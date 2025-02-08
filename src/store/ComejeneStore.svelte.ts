@@ -1,6 +1,6 @@
 import { ComejeneTemplates, type ComejeneTemplate } from "../comejene_edit/Template/ComejeneTemplate";
 import { ComejeneTemplates_MessageContainer } from "../comejene_edit/Template/ComejeneTemplates_MessageContainer";
-import type { ComejeneMessageFrame } from "../comejene_share";
+import type { ComejeneMessageFrame } from "../comejene_share/Message";
 import { storages } from "../lib/Storage";
 import type { DeepReadonly } from "../utils";
 

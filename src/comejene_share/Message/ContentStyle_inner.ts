@@ -1,7 +1,8 @@
 import type { CSSObject } from "@emotion/css/create-instance";
-import { myz, type MyzObjects, type MyzRoot } from "../../lib/Myz";
-import type { ComejeneContentStyle, ComejeneContentStyleRootSet } from "./ContentStyle";
+import { myz, type Ignore, type MyzObjects, type MyzRoot } from "../../lib/Myz";
+import type { ComejeneContentStyle, ComejeneContentStyleRoot } from "./ContentStyle";
 import type { ComejeneContentTypes } from "./ContentType";
+import { paddingToCss } from "./util";
 
 export const _ComejeneContentStyle = {
   asCss: (type: ComejeneContentTypes, style: _ComejeneContentStyle): CSSObject => {
@@ -45,8 +46,8 @@ export const _ComejeneContentStyle = {
 
 export type _ComejeneContentStyleRoot<R extends MyzObjects = MyzObjects> = MyzRoot<R & _ComejeneContentStyleBase>;
 export type _ComejeneContentStyle = _ComejeneContentStyle_Text | _ComejeneContentStyle_Img;
-export type _ComejeneContentStyle_Text = ComejeneContentStyle<typeof ComejeneContentStyleRootSet.text>;
-export type _ComejeneContentStyle_Img = ComejeneContentStyle<typeof ComejeneContentStyleRootSet.img>;
+export type _ComejeneContentStyle_Text = ComejeneContentStyle<typeof ComejeneContentStyleRoot.text>;
+export type _ComejeneContentStyle_Img = ComejeneContentStyle<typeof ComejeneContentStyleRoot.img>;
 
 const FlexPositions = ["start", "center", "end"] as const;
 type FlexPosition = typeof FlexPositions[number];
@@ -109,8 +110,46 @@ export const _ComejeneContentStyleBase = {
   }),
 } as const satisfies MyzObjects;
 
-export function paddingToCss(padding: ComejeneContentStyle["padding"]): string {
-  return [padding.top, padding.right, padding.bottom, padding.left]
-    .map(p => `${p}px`)
-    .join(" ");
-}
+const ComejeneContentStyleRootBase = {
+  create: <Objects extends Ignore<MyzObjects, _ComejeneContentStyleBase>>(
+    objects: Objects,
+  ): _ComejeneContentStyleRoot<Objects> => myz.root({
+    ..._ComejeneContentStyleBase,
+    ...objects,
+  }),
+} as const;
+
+export const _ComejeneContentStyleRoot = {
+  /** テキストタイプのメッセージの持つ属性 */
+  text: ComejeneContentStyleRootBase.create(
+    {
+      textSize: myz.number({ display: "文字サイズ", min: 10 }),
+      textColor: myz.color("文字色"),
+      banNewLine: myz.boolean("改行禁止"),
+      noNewLine: myz.boolean("改行文字無視"),
+    }),
+  /** 画像タイプのメッセージの持つ属性 */
+  img: ComejeneContentStyleRootBase.create(
+    {
+      imgSize: myz.switch<{
+        width: number;
+        height: number;
+      }>("画像サイズ")
+        .addBlock(
+          "縦横",
+          { size: myz.number("縦横") },
+          ({ size }) => ({ width: size, height: size }),
+          ({ width }) => ({ size: width }),
+        )
+        .addBlock(
+          "縦と横",
+          {
+            height: myz.number("縦"),
+            width: myz.number("横"),
+          },
+          value => value,
+          value => value,
+        )
+        .build(),
+    }),
+} as const satisfies Record<ComejeneContentTypes, _ComejeneContentStyleRoot>;

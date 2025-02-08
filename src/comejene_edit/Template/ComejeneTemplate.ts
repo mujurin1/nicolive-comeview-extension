@@ -1,4 +1,5 @@
-import { ComejeneContentStyleSet, type ComejeneMotionNames, type ComejeneMotionSettings, type ComejeneStyle } from "../../comejene_share";
+import { ComejeneContentStyleSet, type ComejeneStyle } from "../../comejene_share/Message";
+import type { ComejeneMotionNames, ComejeneMotionSettings } from "../../comejene_share/Motion";
 import { ComejeneTemplates_MessageContainer } from "./ComejeneTemplates_MessageContainer";
 
 

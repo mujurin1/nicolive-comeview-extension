@@ -1,4 +1,6 @@
-import { checkComejeneEnvType, comejeneEnvs, type ComejeneEnvTypes, type ComejeneMotionNames, type ComejeneMotionSetting, type ComejeneMotionState, type ComejeneReceiver, type ComejeneStyle } from "../comejene_share";
+import type { ComejeneStyle } from "../comejene_share/Message";
+import type { ComejeneMotionNames, ComejeneMotionSetting, ComejeneMotionState } from "../comejene_share/Motion";
+import { type ComejeneEnvTypes, type ComejeneReceiver, checkComejeneEnvType, comejeneEnvs } from "../comejene_share/ViewEnvironment";
 import { ComejeneViewState } from "./ComejeneViewState.svelte";
 
 export class ComejeneState {

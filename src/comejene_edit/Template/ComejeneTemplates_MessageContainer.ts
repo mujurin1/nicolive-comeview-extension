@@ -1,4 +1,4 @@
-import { ComejeneMessageFrame } from "../../comejene_share";
+import { ComejeneMessageFrame } from "../../comejene_share/Message";
 
 export const ComejeneTemplates_MessageContainer = {
   "I-{N_/C}": () => ComejeneMessageFrame.new(

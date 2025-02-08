@@ -8,11 +8,13 @@
     ComejeneContentKeys,
     ComejeneContentKeyNames,
     ComejeneContentKeyToType,
-    ComejeneContentStyleRootSet,
+    ComejeneContentStyleRoot,
+  } from "../../comejene_share/Message";
+  import {
     ComejeneMotionDefinitions,
     type ComejeneMotionDefinition,
     type ComejeneMotionNames,
-  } from "../../comejene_share";
+  } from "../../comejene_share/Motion";
   import MyzRootView from "../../lib/Myz/MyzRootView.svelte";
   import MyzView from "../../lib/Myz/MyzView.svelte";
   import MyzViewArea from "../../lib/Myz/MyzViewArea.svelte";
@@ -54,7 +56,7 @@
     ComejeneMotionDefinitions[editTemplate.state.motion.name],
   );
   let selectContent = $state<ComejeneContentKeys>("message");
-  let root = $derived(ComejeneContentStyleRootSet[ComejeneContentKeyToType[selectContent]]);
+  let root = $derived(ComejeneContentStyleRoot[ComejeneContentKeyToType[selectContent]]);
 
   let notExistInMessageFrame = $derived(
     editTemplate.state.style.containerLayout.contents[selectContent] == null,

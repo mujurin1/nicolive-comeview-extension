@@ -1,6 +1,4 @@
-export * from "./Message";
-export * from "./Motion";
+export * from "./func";
 export * from "./type";
 
-export * from "./ViewEnvironment";
-
+// comejene_share 以下のフォルダはここでは export しない

@@ -1,5 +1,13 @@
 import { ComejeneTemplates, type ComejeneTemplate } from "../comejene_edit/Template/ComejeneTemplate";
-import { comejeneEnvs, type ComejeneContent, type ComejeneEnvTypes, type ComejeneEvent, type ComejeneSender, type ComejeneSenderOptions, type ComejeneSenderState } from "../comejene_share";
+import type { ComejeneContent } from "../comejene_share";
+import {
+  comejeneEnvs,
+  type ComejeneEnvTypes,
+  type ComejeneEvent,
+  type ComejeneSender,
+  type ComejeneSenderOptions,
+  type ComejeneSenderState
+} from "../comejene_share/ViewEnvironment";
 
 const senders = $state<ComejeneSender[]>([]);
 let nextId = 1;

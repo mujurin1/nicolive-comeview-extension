@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getDummyContent } from "../../comejene_edit/utils";
-  import { ComejeneSenderStateText } from "../../comejene_share";
+  import { ComejeneSenderStateText } from "../../comejene_share/ViewEnvironment";
   import { ComejeneSenderController } from "../../service/ComejeneSenderController.svelte";
 
   const DEFAULT_WS_URL = "ws://localhost:4455";

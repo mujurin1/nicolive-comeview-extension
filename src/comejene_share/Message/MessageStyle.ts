@@ -1,7 +1,7 @@
 import type { CSSObject } from "@emotion/css/create-instance";
 import { myz, type MyzState } from "../../lib/Myz";
 import type { CustomCss } from "../func";
-import { paddingToCss } from "./ContentStyle_inner";
+import { paddingToCss } from "./util";
 
 export type ComejeneMessageStyle = MyzState<typeof ComejeneMessageStyleRoot>;
 export const ComejeneMessageStyle = {

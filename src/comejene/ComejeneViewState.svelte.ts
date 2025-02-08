@@ -1,5 +1,14 @@
-import { type ComejeneContent, type ComejeneMotionComponent, type ComejeneMotionDefinition, ComejeneMotionDefinitions, type ComejeneMotionNames, type ComejeneMotionSetting, type ComejeneMotionState, ComejeneStyle } from "../comejene_share";
+import type { ComejeneContent } from "../comejene_share";
 import { createCustomCss } from "../comejene_share/func";
+import { ComejeneStyle } from "../comejene_share/Message";
+import {
+  type ComejeneMotionComponent,
+  type ComejeneMotionDefinition,
+  ComejeneMotionDefinitions,
+  type ComejeneMotionNames,
+  type ComejeneMotionSetting,
+  type ComejeneMotionState
+} from "../comejene_share/Motion";
 
 export class ComejeneViewState<Setting extends ComejeneMotionSetting, State extends ComejeneMotionState> {
   private readonly _customCss = createCustomCss();
