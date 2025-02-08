@@ -8,7 +8,7 @@
     "build": "npm run clean && vite build",
     "dev:comejene": "vite --config vite.config.comejene.ts",
     "build:comejene": "rimraf ./dist-comejene && vite build --config vite.config.comejene.ts",
-    "install:api": "npx link ../NDGRClient-ts",
+    "install:api": "//npx link ../NDGRClient-ts",
     "lint": "eslint .",
     "lintFix": "eslint . --fix",
     "preview": "vite preview",

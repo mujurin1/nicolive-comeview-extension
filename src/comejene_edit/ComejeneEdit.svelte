@@ -115,6 +115,8 @@
     lockRelease?.();
     lockRelease = undefined;
     ComejeneSenderController._set(() => selectTemplate);
+    ComejeneSenderController.sendMotionSetting();
+    ComejeneSenderController.sendComejeneStyle();
   }
 
   let sendCommentsTimeout: number | undefined;
