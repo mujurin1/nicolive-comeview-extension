@@ -34,6 +34,10 @@ export const StackMotionStyle = ComejeneMotionStyle.create(
       step: 10,
     }),
 
+    /**
+     * コメントの並ぶ間隔
+     */
+    gap: myz.number("コメント間隔"),
 
     /**
      * アニメーションを有効化するか
@@ -60,6 +64,7 @@ export const StackMotionStyle = ComejeneMotionStyle.create(
         position: "relative",
         display: "flex",
         flexDirection: `${direction}${setting.reverseOrder ? "-reverse" : ""}`,
+        gap: `${setting.gap}px`,
         width: setting.isVertical ? "100%" : "max-content",
         height: !setting.isVertical && setting.verticalGrow ? "100%" : "max-content",
 

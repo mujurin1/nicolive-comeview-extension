@@ -10,7 +10,6 @@ export const ComejeneMessageStyle = {
       ".message-container": {
         backgroundColor: style.backColor,
         padding: dirNumbersToCss(style.padding),
-        margin: dirNumbersToCss(style.margin),
         ...borderToCssObject(style.border)
       },
     };
@@ -23,5 +22,4 @@ export const ComejeneMessageStyleRoot = myz.root({
   backColor: myz.color("背景色", "optional"),
   border: createBorderBlock(),
   padding: createDirNumbersSwitch("余白 (内)", "上下と左右"),
-  margin: createDirNumbersSwitch("余白 (外)", "上下と左右"),
 });

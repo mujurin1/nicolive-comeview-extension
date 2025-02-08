@@ -40,6 +40,8 @@ const 縦並び = (): ComejeneTemplate<"stack"> => ({
       reverseOrder: false,
       maxWidth: 0,
       verticalGrow: true,
+      gap: 5,
+
       listAnimation: true,
 
       reverseGap: false,
@@ -51,7 +53,6 @@ const 縦並び = (): ComejeneTemplate<"stack"> => ({
       backColor: "#aaffcc",
       border: { color: "black", width: 3, radius: 0, style: "solid" },
       padding: { top: 5, left: 5, right: 5, bottom: 5 },
-      margin: { top: 0, left: 0, right: 0, bottom: 0 },
     },
     containerLayout: ComejeneTemplates_MessageContainer["I-{N_/C}"](),
     contentsStyle: ComejeneContentStyleSet.new({
