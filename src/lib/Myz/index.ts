@@ -1,3 +1,4 @@
+import type { ColorPickerValue } from "../../components/ColorPicker.svelte";
 
 interface MyzBase<TYPE extends MyzObjectType = MyzObjectType> { type: TYPE; display: string; }
 
@@ -18,9 +19,8 @@ type MyzValueState<T extends MyzValue> =
   : T extends MyzNumber ? number
   : T extends MyzBoolean ? boolean
   : T extends MyzList ? T["choices"][number]
-  : T extends MyzColor ? `#${string}` | undefined
+  : T extends MyzColor ? ColorPickerValue
   : never;
-
 
 export interface MyzRoot<BLOCK extends MyzObjects = MyzObjects> { block: BLOCK; }
 
@@ -73,7 +73,7 @@ interface MyzSwitchBlock<
   bind: (value: unknown) => STATE;
   toBlockState: (state: unknown) => MyzState<{ block: BLOCK; }>;
 }
-interface MysSwitchBuilder<
+interface MyzSwitchBuilder<
   STATE extends MyzState,
   BLOCKS extends Record<string, MyzSwitchBlock<STATE>>,
 > {
@@ -82,7 +82,7 @@ interface MysSwitchBuilder<
     blocks: BLOCK,
     bind: (value: MyzState<{ block: BLOCK; }>) => STATE,
     toBlockState: (state: STATE) => MyzState<{ block: BLOCK; }>,
-  ) => MysSwitchBuilder<
+  ) => MyzSwitchBuilder<
     STATE,
     BLOCKS & { [K in KEY]: MyzSwitchBlock<STATE, KEY, BLOCK>; }
   >;
@@ -123,26 +123,34 @@ export type MyzOptional = "optional";
 //#endregion
 
 
+//#region MyzPart
 type MyzPart<
   T extends MyzRooter | MyzValue,
   K extends keyof Omit<T, "type" | "extra"> = never
 > = Partial<Omit<T, "type" | "extra" | K>> & { display: string; };
-
+export type MyzBlockPart = MyzPart<MyzBlock>;
+export type MyzSwitchPart = MyzPart<MyzSwitch, "blocks">;
+export type MyzStringPart = MyzPart<MyzString>;
+export type MyzNumberPart = MyzPart<MyzNumber>;
+export type MyzBooleanPart = MyzPart<MyzBoolean>;
+export type MyzListPart = MyzPart<MyzList, "choices">;
+export type MyzColorPart = MyzPart<MyzColor>;
+//#endregion MyzPart
 
 export const myz = {
   root: <BLOCK extends MyzObjects>(block: BLOCK): MyzRoot<BLOCK> => {
     return { block };
   },
 
-  block: <BLOCK extends MyzObjects>(displayOrParams: string | MyzPart<MyzBlock>, block: BLOCK): MyzObject<MyzBlock<BLOCK>> => {
+  block: <BLOCK extends MyzObjects>(displayOrParams: string | MyzBlockPart, block: BLOCK): MyzObject<MyzBlock<BLOCK>> => {
     return { ...toBase("block", displayOrParams), block };
   },
   switch: <STATE extends MyzState>(
-    displayOrParams: string | MyzPart<MyzSwitch, "blocks">,
-  ): MysSwitchBuilder<STATE, {}> => {
+    displayOrParams: string | MyzSwitchPart,
+  ): MyzSwitchBuilder<STATE, {}> => {
     const blocks: Record<string, MyzSwitchBlock<STATE>> = {};
 
-    const builder: MysSwitchBuilder<STATE, {}> = {
+    const builder: MyzSwitchBuilder<STATE, {}> = {
       addBlock: (key, block, bind, toBlockState) => {
         blocks[key] = {
           key,
@@ -158,21 +166,21 @@ export const myz = {
     return builder;
   },
 
-  string: <EXTRA extends MyzExtraTypes = null>(displayOrParams: string | MyzPart<MyzString>, ...extras: Exclude<EXTRA, null>[]): MyzString<EXTRA> => {
+  string: <EXTRA extends MyzExtraTypes = null>(displayOrParams: string | MyzStringPart, ...extras: Exclude<EXTRA, null>[]): MyzString<EXTRA> => {
     return { ...toValue("string", displayOrParams, extras) };
   },
-  number: <EXTRA extends MyzExtraTypes = null>(displayOrParams: string | MyzPart<MyzNumber>, ...extras: Exclude<EXTRA, null>[]): MyzNumber<EXTRA> => {
+  number: <EXTRA extends MyzExtraTypes = null>(displayOrParams: string | MyzNumberPart, ...extras: Exclude<EXTRA, null>[]): MyzNumber<EXTRA> => {
     return { control: "range", ...toValue("number", displayOrParams, extras) };
   },
-  boolean: <EXTRA extends MyzExtraTypes = null>(displayOrParams: string | MyzPart<MyzBoolean>, ...extras: Exclude<EXTRA, null>[]): MyzBoolean<EXTRA> => {
+  boolean: <EXTRA extends MyzExtraTypes = null>(displayOrParams: string | MyzBooleanPart, ...extras: Exclude<EXTRA, null>[]): MyzBoolean<EXTRA> => {
     return { ...toValue("boolean", displayOrParams, extras) };
   },
   list: <const Choices extends readonly string[], EXTRA extends MyzExtraTypes = null>(
-    displayOrParams: string | MyzPart<MyzList, "choices">, choices: Choices, ...extras: Exclude<EXTRA, null>[]
+    displayOrParams: string | MyzListPart, choices: Choices, ...extras: Exclude<EXTRA, null>[]
   ): MyzList<Choices, EXTRA> => {
     return { ...toValue("list", displayOrParams, extras), choices };
   },
-  color: <EXTRA extends MyzExtraTypes = null>(displayOrParams: string | MyzPart<MyzColor>, ...extras: Exclude<EXTRA, null>[]): MyzColor<EXTRA> => {
+  color: <EXTRA extends MyzExtraTypes = null>(displayOrParams: string | MyzColorPart, ...extras: Exclude<EXTRA, null>[]): MyzColor<EXTRA> => {
     return { ...toValue("color", displayOrParams, extras) };
   },
 } as const;

@@ -2,7 +2,7 @@ import type { CSSObject } from "@emotion/css/create-instance";
 import { myz, type Ignore, type MyzObjects, type MyzRoot } from "../../lib/Myz";
 import type { ComejeneContentStyle, ComejeneContentStyleRoot } from "./ContentStyle";
 import type { ComejeneContentTypes } from "./ContentType";
-import { paddingToCss } from "./util";
+import { boolToBold, borderToCssObject, createBorderBlock, createDirNumbersSwitch, dirNumbersToCss } from "./cssUtility";
 
 export const _ComejeneContentStyle = {
   asCss: (type: ComejeneContentTypes, style: _ComejeneContentStyle): CSSObject => {
@@ -14,21 +14,20 @@ export const _ComejeneContentStyle = {
     return {
       justifyContent: FlexPosition.asCss(style.position.x),
       backgroundColor: style.backColor,
-      padding: paddingToCss(style.padding),
+      padding: dirNumbersToCss(style.padding),
+      margin: dirNumbersToCss(style.margin),
       alignItems: FlexPosition.asCss(style.position.y),
       overflow: "clip",
-      borderStyle: style.border.style,
-      borderWidth: style.border.width,
-      borderColor: style.border.color,
-      borderRadius: style.border.radius,
+      ...borderToCssObject(style.border)
     };
   },
   asCss_Text: (style: _ComejeneContentStyle_Text): CSSObject => {
     const cssObj = _ComejeneContentStyle.asCss_Base(style);
 
     cssObj[".content"] = {
-      fontSize: style.textSize,
-      color: style.textColor,
+      fontSize: style.textStyle.size,
+      color: style.textStyle.color,
+      fontWeight: boolToBold(style.textStyle.bold),
       whiteSpace: style.banNewLine ? "nowrap" : style.noNewLine ? "normal" : "pre-wrap",
     };
     return cssObj;
@@ -57,7 +56,6 @@ const FlexPosition = {
     return `flex-${position}`;
   }
 } as const;
-const BorderStyles = ["none", "dotted", "dashed", "solid", "double", "groove", "ridge", "inset", "outset"] as const;
 
 export type _ComejeneContentStyleBase = typeof _ComejeneContentStyleBase;
 /** 全タイプの共通のデータ */
@@ -69,53 +67,18 @@ export const _ComejeneContentStyleBase = {
     x: myz.list("よこ", FlexPositions),
     y: myz.list("たて", FlexPositions),
   }),
-  padding: myz.switch<{
-    top: number;
-    right: number;
-    bottom: number;
-    left: number;
-  }>("余白")
-    .addBlock("上下左右",
-      {
-        padding: myz.number("上下左右"),
-      },
-      ({ padding }) => ({ top: padding, right: padding, bottom: padding, left: padding }),
-      ({ top }) => ({ padding: top }),
-    )
-    .addBlock("上下と左右",
-      {
-        topBottom: myz.number("上下"),
-        leftRight: myz.number("左右"),
-      },
-      ({ topBottom, leftRight }) => ({ top: topBottom, bottom: topBottom, left: leftRight, right: leftRight }),
-      ({ top, left }) => ({ topBottom: top, leftRight: left }),
-    )
-    .addBlock("個別",
-      {
-        top: myz.number("上"),
-        bottom: myz.number("下"),
-        left: myz.number("左"),
-        right: myz.number("右"),
-      },
-      values => values,
-      values => values,
-    )
-    .build("上下と左右"),
+  padding: createDirNumbersSwitch("余白 (内)"),
+  margin: createDirNumbersSwitch("余白 (外)"),
   backColor: myz.color("背景色", "optional"),
-  border: myz.block("枠線", {
-    color: myz.color("色"),
-    width: myz.number({ display: "太さ", max: 20 }),
-    radius: myz.number({ display: "丸み", max: 50 }),
-    style: myz.list("スタイル", BorderStyles),
-  }),
+  border: createBorderBlock(),
 } as const satisfies MyzObjects;
 
 const ComejeneContentStyleRootBase = {
   create: <Objects extends Ignore<MyzObjects, _ComejeneContentStyleBase>>(
     objects: Objects,
   ): _ComejeneContentStyleRoot<Objects> => myz.root({
-    ..._ComejeneContentStyleBase,
     ...objects,
+    ..._ComejeneContentStyleBase,
   }),
 } as const;
 
@@ -123,8 +86,11 @@ export const _ComejeneContentStyleRoot = {
   /** テキストタイプのメッセージの持つ属性 */
   text: ComejeneContentStyleRootBase.create(
     {
-      textSize: myz.number({ display: "文字サイズ", min: 10 }),
-      textColor: myz.color("文字色"),
+      textStyle: myz.block({ display: "文字スタイル", defaultShow: true }, {
+        size: myz.number({ display: "サイズ", min: 10 }),
+        color: myz.color("色"),
+        bold: myz.boolean("太字"),
+      }),
       banNewLine: myz.boolean("改行禁止"),
       noNewLine: myz.boolean("改行文字無視"),
     }),

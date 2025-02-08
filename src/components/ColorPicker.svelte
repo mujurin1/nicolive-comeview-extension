@@ -156,6 +156,8 @@
     yellowgreen: "#9ACD32",
   } as const;
 
+  export type ColorPickerValue = `#${string}` | NamedColorKey | undefined;
+
   type Colors = [number, number, number];
 
   export interface ColorPickerStateBase {
