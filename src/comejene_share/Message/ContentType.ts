@@ -16,7 +16,7 @@ export type ComejeneContentKeys = typeof ComejeneContentKeys[number];
 export const ComejeneContentKeyNames = {
   icon: "アイコン",
   name: "名前",
-  message: "本文",
+  message: "コメント",
 } as const satisfies Record<ComejeneContentKeys, string>;
 
 export const ComejeneContentKeyToType = {

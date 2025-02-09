@@ -62,7 +62,7 @@
       </select>
     </MyzView>
   {:else if object.type === "block"}
-    <Expand show={object.defaultShow} title={object.display}>
+    <Expand show={object.defaultOpen} title={object.display}>
       <div style:--indent={`${indent}em`}>
         <Self
           indent={indent + 1}

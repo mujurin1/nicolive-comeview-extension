@@ -1,22 +1,6 @@
 import type { CSSObject } from "@emotion/css/create-instance";
 import type { ColorPickerValue } from "../../components/ColorPicker.svelte";
-import { myz, type MyzSwitchPart } from "../../lib/Myz";
-
-export interface DirNumbers {
-  top: number;
-  right: number;
-  bottom: number;
-  left: number;
-}
-
-const BorderStyles = ["none", "dotted", "dashed", "solid", "double", "groove", "ridge", "inset", "outset"] as const;
-export type BorderStyle = typeof BorderStyles[number];
-export interface CssBorders {
-  color: ColorPickerValue;
-  width: number;
-  radius: number;
-  style: BorderStyle;
-}
+import { myz, type MyzBlockPart, type MyzSwitchPart } from "../../lib/Myz";
 
 //#region CssConverter
 /**
@@ -25,17 +9,13 @@ export interface CssBorders {
  * @param unit 単位
  * @returns `"{top}{unit} {right}{unit} {bottom}{unit} {left}{unit}"`
  */
-export function dirNumbersToCss(dirNumbers: DirNumbers, unit = "px"): string {
+export function dirNumbersToCssText(dirNumbers: DirNumbers, unit = "px"): string {
   return [dirNumbers.top, dirNumbers.right, dirNumbers.bottom, dirNumbers.left]
     .map(p => `${p}${unit}`)
     .join(" ");
 }
 
-export function boolToBold(isBold: boolean): "normal" | "bold" {
-  return isBold ? "bold" : "normal";
-}
-
-export function borderToCssObject(border: CssBorders) {
+export function borderToCss(border: CssBorders) {
   return {
     borderStyle: border.style,
     borderWidth: border.width,
@@ -43,10 +23,25 @@ export function borderToCssObject(border: CssBorders) {
     borderRadius: border.radius,
   } satisfies CSSObject;
 }
+
+export function textStyleToCss(textStyle: CssTextStyle) {
+  return {
+    fontFamily: textStyle.fontFamily,
+    fontSize: textStyle.size,
+    color: textStyle.color,
+    fontWeight: textStyle.bold ? "bold" : "normal",
+  } satisfies CSSObject;
+}
 //#endregion CssConverter
 
-
+// TODO: Utility の関数内で型指定したい. createBorderBlock(): CssBorders のように
 //#region Utility
+export interface DirNumbers {
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
+}
 export function createDirNumbersSwitch(
   displayOrParams: string | MyzSwitchPart,
   defaultSelectKey: "上下左右" | "上下と左右" | "個別" = "上下左右"
@@ -88,12 +83,38 @@ export function createDirNumbersSwitch(
     .build(defaultSelectKey);
 }
 
+const BorderStyles = ["none", "dotted", "dashed", "solid", "double", "groove", "ridge", "inset", "outset"] as const;
+export type BorderStyle = typeof BorderStyles[number];
+export interface CssBorders {
+  color: ColorPickerValue;
+  width: number;
+  radius: number;
+  style: BorderStyle;
+}
 export function createBorderBlock() {
   return myz.block("枠線", {
+    style: myz.list("スタイル", BorderStyles),
     color: myz.color("色"),
     width: myz.number({ display: "太さ", max: 20 }),
     radius: myz.number({ display: "丸み", max: 50 }),
-    style: myz.list("スタイル", BorderStyles),
+  });
+}
+
+export interface CssTextStyle {
+  size: number;
+  fontFamily: string;
+  color: ColorPickerValue;
+  bold: boolean;
+}
+export function createTextStyleBlock(displayOrParams: string | MyzBlockPart = "文字スタイル") {
+  return myz.block(displayOrParams, {
+    size: myz.number({ display: "サイズ", min: 10 }),
+    fontFamily: myz.string("フォント"),
+    // shadow: myz.block("縁取り", {
+    //   length: myz.number("太さ"),
+    // }),
+    color: myz.color("色"),
+    bold: myz.boolean("太字"),
   });
 }
 //#endregion Utility

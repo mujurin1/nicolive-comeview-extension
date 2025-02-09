@@ -48,7 +48,7 @@ export interface MyzValueable<
 //#region MyzRooter
 export interface MyzBlock<BLOCK extends MyzObjects = MyzObjects> extends MyzBase<"block"> {
   block: BLOCK;
-  defaultShow?: boolean;
+  defaultOpen?: boolean;
 }
 
 export interface MyzSwitch<

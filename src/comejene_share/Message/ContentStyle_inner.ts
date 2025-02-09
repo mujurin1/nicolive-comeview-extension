@@ -2,7 +2,7 @@ import type { CSSObject } from "@emotion/css/create-instance";
 import { myz, type Ignore, type MyzObjects, type MyzRoot } from "../../lib/Myz";
 import type { ComejeneContentStyle, ComejeneContentStyleRoot } from "./ContentStyle";
 import type { ComejeneContentTypes } from "./ContentType";
-import { boolToBold, borderToCssObject, createBorderBlock, createDirNumbersSwitch, dirNumbersToCss } from "./cssUtility";
+import { borderToCss, createBorderBlock, createDirNumbersSwitch, createTextStyleBlock, dirNumbersToCssText, textStyleToCss } from "./cssUtility";
 
 export const _ComejeneContentStyle = {
   asCss: (type: ComejeneContentTypes, style: _ComejeneContentStyle): CSSObject => {
@@ -14,21 +14,19 @@ export const _ComejeneContentStyle = {
     return {
       justifyContent: FlexPosition.asCss(style.position.x),
       backgroundColor: style.backColor,
-      padding: dirNumbersToCss(style.padding),
-      margin: dirNumbersToCss(style.margin),
+      padding: dirNumbersToCssText(style.padding),
+      margin: dirNumbersToCssText(style.margin),
       alignItems: FlexPosition.asCss(style.position.y),
       overflow: "clip",
-      ...borderToCssObject(style.border)
+      ...borderToCss(style.border)
     };
   },
   asCss_Text: (style: _ComejeneContentStyle_Text): CSSObject => {
     const cssObj = _ComejeneContentStyle.asCss_Base(style);
 
     cssObj[".content"] = {
-      fontSize: style.textStyle.size,
-      color: style.textStyle.color,
-      fontWeight: boolToBold(style.textStyle.bold),
       whiteSpace: style.banNewLine ? "nowrap" : style.noNewLine ? "normal" : "pre-wrap",
+      ...textStyleToCss(style.textStyle),
     };
     return cssObj;
   },
@@ -86,11 +84,7 @@ export const _ComejeneContentStyleRoot = {
   /** テキストタイプのメッセージの持つ属性 */
   text: ComejeneContentStyleRootBase.create(
     {
-      textStyle: myz.block({ display: "文字スタイル", defaultShow: true }, {
-        size: myz.number({ display: "サイズ", min: 10 }),
-        color: myz.color("色"),
-        bold: myz.boolean("太字"),
-      }),
+      textStyle: createTextStyleBlock({ display: "文字スタイル", defaultOpen: true }),
       banNewLine: myz.boolean("改行禁止"),
       noNewLine: myz.boolean("改行文字無視"),
     }),

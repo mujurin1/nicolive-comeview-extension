@@ -1,7 +1,7 @@
 import type { CSSObject } from "@emotion/css/create-instance";
 import { myz, type MyzState } from "../../lib/Myz";
 import type { CustomCss } from "../func";
-import { borderToCssObject, createBorderBlock, createDirNumbersSwitch, dirNumbersToCss } from "./cssUtility";
+import { borderToCss, createBorderBlock, createDirNumbersSwitch, dirNumbersToCssText } from "./cssUtility";
 
 export type ComejeneMessageStyle = MyzState<typeof ComejeneMessageStyleRoot>;
 export const ComejeneMessageStyle = {
@@ -9,8 +9,8 @@ export const ComejeneMessageStyle = {
     const baseCss: CSSObject = {
       ".message-container": {
         backgroundColor: style.backColor,
-        padding: dirNumbersToCss(style.padding),
-        ...borderToCssObject(style.border)
+        padding: dirNumbersToCssText(style.padding),
+        ...borderToCss(style.border)
       },
     };
 
