@@ -62,6 +62,7 @@
     --switch-brder-color: hsl(222, 100%, 80%);
     --switch-brder-radius: 5px;
     --switch-brder-width: 2px;
+    --switch-focus-outline-color: hsl(222, 100%, 60%);
 
     .myz-switch-header > .myz-switch-selector {
       width: auto;
@@ -72,7 +73,7 @@
       margin-bottom: calc(-1 * var(--switch-brder-width));
 
       &:focus {
-        outline: none;
+        outline-color: var(--switch-focus-outline-color);
       }
     }
     .myz-switch-content {

@@ -464,7 +464,6 @@
       if (showPicker === "always") return;
       showPicker = !showPicker;
     }}
-    tabindex="-1"
     type="button"
   >
     <div class="color-picker-button-bg"></div>
@@ -500,6 +499,8 @@
     --picker-left: unset;
 
     --pick-alpha: 1;
+
+    --picker-btn-index: 1;
   }
 
   .color-picker {
@@ -522,6 +523,13 @@
     padding: 0;
     outline: #ccc solid 1px;
     background-image: var(--translate-image);
+
+    &:focus {
+      outline-style: revert;
+      outline-color: black;
+      outline-width: 3px;
+      outline-offset: 4px;
+    }
 
     .color-picker-button-bg {
       width: var(--picker-button-width);
