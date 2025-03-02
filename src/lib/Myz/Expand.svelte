@@ -23,7 +23,6 @@
 <style>
   .head-item {
     width: 100%;
-    padding-left: var(--indent);
 
     &::before {
       content: "▶ ";

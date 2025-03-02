@@ -55,12 +55,18 @@
     & > :last-child {
       flex: 1 1 100%;
     }
+    /*
     & > .myz-area-header-item {
     }
+    */
   }
 
   .myz-area-content {
     background-color: hsl(222, 100%, 94%);
-    padding: 3px 5px;
+    padding: 3px;
+  }
+
+  :global(select, input) {
+    font-size: unset;
   }
 </style>

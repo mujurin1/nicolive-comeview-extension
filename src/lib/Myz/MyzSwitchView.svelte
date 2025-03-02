@@ -58,7 +58,8 @@
 
 <style>
   .myz-switch {
-    --switch-back-color: hsl(222, 100%, 90%);
+    /* --switch-back-color: hsl(222, 100%, 90%); */
+    --switch-back-color: transparent;
     --switch-brder-color: hsl(222, 100%, 80%);
     --switch-brder-radius: 5px;
     --switch-brder-width: 2px;
@@ -78,7 +79,7 @@
     }
     .myz-switch-content {
       background-color: var(--switch-back-color);
-      padding: 3px;
+      /* padding: 3px; */
       border: var(--switch-brder-width) solid var(--switch-brder-color);
       border-radius: var(--switch-brder-radius);
       border-top-right-radius: 0;

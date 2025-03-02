@@ -1,6 +1,12 @@
 import type { ColorPickerValue } from "../../components/ColorPicker.svelte";
 
-interface MyzBase<TYPE extends MyzObjectType = MyzObjectType> { type: TYPE; display: string; }
+interface MyzBase<TYPE extends MyzObjectType = MyzObjectType> {
+  type: TYPE;
+  /** 表示名 */
+  display: string;
+  /** 表示グループ */
+  group?: string;
+}
 
 export type MyzState<BLOCK extends { block: MyzObjects; } = MyzBlock> = {
   -readonly [K in keyof BLOCK["block"]]: BLOCK["block"][K] extends (infer T) ?
@@ -127,7 +133,7 @@ export type MyzOptional = "optional";
 type MyzPart<
   T extends MyzRooter | MyzValue,
   K extends keyof Omit<T, "type" | "extra"> = never
-> = Partial<Omit<T, "type" | "extra" | K>> & { display: string; };
+> = Partial<Omit<T, "type" | "extra" | K>> & Pick<MyzBase, "display">;
 export type MyzBlockPart = MyzPart<MyzBlock>;
 export type MyzSwitchPart = MyzPart<MyzSwitch, "blocks">;
 export type MyzStringPart = MyzPart<MyzString>;

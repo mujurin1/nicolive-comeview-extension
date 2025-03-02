@@ -57,7 +57,7 @@ const FlexPosition = {
 
 export type _ComejeneContentStyleBase = typeof _ComejeneContentStyleBase;
 /** 全タイプの共通のデータ */
-export const _ComejeneContentStyleBase = {
+export const _ComejeneContentStyleBase = MyzUtil.group("default", {
   /** この項目を表示するかどうか */
   visible: myz.boolean("表示"),
   /** X,Y 軸上の寄せ */
@@ -69,47 +69,46 @@ export const _ComejeneContentStyleBase = {
   margin: createDirNumbersSwitch("余白 (外)"),
   backColor: myz.color("背景色", "optional"),
   border: createBorderBlock(),
-} as const satisfies MyzObjects;
+});
 
 const ComejeneContentStyleRootBase = {
   create: <Objects extends Ignore<MyzObjects, _ComejeneContentStyleBase>>(
+    group: string,
     objects: Objects,
   ): _ComejeneContentStyleRoot<Objects> => myz.root({
-    ...objects,
+    ...MyzUtil.group(group, objects),
     ..._ComejeneContentStyleBase,
   }),
 } as const;
 
 export const _ComejeneContentStyleRoot = {
   /** テキストタイプのメッセージの持つ属性 */
-  text: ComejeneContentStyleRootBase.create(
-    {
-      textStyle: createTextStyleBlock({ display: "文字スタイル", defaultOpen: true }),
-      banNewLine: myz.boolean("改行禁止"),
-      noNewLine: myz.boolean("改行文字無視"),
-    }),
+  text: ComejeneContentStyleRootBase.create("text", {
+    textStyle: createTextStyleBlock({ display: "文字スタイル", defaultOpen: true }),
+    banNewLine: myz.boolean("改行禁止"),
+    noNewLine: myz.boolean("改行文字無視"),
+  }),
   /** 画像タイプのメッセージの持つ属性 */
-  img: ComejeneContentStyleRootBase.create(
-    {
-      imgSize: myz.switch<{
-        width: number;
-        height: number;
-      }>("画像サイズ")
-        .addBlock(
-          "縦横",
-          { size: myz.number("縦横") },
-          ({ size }) => ({ width: size, height: size }),
-          ({ width }) => ({ size: width }),
-        )
-        .addBlock(
-          "縦と横",
-          {
-            height: myz.number("縦"),
-            width: myz.number("横"),
-          },
-          value => value,
-          value => value,
-        )
-        .build(),
-    }),
+  img: ComejeneContentStyleRootBase.create("image", {
+    imgSize: myz.switch<{
+      width: number;
+      height: number;
+    }>("画像サイズ")
+      .addBlock(
+        "縦横",
+        { size: myz.number("縦横") },
+        ({ size }) => ({ width: size, height: size }),
+        ({ width }) => ({ size: width }),
+      )
+      .addBlock(
+        "縦と横",
+        {
+          height: myz.number("縦"),
+          width: myz.number("横"),
+        },
+        value => value,
+        value => value,
+      )
+      .build(),
+  }),
 } as const satisfies Record<ComejeneContentTypes, _ComejeneContentStyleRoot>;

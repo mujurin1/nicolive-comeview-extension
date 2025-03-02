@@ -27,21 +27,32 @@
     display: flex;
     /* justify-content: space-between; */
     column-gap: 6px;
-    align-items: center;
+    align-items: stretch;
     padding: 1px 0;
+    min-height: 26px;
 
     & > .myz-column-label {
-      flex: 0 0 0;
-      display: inline-block;
-      min-width: 100px;
+      flex: 1 0 0;
+      align-self: center;
+      height: min-content;
       box-sizing: border-box;
-      padding-left: var(--indent);
     }
 
     & > .myz-column-input {
       flex: 1 1 0;
       display: flex;
       align-items: center;
+      padding: 4px;
+      width: 140px;
+
+      :global(& > *) {
+        height: 100%;
+      }
     }
+  }
+
+  :global(input[type="checkbox"]) {
+    width: auto;
+    aspect-ratio: 1;
   }
 </style>

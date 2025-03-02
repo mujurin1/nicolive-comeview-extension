@@ -202,6 +202,13 @@
 {/snippet}
 
 <style>
+  :global(*) {
+    font-size: 16px;
+  }
+  :global(button) {
+    font-size: 0.9em;
+  }
+
   .comejene-edit {
     display: flex;
     width: 100%;
@@ -209,14 +216,15 @@
   }
 
   .setting-container {
-    flex: 0 0 250px;
+    flex: 0 0 auto;
+    flex: 0 0 300px;
     box-sizing: border-box;
     background-color: #d4f6ff;
     display: flex;
     flex-direction: column;
     row-gap: 10px;
     padding: 5px;
-    padding-bottom: 200px;
+    padding-bottom: 100vh;
     overflow-y: auto;
   }
 
