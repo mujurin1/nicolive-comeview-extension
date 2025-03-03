@@ -25,11 +25,13 @@
     width: 100%;
 
     &::before {
-      content: "▶ ";
+      display: inline-block;
+      width: 1.1em;
+      content: "▶";
     }
     &[data-expand="true"] {
       &::before {
-        content: "▼ ";
+        content: "▼";
       }
     }
   }

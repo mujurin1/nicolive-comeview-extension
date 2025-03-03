@@ -29,17 +29,19 @@
     column-gap: 6px;
     align-items: stretch;
     padding: 1px 0;
-    min-height: 26px;
+    min-height: 32px;
 
     & > .myz-column-label {
       flex: 1 0 0;
       align-self: center;
       height: min-content;
       box-sizing: border-box;
+      width: 140px;
     }
 
     & > .myz-column-input {
-      flex: 1 1 0;
+      flex: 0 0 140px;
+      box-sizing: border-box;
       display: flex;
       align-items: center;
       padding: 4px;

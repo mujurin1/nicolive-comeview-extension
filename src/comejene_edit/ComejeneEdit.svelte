@@ -153,7 +153,7 @@
       <!-- テンプレート一覧表示 -->
       <MyzViewArea title="テンプレート一覧">
         <MyzView object={{ display: "名前" }}>
-          <select class="simple-list" bind:value={$selectTemplateId}>
+          <select bind:value={$selectTemplateId}>
             {#each storageTemplateIds as id (id)}
               {@const name = storageTemplates[id].name}
               <option class="item" value={id}>{name}</option>
@@ -216,7 +216,6 @@
   }
 
   .setting-container {
-    flex: 0 0 auto;
     flex: 0 0 300px;
     box-sizing: border-box;
     background-color: #d4f6ff;
@@ -224,7 +223,6 @@
     flex-direction: column;
     row-gap: 10px;
     padding: 5px;
-    padding-bottom: 100vh;
     overflow-y: auto;
   }
 

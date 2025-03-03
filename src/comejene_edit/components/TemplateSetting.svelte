@@ -153,10 +153,16 @@
   {/key}
 </MyzViewArea>
 
+<div class="empty"><div></div></div>
+
 <style>
   .hide-content-message {
     color: red;
     font-weight: bold;
     font-size: 1.1em;
+  }
+
+  .empty > div {
+    height: 100vh;
   }
 </style>

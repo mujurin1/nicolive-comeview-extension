@@ -40,7 +40,7 @@
   }
 </script>
 
-<div class="myz-wrap" style:--indent={`${indent}em`}>
+<div style:--indent={`${indent}em`} class="myz-wrap">
   {#each map.keys() as key (key)}
     {@const block = map.get(key)!}
     <div class="myz-gruop">
@@ -112,7 +112,6 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
-    margin: 3px;
     padding-left: var(--indent);
 
     .myz-gruop {

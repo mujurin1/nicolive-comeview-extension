@@ -86,6 +86,8 @@
     box-sizing: border-box;
     --picker-hsl-non-null: var(--picker-hsl, hsl(0, 0%, 0%));
     --picker-hue-non-null: var(--picker-hue, 0);
+    --border-round-wrap: 6px;
+    --border-round: 6px;
   }
 
   .color-picker-panel {
@@ -95,14 +97,14 @@
     height: var(--picker-height);
     width: var(--picker-width);
     padding: 6px;
-    border-radius: 8px;
+    border-radius: var(--border-round-wrap);
   }
 
   .picker-panel-wrap {
     flex: 1 1 0;
     padding-bottom: var(--picker-color-dummy-height);
     background-color: black;
-    border-radius: 8px 8px 0 0;
+    border-radius: var(--border-round) var(--border-round) 0 0;
 
     .picker-panel {
       height: 100%;
@@ -161,6 +163,7 @@
   .input-area {
     flex: 0 0 auto;
     height: var(--picker-slider-height);
+    border-radius: 0 0 var(--border-round) var(--border-round);
 
     .hex-input {
       width: 100%;
@@ -168,6 +171,7 @@
       border: none;
       font-size: var(--picker-text-size);
       padding: 0 4px;
+      border-radius: inherit;
 
       &:focus {
         outline: none;

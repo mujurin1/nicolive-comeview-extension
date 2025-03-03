@@ -21,14 +21,9 @@
 <div class="grid-row">
   <fieldset>
     <legend>背景色</legend>
-    <div
-      style:display="flex"
-      class="item"
-      class:setted={!isDefault && format.backgroundColor != null}
-    >
-      <ColorPicker --picker-z-index="1" bind:value={$formatS.backgroundColor} />
+    <div class="item" class:setted={!isDefault && format.backgroundColor != null}>
+      <ColorPicker bind:value={$formatS.backgroundColor} />
       <input
-        style:width="100%"
         placeholder={isDefault
           ? "透明"
           : `デフォルト (${SettingStore.state.commentView.commentFormats.default.backgroundColor ?? "透明"})`}
@@ -41,9 +36,8 @@
   <fieldset>
     <legend>名前色</legend>
     <div class="item" class:setted={!isDefault && format.nameColor != null}>
-      <ColorPicker --picker-z-index="1" bind:value={$formatS.nameColor} />
+      <ColorPicker bind:value={$formatS.nameColor} />
       <input
-        style:width="100%"
         placeholder={isDefault
           ? "black"
           : `デフォルト (${SettingStore.state.commentView.commentFormats.default.nameColor ?? "black"})`}
@@ -56,9 +50,8 @@
   <fieldset>
     <legend>コメント色</legend>
     <div class="item" class:setted={!isDefault && format.contentColor != null}>
-      <ColorPicker --picker-z-index="1" bind:value={$formatS.contentColor} />
+      <ColorPicker bind:value={$formatS.contentColor} />
       <input
-        style:width="100%"
         placeholder={isDefault
           ? "black"
           : `デフォルト (${SettingStore.state.commentView.commentFormats.default.contentColor ?? "black"})`}
@@ -131,7 +124,9 @@
 
 <style>
   .item {
-    display: flex;
+    display: grid;
+    grid-auto-flow: column;
+    grid-template: "a b" auto / auto 1fr;
 
     &.setted {
       /* background-color: antiquewhite; */

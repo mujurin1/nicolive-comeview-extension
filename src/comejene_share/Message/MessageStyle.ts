@@ -21,5 +21,5 @@ export const ComejeneMessageStyle = {
 export const ComejeneMessageStyleRoot = myz.root({
   backColor: myz.color("背景色", "optional"),
   border: createBorderBlock(),
-  padding: createDirNumbersSwitch("余白 (内)", "上下と左右"),
+  padding: createDirNumbersSwitch("余白 (内)", "上下左右"),
 });

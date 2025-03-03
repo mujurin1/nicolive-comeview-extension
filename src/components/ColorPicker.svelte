@@ -480,8 +480,7 @@
     --translate-image: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill-opacity=".1"><path d="M8 0h8v8H8zM0 8h8v8H0z" /></svg>');
     --picker-height: 220px;
     --picker-width: 200px;
-    --picker-button-height: 14px;
-    --picker-button-width: 14px;
+    --picker-button-size: 100%;
     --picker-back-color: #333;
 
     --picker-slider-height: 24px;
@@ -504,9 +503,10 @@
   }
 
   .color-picker {
-    display: inline-block;
     user-select: none;
     position: relative;
+    height: 100%;
+    box-sizing: border-box;
 
     --picker-hsl: hsl(
       calc(var(--picker-hue) * 360) calc(var(--picker-saturation) * 100%)
@@ -515,14 +515,18 @@
   }
 
   .color-picker-button {
-    min-width: unset;
+    background-image: var(--translate-image);
     box-sizing: border-box;
+    min-width: unset;
+    width: auto;
+    height: var(--picker-button-size);
+    aspect-ratio: 1;
+
     margin: 1px;
+    padding: 0;
     border: 2px solid white;
     border-radius: 2px;
-    padding: 0;
     outline: #ccc solid 1px;
-    background-image: var(--translate-image);
 
     &:focus {
       outline-style: revert;
@@ -532,8 +536,8 @@
     }
 
     .color-picker-button-bg {
-      width: var(--picker-button-width);
-      height: var(--picker-button-height);
+      width: 100%;
+      height: 100%;
       background-color: var(--picker-hsl);
       opacity: var(--picker-alpha);
     }
