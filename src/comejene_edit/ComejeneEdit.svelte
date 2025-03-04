@@ -76,7 +76,7 @@
   let otherWindowEditing = $state(false);
 
   async function startEdit() {
-    if (lockRelease != null) return;
+    if (isEditing) return;
 
     // 同じテンプレートの編集は同時に1ウィンドウのみ
     lockRelease = await getNavigatorLock(`comejene_edit_${$selectTemplateId}`);
@@ -85,6 +85,7 @@
       otherWindowEditing = true;
       return;
     }
+    otherWindowEditing = false;
   }
 
   function clone() {
@@ -95,7 +96,15 @@
     ComejeneStore.save();
   }
 
-  function deleteOrReset() {
+  async function deleteOrReset() {
+    const release = await getNavigatorLock(`comejene_edit_${$selectTemplateId}`);
+    if (release == null) {
+      // 他のウィンドウで編集中だった
+      otherWindowEditing = true;
+      return;
+    }
+    otherWindowEditing = false;
+
     if (selectTemplateIsDefault) {
       const id = $selectTemplateId as keyof typeof ComejeneTemplates;
       storageTemplates[id] = structuredClone(ComejeneTemplates[id]);
@@ -104,6 +113,8 @@
       selectTemplateId.set(Object.keys(storageTemplates)[0]);
     }
     ComejeneStore.save();
+
+    release();
   }
 
   function save(template: ComejeneTemplate) {
