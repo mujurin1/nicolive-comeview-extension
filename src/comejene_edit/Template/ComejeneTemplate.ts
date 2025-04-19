@@ -37,10 +37,11 @@ const 縦並び = (): ComejeneTemplate<"stack"> => ({
     name: "stack",
     setting: {
       isVertical: true,
+      verticalGrow: false,
+
       reverseOrder: false,
       maxWidth: 0,
-      verticalGrow: true,
-      gap: 5,
+      gap: 8,
 
       listAnimation: true,
 
@@ -50,9 +51,9 @@ const 縦並び = (): ComejeneTemplate<"stack"> => ({
   },
   style: {
     frameSate: {
-      backColor: "#aaffcc",
-      border: { style: "solid", color: "black", width: 3, radius: 0 },
-      padding: { top: 5, left: 5, right: 5, bottom: 5 },
+      backColor: "#D6D8FF",
+      border: { style: "solid", color: "#923DFF81", width: 6, radius: 20 },
+      padding: { top: 8, left: 8, right: 8, bottom: 8 },
     },
     containerLayout: ComejeneTemplates_MessageContainer["I-{N_/C}"](),
     contentsStyle: ComejeneContentStyleSet.new({
@@ -60,6 +61,7 @@ const 縦並び = (): ComejeneTemplate<"stack"> => ({
         visible: true,
         position: { x: "center", y: "center" },
         // backColor: undefined,
+        fitContent: false,
         backColor: "aqua",
         padding: { top: 0, right: 0, bottom: 0, left: 0 },
         margin: { top: 0, right: 5, bottom: 0, left: 0 },
@@ -71,6 +73,7 @@ const 縦並び = (): ComejeneTemplate<"stack"> => ({
         position: { x: "center", y: "center" },
         // backColor: undefined,
         backColor: "azure",
+        fitContent: false,
         padding: { top: 0, right: 0, bottom: 0, left: 0 },
         margin: { top: 0, right: 0, bottom: 0, left: 0 },
         textStyle: {
@@ -88,6 +91,7 @@ const 縦並び = (): ComejeneTemplate<"stack"> => ({
         position: { x: "center", y: "center" },
         // backColor: undefined,
         backColor: "#FFDCDC",
+        fitContent: false,
         padding: { top: 0, right: 0, bottom: 0, left: 0 },
         margin: { top: 0, right: 0, bottom: 0, left: 0 },
         textStyle: {

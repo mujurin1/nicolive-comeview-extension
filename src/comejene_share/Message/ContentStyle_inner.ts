@@ -1,5 +1,6 @@
 import type { CSSObject } from "@emotion/css/create-instance";
 import { myz, type Ignore, type MyzObjects, type MyzRoot } from "../../lib/Myz";
+import { MyzUtil } from "../../lib/Myz/util";
 import type { ComejeneContentStyle, ComejeneContentStyleRoot } from "./ContentStyle";
 import type { ComejeneContentTypes } from "./ContentType";
 import { borderToCss, createBorderBlock, createDirNumbersSwitch, createTextStyleBlock, dirNumbersToCssText, textStyleToCss } from "./cssUtility";
@@ -11,7 +12,7 @@ export const _ComejeneContentStyle = {
     return _ComejeneContentStyle.asCss_Text(style as _ComejeneContentStyle_Text);
   },
   asCss_Base: (style: ComejeneContentStyle): CSSObject => {
-    return {
+    const cssObj: CSSObject = {
       justifyContent: FlexPosition.asCss(style.position.x),
       backgroundColor: style.backColor,
       padding: dirNumbersToCssText(style.padding),
@@ -20,6 +21,11 @@ export const _ComejeneContentStyle = {
       overflow: "clip",
       ...borderToCss(style.border)
     };
+    if (style.fitContent) {
+      cssObj.height = "fit-content";
+      cssObj.width = "fit-content";
+    }
+    return cssObj;
   },
   asCss_Text: (style: _ComejeneContentStyle_Text): CSSObject => {
     const cssObj = _ComejeneContentStyle.asCss_Base(style);
@@ -65,6 +71,8 @@ export const _ComejeneContentStyleBase = MyzUtil.group("default", {
     x: myz.list("よこ", FlexPositions),
     y: myz.list("たて", FlexPositions),
   }),
+  // 位置(寄せ) と合わせて フィットコンテンツ を１つにしたい
+  fitContent: myz.boolean("フィットサイズ"),
   padding: createDirNumbersSwitch("余白 (内)"),
   margin: createDirNumbersSwitch("余白 (外)"),
   backColor: myz.color("背景色", "optional"),
@@ -85,7 +93,7 @@ export const _ComejeneContentStyleRoot = {
   /** テキストタイプのメッセージの持つ属性 */
   text: ComejeneContentStyleRootBase.create("text", {
     textStyle: createTextStyleBlock({ display: "文字スタイル", defaultOpen: true }),
-    banNewLine: myz.boolean("改行禁止"),
+    banNewLine: myz.boolean("折り返さない"),
     noNewLine: myz.boolean("改行文字無視"),
   }),
   /** 画像タイプのメッセージの持つ属性 */

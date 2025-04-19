@@ -10,9 +10,12 @@ export type StackMotionSetting = ComejeneMotionSetting<typeof StackMotionStyle.r
 export const StackMotionStyle = ComejeneMotionStyle.create(
   {
     /**
-     * メッセージを縦(flex-direction:column)に並べるか
+     * 縦並び(flex-direction:column)にするか
      */
     isVertical: myz.boolean("縦並び"),
+    /**
+     * flex の垂直方向に広げるか
+     */
     verticalGrow: myz.boolean({
       display: "垂直に伸ばす",
       desc: "「並ぶ向き」の垂直方向に向けて広げます",
@@ -22,7 +25,7 @@ export const StackMotionStyle = ComejeneMotionStyle.create(
      * メッセージの順序(最新→古い)を標準(上/左が新しい)と逆にするか
      */
     reverseOrder: myz.boolean({
-      display: "逆順",
+      display: "逆並び",
       desc: "メッセージを標準(下/右が新しい)と逆にします"
     }),
 
