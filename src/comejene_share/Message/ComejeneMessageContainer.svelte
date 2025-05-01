@@ -1,7 +1,7 @@
 <script lang="ts">
-  import type { ComejeneMotionMessage } from "../Motion/type";
+  import type { ComejeneFrameMessage } from "../Frame/type";
 
-  let { message }: { message: ComejeneMotionMessage } = $props();
+  let { message }: { message: ComejeneFrameMessage } = $props();
 
   /** 1x1 透明 */
   const nicoliveNoneIcon =

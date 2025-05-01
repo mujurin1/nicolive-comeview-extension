@@ -1,7 +1,7 @@
 import { EventEmitter, type IEventEmitter } from "@mujurin/nicolive-api-ts";
 import { storages } from "../lib/Storage";
 import type { PlatformsId } from "../Platform";
-import type { DeepReadonly } from "../utils";
+import type { DeepReadonly } from "../util/utils";
 import type { CommentFormat } from "./SettingStore.svelte";
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions

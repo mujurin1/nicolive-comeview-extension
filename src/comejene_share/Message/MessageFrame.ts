@@ -27,7 +27,7 @@ export const ComejeneMessageFrame = {
         height: "100%",
       },
 
-      ".motion": {},
+      ".frame": {},
       ".content-frame": {
         display: "flex",
         flexWrap: "wrap",

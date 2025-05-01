@@ -58,25 +58,22 @@
       display: flex;
       align-items: stretch;
       flex-wrap: wrap;
-      gap: 3px;
-      padding: 5px 5px 5px 5px;
+      gap: 0.3em;
+      padding: 0.4em;
       height: 100%;
       box-sizing: border-box;
 
       & > .tab-name {
-        height: 26px;
-
-        font-size: 16px;
+        font-size: 1.3em;
         color: #3d3d3d;
         background-color: #e2e2e2;
 
-        padding: 1px 10px;
-        min-width: 60px;
+        padding: 0.1em 0.6em;
         border: none;
         border-radius: 8px;
 
         &:not(.selected):hover {
-          opacity: 0.85;
+          filter: sepia(8%);
         }
 
         &.selected {

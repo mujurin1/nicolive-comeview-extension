@@ -1,11 +1,11 @@
 import { AsyncIteratorSet } from "@mujurin/nicolive-api-ts";
 import OBSWebSocket from "obs-websocket-js";
-import type { ComejeneEvent, ComejeneReceiver, ComejeneSender, ComejeneSenderBase, ComejeneSenderState } from ".";
+import type { ComejeneEvent, ComejeneReceiver, ComejeneSender, ComejeneSenderOptionBase, ComejeneSenderState } from ".";
 
 
 export const OBS_EVENT_NAME = "niconama-comejene";
 
-export interface OBSSenderOptions extends ComejeneSenderBase { }
+export interface OBSSenderOption extends ComejeneSenderOptionBase<"obs"> { }
 
 export class ComejeneSenderOBS implements ComejeneSender<"obs"> {
   private obsWs: OBSWebSocket | undefined;
@@ -13,9 +13,22 @@ export class ComejeneSenderOBS implements ComejeneSender<"obs"> {
   public readonly type = "obs";
   public state = $state<ComejeneSenderState>("close");
   public name = $state<string>("");
-  public options = $state<OBSSenderOptions>({ url: "" });
+  public option = $state<OBSSenderOption>(null!);
 
-  public constructor(public readonly id: number) { }
+  public get id() { return this.option.id; }
+
+  public static createDefault(): OBSSenderOption {
+    return {
+      type: "obs",
+      id: crypto.randomUUID(),
+      name: "OBSとの接続",
+      url: "ws://localhost:4455",
+    };
+  }
+
+  public constructor(option: OBSSenderOption) {
+    this.option = option;
+  }
 
   public async connect() {
     if (!(this.state === "close" || this.state === "failed")) return true;
@@ -23,7 +36,7 @@ export class ComejeneSenderOBS implements ComejeneSender<"obs"> {
 
     this.obsWs = new OBSWebSocket();
     try {
-      await this.obsWs.connect(this.options.url);
+      await this.obsWs.connect(this.option.url);
       this.obsWs.once("ConnectionClosed", () => this.state = "close");
     } catch {
       this.state = "failed";

@@ -1,4 +1,5 @@
-<script lang="ts">
+<!-- 
+ <script lang="ts">
   import { onMount, untrack } from "svelte";
   import App from "../comejene/App.svelte";
   import { notifierStore } from "../lib/CustomStore.svelte";
@@ -12,7 +13,7 @@
     ComejeneTemplates,
     type ComejeneTemplate,
   } from "./Template/ComejeneTemplate";
-  import { getDummyContent, getNavigatorLock } from "./utils";
+  import { getDummyContent, getNavigatorLock } from "./util/utils";
 
   let storageTemplates = $derived(ComejeneStore.state.templates);
   let storageTemplateIds = $derived(Object.keys(storageTemplates));
@@ -48,7 +49,7 @@
   });
 
   // TODO: コメジェネに送信するスタイルの取得関数について
-  ComejeneSenderController._set(() => selectTemplate);
+  ComejeneSenderController.selectTemplate = selectTemplate;
   Promise.all([
     ComejeneSenderController.createAndConnect("obs", { url: `ws://localhost:${4455}` }),
     ComejeneSenderController.createAndConnect("browserEx"),
@@ -150,7 +151,7 @@
     <button onclick={senderReset} type="button">初期化</button>
 
     {#if isEditing}
-      <!-- 編集するたびにコンポーネントを再生成するため -->
+      <!-- 編集するたびにコンポーネントを再生成するため -- >
       {#key isEditing}
         <TemplateSetting
           {closeEditing}
@@ -161,7 +162,7 @@
         />
       {/key}
     {:else}
-      <!-- テンプレート一覧表示 -->
+      <!-- テンプレート一覧表示 -- >
       <MyzViewArea title="テンプレート一覧">
         <MyzView object={{ display: "名前" }}>
           <select bind:value={$selectTemplateId}>
@@ -227,7 +228,7 @@
   }
 
   .setting-container {
-    flex: 0 0 300px;
+    flex: 0 0 50%;
     box-sizing: border-box;
     background-color: #d4f6ff;
     display: flex;
@@ -244,3 +245,5 @@
     background-color: #b5ffe5;
   }
 </style>
+
+-->

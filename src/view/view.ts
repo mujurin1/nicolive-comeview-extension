@@ -1,6 +1,6 @@
 import { notifierStore } from "../lib/CustomStore.svelte";
 import { SettingStore, type SettingState } from "../store/SettingStore.svelte";
-import type { DeepMutable } from "../utils";
+import type { DeepMutable } from "../util/utils";
 import type Additional from "./Additional.svelte";
 import type Setting from "./setting/Setting.svelte";
 

@@ -1,6 +1,6 @@
 import { storages } from "../lib/Storage";
 import { SystemMessageType } from "../Platform";
-import { safeOverwrite, type DeepReadonly } from "../utils";
+import { safeOverwrite, type DeepReadonly } from "../util/utils";
 
 export const SpeachNames = ["none", "mae", "ato"] as const;
 export type SpeachNames = typeof SpeachNames[number];

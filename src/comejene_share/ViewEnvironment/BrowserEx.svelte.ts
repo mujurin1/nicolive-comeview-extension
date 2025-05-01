@@ -1,5 +1,5 @@
 import { AsyncIteratorSet } from "@mujurin/nicolive-api-ts";
-import type { ComejeneEvent, ComejeneReceiver, ComejeneSender, ComejeneSenderState } from ".";
+import type { ComejeneEvent, ComejeneReceiver, ComejeneSender, ComejeneSenderOptionBase, ComejeneSenderState } from ".";
 
 export interface WindowSenderOptions {
   wsUrl: string;
@@ -10,20 +10,41 @@ function send(message: ComejeneEvent) {
   iteratorSet?.enqueue(JSON.parse(JSON.stringify(message)));
 }
 
+export interface BrowserExSenderOption extends ComejeneSenderOptionBase<"browserEx"> { }
+
 export class ComejeneSenderBrowser implements ComejeneSender<"browserEx"> {
   public readonly type = "browserEx";
   public state = $state<ComejeneSenderState>("close");
   public name = $state<string>("");
-  public options = null!;
+  public option = $state<BrowserExSenderOption>(null!);
 
-  public constructor(public readonly id: number) { }
+  public get id() { return this.option.id; }
+
+  public static createDefault(): BrowserExSenderOption {
+    return {
+      type: "browserEx",
+      id: crypto.randomUUID(),
+      name: "右側のプレビュー用 (編集不可)",
+      url: null!,
+    };
+  }
+
+  public constructor(option: BrowserExSenderOption) {
+    this.option = option;
+  }
 
   public connect() {
     this.state = "open";
     return Promise.resolve(true);
   }
-  public readonly send = send;
+
+  public send(message: ComejeneEvent, _lowPriority?: boolean) {
+    if (this.state !== "open") return;
+    send(message);
+  }
+
   public resetSenderState() { }
+
   public close() {
     this.state = "close";
     return Promise.resolve();

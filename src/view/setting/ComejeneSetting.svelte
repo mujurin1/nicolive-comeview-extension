@@ -1,19 +1,23 @@
 <script lang="ts">
-  import { getDummyContent } from "../../comejene_edit/utils";
-  import { ComejeneSenderStateText } from "../../comejene_share/ViewEnvironment";
-  import { ComejeneSenderController } from "../../service/ComejeneSenderController.svelte";
-
-  const DEFAULT_WS_URL = "ws://localhost:4455";
+  import { getDummyContent } from "../../comejene_edit/util/utils";
+  import {
+    ComejeneSenderOBS,
+    ComejeneSenderStateText,
+    type ComejeneSender,
+  } from "../../comejene_share/ViewEnvironment";
+  import { ComejeneSenderStore } from "../../store/ComejeneSenderStore.svelte";
 
   function addSender() {
-    const setting = ComejeneSenderController.create("obs");
-    setting.name = `${setting.type}-${setting.id}`;
-    setting.options.url = DEFAULT_WS_URL;
+    ComejeneSenderStore.addSender(ComejeneSenderOBS.createDefault());
   }
 
   function dbg_send_content(icon = "", name = "あname", message = getDummyContent()) {
     const content = { icon, name, message };
-    ComejeneSenderController.sendContent(content);
+    ComejeneSenderStore.sendContent(content);
+  }
+
+  function deleteSender(sender: ComejeneSender) {
+    ComejeneSenderStore.deleteSender(sender);
   }
 </script>
 
@@ -38,45 +42,45 @@
   <div class="list-head">初期化</div>
   <div class="list-head">削除</div>
 
-  {#each ComejeneSenderController.senders as sender (sender)}
+  {#each Object.keys(ComejeneSenderStore.senders) as id (id)}
+    {@const sender = ComejeneSenderStore.senders[id]}
     {@const text = ComejeneSenderStateText[sender.state]}
     {@const disableUrl = sender.state === "open" || sender.state === "connecting"}
     {@const urlTitle = disableUrl ? "接続中はURLは変更不可です" : undefined}
-    <div><div title={text.title}>{text.kao}</div></div>
+
+    <div title={text.title}>{text.kao}</div>
     <div>
       {#if sender.state !== "open"}
         <button
           disabled={sender.state === "connecting"}
-          onclick={() => ComejeneSenderController.connectAt(sender)}
+          onclick={() => {
+            sender.connect();
+          }}
           type="button"
         >
           接続
         </button>
       {:else}
-        <button onclick={() => ComejeneSenderController.closeAt(sender)} type="button">
-          切断
-        </button>
+        <button onclick={() => sender.close()} type="button">切断</button>
       {/if}
     </div>
-    <div><input class="input-name" type="text" bind:value={sender.name} /></div>
+    <div><input class="input-name" type="text" bind:value={sender.option.name} /></div>
     <div>
       <input
         class="input-url"
         disabled={disableUrl}
         title={urlTitle}
         type="text"
-        bind:value={sender.options.url}
+        bind:value={sender.option.url}
       />
     </div>
     <div>
-      <button onclick={() => ComejeneSenderController.sendResetAt(sender)} type="button">
+      <button onclick={() => ComejeneSenderStore.sendResetAt(sender)} type="button">
         初期化
       </button>
     </div>
     <div>
-      <button onclick={() => ComejeneSenderController.closeAndDeleteAt(sender)} type="button">
-        削除
-      </button>
+      <button onclick={() => deleteSender(sender)} type="button">削除</button>
     </div>
   {/each}
 </div>
@@ -94,7 +98,7 @@
   .comejene-client-list {
     display: grid;
     gap: 5px 10px;
-    grid-template: "a b c d e" auto / auto auto 1fr 10em auto auto;
+    grid-template: "a b c d e" auto / auto auto 1fr 1fr auto auto;
 
     > .list-head {
       font-weight: bold;

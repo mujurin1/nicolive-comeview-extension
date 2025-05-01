@@ -86,6 +86,7 @@ const defaultConfig = tsEslint.config({
     "@typescript-eslint/restrict-plus-operands": "off",
     "@typescript-eslint/restrict-template-expressions": "off",
     "@typescript-eslint/consistent-type-assertions": "off",
+    "@typescript-eslint/consistent-indexed-object-style": "off",
     // "@typescript-eslint/consistent-type-definitions": ["error", "type"],
     "@typescript-eslint/consistent-type-exports": "error",
     "@typescript-eslint/consistent-type-imports": "error",

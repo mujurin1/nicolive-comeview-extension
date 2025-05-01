@@ -1,28 +1,29 @@
 export * from "./OBS.svelte";
 
+import type { ComejeneFrameNames, ComejeneFrameSetting } from "../Frame";
 import type { ComejeneStyle } from "../Message";
-import type { ComejeneMotionNames, ComejeneMotionSetting } from "../Motion";
 import type { ComejeneContent } from "../type";
-import { ComejeneReceiverBrowser, ComejeneSenderBrowser } from "./BrowserEx.svelte";
-import { ComejeneReceiverOBS, ComejeneSenderOBS, type OBSSenderOptions } from "./OBS.svelte";
+import { ComejeneReceiverBrowser, ComejeneSenderBrowser, type BrowserExSenderOption } from "./BrowserEx.svelte";
+import { ComejeneReceiverOBS, ComejeneSenderOBS, type OBSSenderOption } from "./OBS.svelte";
 
-export type ComejeneEvent = ComejeneReset | ChangeMotionSetting | ChangeComejeneStyle | NewContent;
+export type ComejeneEvent = ComejeneEventReset | ComejeneEventResetFrame | ComejeneEventResetStyle | ComejeneEventNewContent;
+export type ComejeneEventType = ComejeneEvent["type"];
 
-export interface ComejeneReset {
-  type: "comejene-reset";
-  motionName: ComejeneMotionNames;
-  motionSetting: ComejeneMotionSetting;
+export interface ComejeneEventReset {
+  type: "reset-all";
+  frameName: ComejeneFrameNames;
+  frameSetting: ComejeneFrameSetting;
   comejeneStyle: ComejeneStyle;
 }
-export interface ChangeMotionSetting {
-  type: "change-motion-setting";
-  motionSetting: ComejeneMotionSetting;
+export interface ComejeneEventResetFrame {
+  type: "reset-frame";
+  frameSetting: ComejeneFrameSetting;
 }
-export interface ChangeComejeneStyle {
-  type: "change-style";
+export interface ComejeneEventResetStyle {
+  type: "reset-style";
   comejeneStyle: ComejeneStyle;
 }
-export interface NewContent {
+export interface ComejeneEventNewContent {
   type: "content";
   content: ComejeneContent;
 }
@@ -45,14 +46,21 @@ export interface ComejeneReceiver {
 
 export type ComejeneSenderState = "connecting" | "open" | "close" | "failed";
 export const ComejeneSenderStateText = {
-  connecting: { kao: "😑", title: "接続しようとしています…お待ち下さい" },
-  open: { kao: "😀", title: "接続中です！" },
-  close: { kao: "😪", title: "接続していません" },
-  failed: { kao: "😫", title: "接続に失敗しました＞＜" },
+  connecting: { kao: "😑", btn: "接続中‥", title: "接続しようとしています…お待ち下さい" },
+  open: { kao: "😀", btn: "切断", title: "接続中です！" },
+  close: { kao: "😪", btn: "接続", title: "接続していません" },
+  failed: { kao: "😫", btn: "接続", title: "接続に失敗しました＞＜" },
+} as const satisfies Record<ComejeneSenderState, { kao: string; btn: string; title: string; }>;
 
-} as const satisfies Record<ComejeneSenderState, { kao: string; title: string; }>;
+export const ComejeneTypeText = {
+  obs: { name: "OBS", title: "OBS Studio" },
+  browserEx: { name: "プレビュー用", title: "右側のプレビューで使用するためのものです" },
+} as const satisfies Record<ComejeneEnvTypes, { name: string; title: string; }>;
 
-export interface ComejeneSenderBase {
+export interface ComejeneSenderOptionBase<T = ComejeneEnvTypes> {
+  readonly type: T;
+  readonly id: string;
+  name: string;
   url: string;
 }
 
@@ -64,12 +72,10 @@ export interface ComejeneSender<E extends ComejeneEnvTypes = ComejeneEnvTypes> {
   /** この接続の種別名 */
   readonly type: E;
   /** `ComejeneSenderController`が管理するための値 */
-  readonly id: number;
+  readonly id: string;
   readonly state: ComejeneSenderState;
-  /** ユーザーが管理するためのSenderの名前 */
-  name: string;
   /** 接続するための情報 */
-  options: ComejeneSenderOptions<E>;
+  readonly option: ComejeneSenderOption<E>;
   /**
    * 接続に成功したら`true`を返す\
    * すでに接続している場合も`true`を返す
@@ -95,15 +101,15 @@ export interface ComejeneSender<E extends ComejeneEnvTypes = ComejeneEnvTypes> {
 
 
 export type ComejeneEnvTypes = "obs" | "browserEx";
-export type ComejeneSenderOptions<E extends ComejeneEnvTypes = ComejeneEnvTypes> = ({
-  obs: OBSSenderOptions;
-  browserEx: ComejeneSenderBase;
-})[E];
+export type ComejeneSenderOption<T extends ComejeneEnvTypes = ComejeneEnvTypes> = ({
+  obs: OBSSenderOption;
+  browserEx: BrowserExSenderOption;
+})[T];
 
-type R<E extends ComejeneEnvTypes = ComejeneEnvTypes> = {
-  readonly [K in E]: {
+type R<T extends ComejeneEnvTypes = ComejeneEnvTypes> = {
+  readonly [K in T]: {
     readonly receiver: new () => ComejeneReceiver;
-    readonly sender: new (id: number) => ComejeneSender<K>;
+    readonly sender: new (option: ComejeneSenderOption<K>) => ComejeneSender<K>;
   }
 };
 
@@ -118,8 +124,6 @@ export const comejeneEnvs: R = {
   },
 };
 
-// export function createSender<E extends ComejeneEnvTypes>(env: E): 
-
 /**
  * 現在の実行環境をチェックする
  * @returns 
@@ -129,96 +133,3 @@ export function checkComejeneEnvType(): ComejeneEnvTypes {
   // TODO: N Air の場合
   return "browserEx";
 }
-
-
-
-
-
-
-
-
-
-
-// export class ComejeneSenderController {
-//   public senders = new Set<ComejeneSender>();
-
-//   constructor(
-//     private readonly getTemplate: () => ComejeneTemplate,
-//   ) { }
-
-//   public initialize(senders: ComejeneSender[]) {
-//     return Promise.all(
-//       senders.map(sender => this.upsertAndConnect(sender))
-//     );
-//   }
-
-//   /**
-//    * 追加をして初期化も行う
-//    * @param sender
-//    * @returns 接続に成功したか
-//    */
-//   public async upsertAndConnect(sender: ComejeneSender): Promise<boolean> {
-//     this.senders.add(sender);
-//     if (!await sender.connect()) return false;
-//     sender.resetSenderState();
-
-//     const { motion: { name, setting }, style } = this.getTemplate();
-//     sender.send({
-//       type: "comejene-reset",
-//       motionName: name,
-//       motionSetting: setting,
-//       comejeneStyle: style,
-//     });
-
-//     return true;
-//   }
-
-//   // /**
-//   //  * 削除をして後処理も行う
-//   //  * @param name 削除するComejeneSender名
-//   //  * @returns
-//   //  */
-//   // public deleteAndClose(name: string): boolean {
-//   //   const sender = this.get(name);
-//   //   if (sender == null) return false;
-//   //   sender.close();
-//   //   return this.senders.delete(sender);
-//   // }
-
-//   public send(message: ComejeneEvent, lowPriority = false) {
-//     for (const sender of this.senders) {
-//       sender.send(message, lowPriority);
-//     }
-//   }
-
-//   public sendComment(content: ComejeneContent) {
-//     this.send({
-//       type: "content",
-//       content,
-//     });
-//   }
-
-//   public sendReset() {
-//     const { motion: { name, setting }, style } = this.getTemplate();
-//     for (const sender of this.senders) {
-//       sender.resetSenderState();
-//     }
-
-//     this.send({
-//       type: "comejene-reset",
-//       motionName: name,
-//       motionSetting: setting,
-//       comejeneStyle: style,
-//     });
-//   }
-
-//   public sendMotionSetting() {
-//     const { motion: { setting } } = this.getTemplate();
-//     this.send({ type: "change-motion-setting", motionSetting: setting }, true);
-//   }
-
-//   public sendComejeneStyle() {
-//     const { style } = this.getTemplate();
-//     this.send({ type: "change-message-content", comejeneStyle: style }, true);
-//   }
-// }

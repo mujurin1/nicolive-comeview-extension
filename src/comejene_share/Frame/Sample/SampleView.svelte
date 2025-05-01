@@ -1,15 +1,15 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import ComejeneMessageContainer from "../../Message/ComejeneMessageContainer.svelte";
-  import { SampleMotionState, type SampleMotionSetting } from "./SampleState.svelte";
+  import { SampleFrameState, type SampleFrameSetting } from "./SampleState.svelte";
 
   let {
     setting,
   }: {
-    setting: SampleMotionSetting;
+    setting: SampleFrameSetting;
   } = $props();
 
-  export const state = new SampleMotionState(setting);
+  export const state = new SampleFrameState(setting);
 
   onMount(() => {
     return state.onMount();

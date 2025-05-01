@@ -49,3 +49,22 @@ export function safeOverwrite<T>(target: T | null, overwrite: T | null): void {
     }
   }
 }
+
+/**
+ * オブジェクトが`null`または空オブジェクトかどうかを判定する
+ */
+export function isNullOrEmptyObject<T>(obj: T | null | undefined): obj is T {
+  if (obj == null) return true;
+  if (typeof obj !== "object") return false;
+  return Object.keys(obj).length === 0;
+}
+
+export function objectToArray<
+  Obj extends Record<string, any>,
+  Value,
+>(
+  obj: Obj,
+  converter: (key: string, value: Obj[string]) => Value,
+): Value[] {
+  return Object.entries(obj).map(([key, value]) => converter(key, value));
+}

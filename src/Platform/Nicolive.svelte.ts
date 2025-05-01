@@ -5,7 +5,7 @@ import { NceService } from "../service/NceService";
 import { NceUserStore } from "../store/NceUserStore.svelte";
 import { SettingStore } from "../store/SettingStore.svelte";
 import { StorageUserStore } from "../store/StorageUserStore.svelte";
-import { timeString } from "../utils";
+import { timeString } from "../util/utils";
 import { ExtMessenger, type ExtentionMessage } from "./Extention.svelte";
 import type { NceConnection, NceConnectionSetting, NceConnectionState } from "./NceConnection";
 import { NicoliveMessage, NicoliveUser, type SystemMessageType } from "./NicoliveType.svelte";

@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
   import { notifierStore } from "../../lib/CustomStore.svelte";
-  import { ComejeneSenderController } from "../../service/ComejeneSenderController.svelte";
+  import { ComejeneSenderStore } from "../../store/ComejeneSenderStore.svelte";
   import type { ComejeneTemplate } from "../Template/ComejeneTemplate";
   import {
     ComejeneMessageStyleRoot,
@@ -11,10 +11,10 @@
     ComejeneContentStyleRoot,
   } from "../../comejene_share/Message";
   import {
-    ComejeneMotionDefinitions,
-    type ComejeneMotionDefinition,
-    type ComejeneMotionNames,
-  } from "../../comejene_share/Motion";
+    ComejeneFrameDefinitions,
+    type ComejeneFrameDefinition,
+    type ComejeneFrameNames,
+  } from "../../comejene_share/Frame";
   import MyzRootView from "../../lib/Myz/MyzRootView.svelte";
   import MyzView from "../../lib/Myz/MyzView.svelte";
   import MyzViewArea from "../../lib/Myz/MyzViewArea.svelte";
@@ -34,15 +34,13 @@
   } = $props();
 
   $effect(() => {
-    editTemplate.state.motion.setting;
-    ComejeneSenderController.sendMotionSetting();
+    editTemplate.state.frame.setting;
+    ComejeneSenderStore.sendFrameSetting();
   });
   $effect(() => {
     editTemplate.state.style;
-    ComejeneSenderController.sendComejeneStyle();
+    ComejeneSenderStore.sendComejeneStyle();
   });
-
-  ComejeneSenderController._set(() => editTemplate.state);
 
   let editTemplate = notifierStore(
     structuredClone($state.snapshot(selectTemplate)), //
@@ -52,8 +50,8 @@
   );
   let edited = $state(false);
 
-  let motionDefinition = $derived<ComejeneMotionDefinition<ComejeneMotionNames>>(
-    ComejeneMotionDefinitions[editTemplate.state.motion.name],
+  let frameDefinition = $derived<ComejeneFrameDefinition<ComejeneFrameNames>>(
+    ComejeneFrameDefinitions[editTemplate.state.frame.name],
   );
   let selectContent = $state<ComejeneContentKeys>("message");
   let root = $derived(ComejeneContentStyleRoot[ComejeneContentKeyToType[selectContent]]);
@@ -61,6 +59,8 @@
   let notExistInMessageFrame = $derived(
     editTemplate.state.style.containerLayout.contents[selectContent] == null,
   );
+
+  ComejeneSenderStore.selectTemplate = editTemplate.state;
 
   function save() {
     if (!edited) return;
@@ -91,8 +91,8 @@
       bind:value={$editTemplate.name}
     />
   </MyzView>
-  <MyzView object={{ display: "モーション" }}>
-    <div>{$editTemplate.motion.name}</div>
+  <MyzView object={{ display: "フレーム" }}>
+    <div>{$editTemplate.frame.name}</div>
   </MyzView>
 </MyzViewArea>
 
@@ -112,11 +112,11 @@
 
 {@render commentTest()}
 
-<MyzViewArea title="モーション設定">
+<MyzViewArea title="フレーム設定">
   <MyzRootView
-    path="motion"
-    root={motionDefinition.css.root}
-    bind:style={$editTemplate.motion.setting}
+    path="frame"
+    root={frameDefinition.css.root}
+    bind:style={$editTemplate.frame.setting}
   />
 </MyzViewArea>
 

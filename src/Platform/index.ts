@@ -5,6 +5,9 @@ import type { StorageUser } from "../store/StorageUserStore.svelte";
 import type { ExtentionMessage } from "./Extention.svelte";
 import type { NicoliveMessage, NicoliveUser } from "./Nicolive.svelte";
 
+type X<T extends string> = {
+  [key in T]: string;
+};
 
 /**
  * 放送サイトの一覧\

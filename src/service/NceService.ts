@@ -2,8 +2,8 @@ import { EventTrigger, type IEventTrigger } from "@mujurin/nicolive-api-ts";
 import type { ComejeneContent } from "../comejene_share";
 import { getNicoliveUserName, type NceMessage, type NceUser } from "../Platform";
 import type { NceConnection } from "../Platform/NceConnection";
+import { ComejeneSenderStore } from "../store/ComejeneSenderStore.svelte";
 import { NceMessageStore } from "../store/NceMessageStore.svelte";
-import { ComejeneSenderController } from "./ComejeneSenderController.svelte";
 import { CommentViewCss } from "./commentViewCss";
 import { speach } from "./speach";
 
@@ -66,5 +66,5 @@ NceService.onMessage.on((message, connection) => {
 });
 
 function dbg_send_content(content: ComejeneContent) {
-  ComejeneSenderController.sendContent(content);
+  ComejeneSenderStore.sendContent(content);
 }

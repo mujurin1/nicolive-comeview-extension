@@ -12,7 +12,7 @@ FLEX は 1fr のみ
 
 生成されるDIV要素
 ```
-div.motion > モーション毎に自由な定義 >
+div.frame > フレーム毎に自由な定義 >
   div.message-container >
     +div.content-frame.フレーム名 >
       div.content > CONTENT
@@ -20,7 +20,7 @@ div.motion > モーション毎に自由な定義 >
 
 適用されるCSSの例
 ```css
-.motion { }
+.frame { }
 
 .message-container {
   display: grid;
