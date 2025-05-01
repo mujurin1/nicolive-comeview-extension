@@ -43,18 +43,21 @@
     {/each}
   </div>
 
-  {@render content(currentTab)}
+  <div class="tab-content">
+    {@render content(currentTab)}
+  </div>
 </div>
 
 <style>
   .tab {
-    display: grid;
-    grid-template-rows: auto 1fr;
+    display: flex;
+    flex-direction: column;
     height: 100%;
   }
 
   @layer {
     .tab-header {
+      flex: 0 0 min-content;
       display: flex;
       align-items: stretch;
       flex-wrap: wrap;
@@ -81,6 +84,11 @@
           background-color: ghostwhite;
         }
       }
+    }
+
+    .tab-content {
+      flex: 1;
+      min-height: 0;
     }
   }
 </style>

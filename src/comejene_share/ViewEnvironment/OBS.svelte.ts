@@ -23,6 +23,7 @@ export class ComejeneSenderOBS implements ComejeneSender<"obs"> {
       id: crypto.randomUUID(),
       name: "OBSとの接続",
       url: "ws://localhost:4455",
+      autoConnect: false,
     };
   }
 

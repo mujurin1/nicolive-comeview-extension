@@ -8,7 +8,7 @@
   }
 </script>
 
-<div class="main">
+<div class="tab-setting">
   <div class="head-area">
     <button onclick={addSender} type="button">追加 (OBS用)</button>
   </div>
@@ -21,7 +21,7 @@
 </div>
 
 <style>
-  .main {
+  .tab-setting {
     display: flex;
     flex-direction: column;
     gap: 0.6em;

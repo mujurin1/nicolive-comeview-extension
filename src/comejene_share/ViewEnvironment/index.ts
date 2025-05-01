@@ -52,16 +52,12 @@ export const ComejeneSenderStateText = {
   failed: { kao: "😫", btn: "接続", title: "接続に失敗しました＞＜" },
 } as const satisfies Record<ComejeneSenderState, { kao: string; btn: string; title: string; }>;
 
-export const ComejeneTypeText = {
-  obs: { name: "OBS", title: "OBS Studio" },
-  browserEx: { name: "プレビュー用", title: "右側のプレビューで使用するためのものです" },
-} as const satisfies Record<ComejeneEnvTypes, { name: string; title: string; }>;
-
 export interface ComejeneSenderOptionBase<T = ComejeneEnvTypes> {
   readonly type: T;
   readonly id: string;
   name: string;
   url: string;
+  autoConnect: boolean;
 }
 
 /**

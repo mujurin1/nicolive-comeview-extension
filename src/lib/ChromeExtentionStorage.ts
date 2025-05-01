@@ -1,8 +1,11 @@
 import { sleep } from "@mujurin/nicolive-api-ts";
 import type { IStorage, StorageController, StorageObserver } from "./Storage";
 
+let initCalled = false;
+
 export const chromeExtentionStorage: IStorage = {
   async init() {
+    initCalled = true;
     await load();
     chrome.storage.local.onChanged.addListener(onChanged);
   },
@@ -10,10 +13,12 @@ export const chromeExtentionStorage: IStorage = {
     StoreName extends string,
     Items extends { [ItemKey in string]: any },
   >(name: StoreName, observer: StorageObserver<Items>): StorageController<Items> {
+    if (initCalled)
+      throw new Error(`ストレージの初期化後に追加が呼び出されました. StoreName:${name}`);
     if (!name || name.includes("#"))
       throw new Error(`ストア名は "#" を含まない１文字以上の文字です. StoreName:${name}`);
 
-    storageUsers[name] = observer;
+    storageUsers.set(name, observer);
 
     return {
       update: items => update(name, items),
@@ -23,7 +28,7 @@ export const chromeExtentionStorage: IStorage = {
 } as const;
 
 
-const storageUsers: Record<string, StorageObserver<any>> = {};
+const storageUsers = new Map<string, StorageObserver<any>>();
 
 /** 値が存在すればこのウィンドウでセーブ中 */
 let saveFromSelfChecker: undefined | (() => void);
@@ -51,9 +56,9 @@ async function load() {
     stores[storeName][itemName] = item;
   }
 
-  for (const storeName in stores) {
-    const store = storageUsers[storeName];
-    if (store == null) continue;
+  for (const [storeName, store] of storageUsers) {
+    const items = stores[storeName];
+    if (items == null) continue;
     store.onUpdated(stores[storeName], "load");
   }
 }
@@ -156,7 +161,7 @@ function onChanged(changed: Record<string, chrome.storage.StorageChange>) {
   }
 
   for (const storeName in stores) {
-    const store = storageUsers[storeName];
+    const store = storageUsers.get(storeName);
     if (store == null) continue;
     if (Object.keys(stores[storeName].updated).length > 0)
       store.onUpdated(stores[storeName].updated, "change");

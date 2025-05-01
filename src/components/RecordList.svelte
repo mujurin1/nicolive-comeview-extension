@@ -6,19 +6,19 @@
   };
 </script>
 
-<script generics="N extends string, T extends Record<string,  Item<N>>" lang="ts">
+<script generics="K extends string, T extends Record<string,  Item<K>>" lang="ts">
   let {
     records,
-    name,
-    key = $bindable(),
+    nameKey,
+    selectKey = $bindable(),
   }: {
     records: T;
-    name: N;
-    key: string;
+    nameKey: K;
+    selectKey: string;
   } = $props();
 
   function select(id: string) {
-    key = id;
+    selectKey = id;
   }
 </script>
 
@@ -26,13 +26,13 @@
   {#each Object.entries(records) as [id, record] (id)}
     <button
       class="item"
-      class:selected={key === id}
+      class:selected={selectKey === id}
       onclick={() => {
         select(id);
       }}
       type="button"
     >
-      <div class="name">{record[name]}</div>
+      <div class="name">{record[nameKey]}</div>
     </button>
   {/each}
 </div>

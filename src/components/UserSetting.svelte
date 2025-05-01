@@ -18,7 +18,9 @@
 
   const userS = notifierStore<StorageUser>(
     StorageUserStore[platformId].users[userId] ?? NceUserStore.nicolive.get(userId)!.storageUser,
-    () => StorageUserStore[platformId].upsert(userS.state),
+    () => {
+      StorageUserStore[platformId].upsert(userS.state);
+    },
     // このオブジェクトはセーブデータ上で `undefiend` になる(存在しない)時があるため derived が必要
     () => {
       let a = StorageUserStore[platformId].users[userId];

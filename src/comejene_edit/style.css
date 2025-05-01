@@ -1,7 +1,100 @@
+:root,
+body,
+main,
+#app {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+
 body {
   font-size: 16px;
 }
 
+/* [title] {
+  text-decoration: underline hsl(208, 100%, 50%) 3px;
+
+  &::after {
+    content: "？";
+    display: inline-block;
+    position: relative;
+    left: -0.2em;
+    font-size: 0.5em;
+    width: 0;
+    height: 0;
+    vertical-align: middle;
+    color: hsl(208, 100%, 50%);
+  }
+} */
+
 button {
   font-size: unset;
+  min-width: 80px;
 }
+
+input {
+  margin: 0;
+
+  &[type=number],
+  &[type=range],
+  &[type=text] {
+    width: 100%;
+  }
+}
+
+label[for]:not([for=""]),
+input[type=checkbox],
+input[type=radio],
+button,
+select {
+  cursor: pointer;
+
+  &:disabled {
+    cursor: not-allowed !important;
+  }
+}
+
+select {
+  width: 100%;
+}
+
+button.no-style {
+  font-size: 1em;
+  text-align: left;
+  border: none;
+  background-color: unset;
+  padding: unset;
+}
+
+.error {
+  color: red;
+  font-weight: bold;
+}
+
+/* 
+.buttons {
+  display: flex;
+  gap: 10px;
+
+  button {
+    background-color: #d1c9ff;
+    padding: 5px 10px;
+    border: none;
+
+    border-radius: 4px;
+
+    &:hover {
+      filter: contrast(110%);
+    }
+  }
+
+  .warn {
+    margin-right: 20px;
+    background-color: #ffbaba;
+  }
+
+  .sub {
+    background-color: #9effb0;
+  }
+} */

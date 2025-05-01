@@ -80,7 +80,7 @@ const 縦並び = (): ComejeneTemplate<"stack"> => ({
     },
   },
   style: {
-    frameSate: {
+    frameState: {
       backColor: "#D6D8FF",
       border: { style: "solid", color: "#923DFF81", width: 6, radius: 20 },
       padding: { top: 8, left: 8, right: 8, bottom: 8 },
@@ -143,3 +143,7 @@ export const DefaultComejeneTemplates = {
   __default__Tate: 縦並び(),
   __default__Yoko: 横並び(),
 } as const;
+
+export function isDefaultComejeneTemplate(id: string): boolean {
+  return DefaultComejeneTemplates[id as keyof typeof DefaultComejeneTemplates] != null;
+}

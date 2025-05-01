@@ -11,18 +11,14 @@
   ] as const;
 </script>
 
-<div class="main">
+<div class="setting-area">
   <!-- このエラーは svelte の不具合ぽいので無視する -->
-  <Tab currentTab="setting" {names}>
+  <Tab currentTab="template" {names}>
     {#snippet content(tabId)}
       <div class="content">
-        {#if tabId === "template"}
-          <TabTemplate />
-        {:else if tabId === "frame"}
-          <TabFrame />
-        {:else if tabId === "setting"}
-          <TabSetting />
-        {/if}
+        <div class:hide={tabId !== "template"}><TabTemplate /></div>
+        <div class:hide={tabId !== "frame"}><TabFrame /></div>
+        <div class:hide={tabId !== "setting"}><TabSetting /></div>
       </div>
     {/snippet}
   </Tab>
@@ -30,17 +26,23 @@
 
 <style>
   .content {
-    padding: 0 0.5em;
+    height: 100%;
+
+    > div {
+      padding: 0 0.5em;
+      height: 100%;
+    }
   }
 
-  .main {
+  .setting-area {
+    height: 100%;
+
     :global(.tab-header) {
       gap: 0.4em;
       padding-bottom: 1em;
 
       :global(& > .tab-name) {
         flex: 1 1 max-content;
-        height: auto;
         background-color: hsl(192, 30%, 92%);
         font-size: 1em;
 
@@ -64,5 +66,9 @@
         }
       }
     }
+  }
+
+  .hide {
+    display: none;
   }
 </style>

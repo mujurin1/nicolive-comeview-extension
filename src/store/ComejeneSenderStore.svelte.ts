@@ -1,3 +1,4 @@
+import type { ComejeneTemplate } from "../comejene_edit/Template/ComejeneTemplate";
 import { getDummyContent } from "../comejene_edit/util/utils";
 import type { ComejeneContent } from "../comejene_share";
 import type { ComejeneStyle } from "../comejene_share/Message";
@@ -11,7 +12,7 @@ type ComejeneSenderStorage = Record<string, ComejeneSenderOption>;
 // type Options = Record<string, ComejeneSenderOption>;
 type Senders = Record<string, ComejeneSender>;
 
-type OmitIdOption = Omit<ComejeneSenderOption, "id"> & { id?: string; };
+type OmitIdOption = Omit<ComejeneSenderOption, "id" | "autoConnect"> & { id?: string; };
 
 export interface IComejeneSenderStore {
   // //#region Storage に保存されるデータ
@@ -20,7 +21,7 @@ export interface IComejeneSenderStore {
 
   readonly senders: Readonly<Senders>;
 
-  save(): Promise<void>;
+  save(sender: ComejeneSender): Promise<void>;
 
   // Storage の状態を操作する関数
   /**
@@ -35,10 +36,10 @@ export interface IComejeneSenderStore {
    */
   send(message: ComejeneEvent, lowPriority?: boolean): void;
   sendContent(content: ComejeneContent): void;
-  sendReset(): void;
+  sendReset(sendDummyCount?: number): void;
   sendResetAt(sender: ComejeneSender): void;
-  sendFrameSetting(): void;
-  sendComejeneStyle(): void;
+  sendFrameSetting(template?: ComejeneTemplate): void;
+  sendComejeneStyle(template?: ComejeneTemplate): void;
 
   sendDummyContent(icon?: string, name?: string, message?: string): void;
 }
@@ -53,8 +54,12 @@ export const ComejeneSenderStore: IComejeneSenderStore = (() => {
       onUpdated: (data: Partial<ComejeneSenderStorage>, type) => {
         if (type === "load") {
           for (const key in data) {
-            const option = data[key];
-            ComejeneSenderStore.addSender(option!);
+            const option = data[key]!;
+            const sender = new comejeneEnvs[option.type].sender(option as any);
+            senders[sender.id] = sender;
+            if (sender.option.autoConnect) {
+              void sender.connect();
+            }
           }
         }
       },
@@ -73,11 +78,13 @@ export const ComejeneSenderStore: IComejeneSenderStore = (() => {
   return {
     senders,
 
-    save: async () => {
+    save: async (sender) => {
+      return externalStoreController.update({ [sender.id]: $state.snapshot(sender.option) });
+
       // TODO: 変更したオプションだけセットすれば良い
       const _options = objectToArray(
-        $state.snapshot(senders),
-        (_, sender) => sender.option,
+        senders,
+        (_, sender) => $state.snapshot(sender.option),
       )
         .reduce((acc, option) => {
           if (option.type !== "browserEx") acc[option.id] = option;
@@ -132,9 +139,15 @@ export const ComejeneSenderStore: IComejeneSenderStore = (() => {
         sender.send({ type: "content", content });
       }
     },
-    sendReset: (): void => {
+    sendReset: (sendDummyCount): void => {
       for (const id in senders) {
         ComejeneSenderStore.sendResetAt(senders[id]);
+      }
+
+      if (sendDummyCount != null) {
+        for (let i = 0; i < sendDummyCount; i++) {
+          ComejeneSenderStore.sendDummyContent();
+        }
       }
     },
     sendResetAt: (sender): void => {
@@ -147,17 +160,17 @@ export const ComejeneSenderStore: IComejeneSenderStore = (() => {
         comejeneStyle: style as ComejeneStyle,
       });
     },
-    sendFrameSetting: (): void => {
+    sendFrameSetting: (template): void => {
+      const { frame: { setting } } = template ?? ComejeneTemplateStore.getUseTemplate();
       for (const id in senders) {
         const sender = senders[id];
-        const { frame: { setting } } = ComejeneTemplateStore.getUseTemplate();
         sender.send({ type: "reset-frame", frameSetting: setting }, true);
       }
     },
-    sendComejeneStyle: (): void => {
+    sendComejeneStyle: (template): void => {
+      const { style } = template ?? ComejeneTemplateStore.getUseTemplate();
       for (const id in senders) {
         const sender = senders[id];
-        const { style } = ComejeneTemplateStore.getUseTemplate();
         sender.send({ type: "reset-style", comejeneStyle: style as ComejeneStyle }, true);
       }
     },

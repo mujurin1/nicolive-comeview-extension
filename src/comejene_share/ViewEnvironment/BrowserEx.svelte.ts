@@ -26,6 +26,7 @@ export class ComejeneSenderBrowser implements ComejeneSender<"browserEx"> {
       id: crypto.randomUUID(),
       name: "右側のプレビュー用 (編集不可)",
       url: null!,
+      autoConnect: true,
     };
   }
 

@@ -19,14 +19,13 @@
 </script>
 
 <script lang="ts">
-  import ComejeneEdit from "./view/ComejeneEdit.svelte";
+  import ComejeneEditMain from "./view/ComejeneEditMain.svelte";
 
-  import "./style.css";
   import { ComejeneSenderBrowser } from "../comejene_share/ViewEnvironment/BrowserEx.svelte";
 </script>
 
 {#if init.loaded}
-  <ComejeneEdit />
+  <ComejeneEditMain />
   <!-- <ComejeneEdit_ /> -->
 {:else}
   <div>Loading...</div>

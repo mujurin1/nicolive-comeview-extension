@@ -1,4 +1,4 @@
 <script lang="ts">
 </script>
 
-ふれーむ
+<div class="tab-frame">ふれーむ</div>

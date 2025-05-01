@@ -199,6 +199,7 @@ export const SettingStore: SettingStore = (() => {
     {
       onUpdated(data: Partial<SettingState>, type) {
         if (type === "change") unsetNotChangeProperty(data);
+        // TODO: フォントカラー等削除された場合はundefinedになるので上書きされない問題がある
         safeOverwrite(state, data);
       },
       onRemoved() {

@@ -94,7 +94,7 @@
           onclick={() =>
             ($settingViewStore.nicolive.visibleAndYomiage.system[systemMessageType] ^=
               VisibleSpeachType.yomiage)}
-          title={disabled ? "表示しない項目は読み上げません" : ""}
+          title={disabled ? "表示しない項目は読み上げません" : undefined}
           type="button"
         >
           {SystemMessageTypeDisplayName[systemMessageType]}

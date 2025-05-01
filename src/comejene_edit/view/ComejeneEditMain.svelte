@@ -13,7 +13,7 @@
   });
 </script>
 
-<div class="comejene-edit">
+<div class="main">
   <div class="main-container">
     <div class="head-area"><HeadArea /></div>
     <div class="setting-area"><SettingArea /></div>
@@ -23,16 +23,16 @@
 </div>
 
 <style>
-  .comejene-edit {
+  .main {
     display: flex;
     width: 100%;
     height: 100%;
   }
 
   .main-container {
+    flex: 0 0 50%;
     display: flex;
     flex-direction: column;
-    flex: 0 0 50%;
     box-sizing: border-box;
 
     .head-area {
@@ -41,18 +41,14 @@
     }
 
     .setting-area {
-      flex: 1 1 0;
+      flex: 1;
+      min-height: 0;
       background-color: hsl(193, 100%, 92%);
-      /* display: flex;
-      flex-direction: column;
-      row-gap: 10px;
-      padding: 5px;
-      overflow-y: auto; */
     }
   }
 
   .preview-area {
-    flex: 1 1 0;
+    flex: 1;
     /* MEMO: Flex Box の最小幅は自身のコンテンツなのでこれより小さくするための指定 */
     min-width: 0;
     background-color: hsl(159, 100%, 85%);

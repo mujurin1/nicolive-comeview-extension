@@ -22,11 +22,11 @@ export function notifierStore<T>(
   changeBind: () => void,
   derived?: () => T,
 ) {
-  // 状態を更新する時は必ず state と w の両方更新する. `state = newState` `w.set(newState)`
-  let state = $state(value);
-
   let changeBindCaller: () => void = null!;
 
+  // MEMO: 状態を更新する時は必ず state と w の両方更新する
+  //       state = newState; w.set(newState)`
+  let state = $state(value);
   const w = writable(state, () => {
     const cleanUp = $effect.root(() => {
       if (derived != null) {
@@ -36,7 +36,8 @@ export function notifierStore<T>(
 
           if (isFirst) {
             isFirst = false;
-            return;
+            // MEMO: 非同期的な部分で初回effect時に状態が変わっている場合がある
+            if (untrack(() => state === newState)) return;
           }
 
           untrack(() => {
@@ -82,7 +83,7 @@ export function notifierStore<T>(
  * @param fn 呼び出したい関数
  * @returns `fn`を1サイクルで1回のみ呼び出す関数
  */
-export function oneCallOfOneCycle(fn: () => void): () => void {
+function oneCallOfOneCycle(fn: () => void): () => void {
   let called = $state(false);
 
   $effect(() => {

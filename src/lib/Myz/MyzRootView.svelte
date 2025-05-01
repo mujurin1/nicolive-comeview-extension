@@ -112,7 +112,6 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
-    padding-left: var(--indent);
 
     .myz-gruop {
       flex: 1;

@@ -32,7 +32,8 @@
     min-height: 32px;
 
     & > .myz-column-label {
-      flex: 1 0 0;
+      flex: 0 0 8em;
+      padding-left: var(--indent);
       align-self: center;
       height: min-content;
       box-sizing: border-box;
@@ -40,7 +41,7 @@
     }
 
     & > .myz-column-input {
-      flex: 0 0 140px;
+      flex: 1 1 140px;
       box-sizing: border-box;
       display: flex;
       align-items: center;
