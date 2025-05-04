@@ -80,7 +80,7 @@ export function createDirNumbersSwitch(
       values => values,
       values => values,
     )
-    .build(defaultSelectKey);
+    .build(() => defaultSelectKey);
 }
 
 const BorderStyles = ["none", "dotted", "dashed", "solid", "double", "groove", "ridge", "inset", "outset"] as const;

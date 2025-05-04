@@ -1,40 +1,47 @@
 <script
   generics="
     Root extends MyzRoot,
-    Setting extends MyzState<Root>,
-    Switch extends MyzSwitch<Setting>,
+    State extends MyzState<Root>,
+    Switch extends MyzSwitch<State>,
   "
   lang="ts"
 >
+  import { untrack } from "svelte";
+
   import type { MyzRoot, MyzState, MyzSwitch } from ".";
   import { notifierStore } from "../../lib/CustomStore.svelte";
   import MyzRootView from "./MyzRootView.svelte";
 
   let {
     display,
-    style = $bindable(),
+    state = $bindable(),
     switch: _switch,
     path,
   }: {
     display: string;
-    style: Setting;
+    state: State;
     switch: Switch;
     path: string;
   } = $props();
 
   const keys = Object.keys(_switch.blocks);
   let selectKey = notifierStore(
-    _switch.blocks[_switch.defaultSelectKey ?? keys[0]].key,
+    _switch.blocks[_switch.selectKey(state)].key,
     () => {
-      itemState.state = _switch.blocks[selectKey.state].toBlockState(style);
+      itemState.state = _switch.blocks[selectKey.state].toBlockState(state);
+      untrack(() => {
+        if (_switch.updateWithChangeKey) {
+          state = selectItem.bind(itemState.state);
+        }
+      });
     },
-    () => _switch.blocks[keys[0]].key,
+    () => _switch.blocks[_switch.selectKey(untrack(() => state))].key,
   );
   let selectItem = $derived(_switch.blocks[selectKey.state]);
   let itemState = notifierStore(
-    _switch.blocks[selectKey.state].toBlockState(style), //
+    _switch.blocks[selectKey.state].toBlockState(state), //
     () => {
-      style = selectItem.bind(itemState.state);
+      state = selectItem.bind(itemState.state);
     },
   );
 </script>
@@ -51,7 +58,7 @@
 
   <div class="myz-switch-content">
     {#key itemState.state}
-      <MyzRootView {path} root={selectItem} bind:style={$itemState} />
+      <MyzRootView {path} root={selectItem} bind:state={$itemState} />
     {/key}
   </div>
 </div>

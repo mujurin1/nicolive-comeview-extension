@@ -62,7 +62,11 @@ export interface MyzSwitch<
   BLOCKS extends Record<string, MyzSwitchBlock<STATE>> = Record<string, MyzSwitchBlock<STATE>>,
 > extends MyzBase<"switch"> {
   blocks: BLOCKS;
-  defaultSelectKey?: keyof BLOCKS;
+  // MEMO: ここが unknown な理由は少し下のダウンキャストの説明と同じ
+  // selectKey: (value: STATE) => keyof BLOCKS;
+  selectKey: (status: unknown) => keyof BLOCKS;
+  /** 項目を変更したら状態を更新するか */
+  updateWithChangeKey?: boolean;
 }
 //#region SWITCH
 interface MyzSwitchBlock<
@@ -86,13 +90,13 @@ interface MyzSwitchBuilder<
   addBlock: <KEY extends string, BLOCK extends MyzObjects>(
     key: KEY,
     blocks: BLOCK,
-    bind: (value: MyzState<{ block: BLOCK; }>) => STATE,
+    bind: (value: STATE & MyzState<{ block: BLOCK; }>) => STATE,
     toBlockState: (state: STATE) => MyzState<{ block: BLOCK; }>,
   ) => MyzSwitchBuilder<
     STATE,
     BLOCKS & { [K in KEY]: MyzSwitchBlock<STATE, KEY, BLOCK>; }
   >;
-  build: (defaultSelectKey?: keyof BLOCKS) => MyzSwitch<STATE, BLOCKS>;
+  build: (defaultSelectKey?: ((status: STATE) => keyof BLOCKS)) => MyzSwitch<STATE, BLOCKS>;
 }
 //#endregion SWITCH
 //#endregion MyzRooter
@@ -166,7 +170,13 @@ export const myz = {
         };
         return builder as any;
       },
-      build: defaultSelectKey => ({ ...toBase("switch", displayOrParams), blocks, defaultSelectKey }),
+      build: params => ({
+        ...toBase("switch", displayOrParams),
+        blocks,
+        selectKey: typeof params === "function"
+          ? params as any
+          : () => blocks[0].key,
+      }),
     };
 
     return builder;

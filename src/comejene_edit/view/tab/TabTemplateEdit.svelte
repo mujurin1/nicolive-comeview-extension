@@ -77,7 +77,7 @@
       <MyzRootView
         path="motion"
         root={motionDefinition.css.root}
-        bind:style={$template.motion.setting}
+        bind:state={$template.motion.setting}
       />
     </MyzViewArea>
 
@@ -85,7 +85,7 @@
       <MyzRootView
         path="message"
         root={ComejeneMessageStyleRoot}
-        bind:style={$template.style.messageStyle}
+        bind:state={$template.style.messageStyle}
       />
     </MyzViewArea>
 
@@ -109,7 +109,7 @@
         <MyzRootView
           path="content"
           {root}
-          bind:style={$template.style.contentsStyle[selectContent]}
+          bind:state={$template.style.contentsStyle[selectContent]}
         />
       {/key}
     </MyzViewArea>
