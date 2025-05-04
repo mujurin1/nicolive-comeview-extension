@@ -1,15 +1,15 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import ComejeneMessageContainer from "../../Message/ComejeneMessageContainer.svelte";
-  import { StackFrameState, type StackFrameSetting } from "./StackState.svelte";
+  import { StackMotionState, type StackMotionSetting } from "./StackState.svelte";
 
   let {
     setting,
   }: {
-    setting: StackFrameSetting;
+    setting: StackMotionSetting;
   } = $props();
 
-  export const state = new StackFrameState(setting);
+  export const state = new StackMotionState(setting);
 
   onMount(() => {
     return state.onMount();

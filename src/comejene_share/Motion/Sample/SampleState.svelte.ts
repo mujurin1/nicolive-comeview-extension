@@ -1,30 +1,30 @@
 import type { CSSObject } from "@emotion/css/create-instance";
 import { tick } from "svelte";
 import type { ComejeneContent } from "../../type";
-import { ComejeneFrameStyle, type ComejeneFrameSetting, type ComejeneFrameState } from "../type";
+import { ComejeneMotionStyle, type ComejeneMotionSetting, type ComejeneMotionState } from "../type";
 import { SampleMessage } from "./SampleMessage.svelte";
 
 
-export type SampleFrameSetting = ComejeneFrameSetting<typeof SampleFrameStyle.root>;
-export const SampleFrameStyle = ComejeneFrameStyle.create(
+export type SampleMotionSetting = ComejeneMotionSetting<typeof SampleMotionStyle.root>;
+export const SampleMotionStyle = ComejeneMotionStyle.create(
   {},
   (customCss, _) => {
     const cssObj: CSSObject = {};
 
-    customCss.updateCss("SampleFrameStyle", [cssObj]);
+    customCss.updateCss("SampleMotionStyle", [cssObj]);
   }
 );
 
 
-export class SampleFrameState implements ComejeneFrameState<
-  SampleFrameSetting,
+export class SampleMotionState implements ComejeneMotionState<
+  SampleMotionSetting,
   SampleMessage
 > {
-  public setting = $state<SampleFrameSetting>(null!);
+  public setting = $state<SampleMotionSetting>(null!);
   public messages = $state<SampleMessage[]>([]);
 
   constructor(
-    setting: SampleFrameSetting,
+    setting: SampleMotionSetting,
   ) {
     this.setting = setting;
   }
@@ -33,7 +33,7 @@ export class SampleFrameState implements ComejeneFrameState<
     return () => { };
   }
 
-  public async resetFrameLayout(setting: SampleFrameSetting) {
+  public async resetMotionLayout(setting: SampleMotionSetting) {
     this.setting = setting;
     await this.resetLayout();
   }

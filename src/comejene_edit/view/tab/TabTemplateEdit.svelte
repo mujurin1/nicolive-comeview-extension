@@ -15,10 +15,10 @@
   import DetailBox from "../../components/DetailBox.svelte";
   import { ComejeneSenderStore } from "../../../store/ComejeneSenderStore.svelte";
   import {
-    ComejeneFrameDefinitions,
-    type ComejeneFrameDefinition,
-    type ComejeneFrameNames,
-  } from "../../../comejene_share/Frame";
+    ComejeneMotionDefinitions,
+    type ComejeneMotionDefinition,
+    type ComejeneMotionNames,
+  } from "../../../comejene_share/Motion";
 
   let {
     endEditing: parentEndEditing,
@@ -30,15 +30,15 @@
     $state.snapshot(ComejeneTemplateStore.getUseTemplate()), //
     () => {
       unsavedChange = true;
-      ComejeneSenderStore.sendFrameSetting(template.state);
+      ComejeneSenderStore.sendMotionSetting(template.state);
       ComejeneSenderStore.sendComejeneStyle(template.state);
     },
   );
 
   let unsavedChange = $state(false);
 
-  let frameDefinition = $derived<ComejeneFrameDefinition<ComejeneFrameNames>>(
-    ComejeneFrameDefinitions[template.state.frame.name],
+  let motionDefinition = $derived<ComejeneMotionDefinition<ComejeneMotionNames>>(
+    ComejeneMotionDefinitions[template.state.motion.name],
   );
   let selectContent = $state<ComejeneContentKeys>("message");
   const root = $derived(ComejeneContentStyleRoot[ComejeneContentKeyToType[selectContent]]);
@@ -61,8 +61,8 @@
           <input class="template-name" type="text" bind:value={$template.name} />
         {/snippet}
         {#snippet body()}
-          <div>フレーム</div>
-          <div>{$template.frame.name}</div>
+          <div>モーション</div>
+          <div>{$template.motion.name}</div>
         {/snippet}
         {#snippet buttons()}
           <button onclick={save} type="button">保存</button>
@@ -73,11 +73,11 @@
   </div>
 
   <div class="edit-area">
-    <MyzViewArea title="フレーム設定">
+    <MyzViewArea title="モーション設定">
       <MyzRootView
-        path="frame"
-        root={frameDefinition.css.root}
-        bind:style={$template.frame.setting}
+        path="motion"
+        root={motionDefinition.css.root}
+        bind:style={$template.motion.setting}
       />
     </MyzViewArea>
 
@@ -85,7 +85,7 @@
       <MyzRootView
         path="message"
         root={ComejeneMessageStyleRoot}
-        bind:style={$template.style.frameState}
+        bind:style={$template.style.messageStyle}
       />
     </MyzViewArea>
 
@@ -100,7 +100,7 @@
 
       <!-- これがないと状態が正しく変化しない (svelte の不具合) -->
       {#key selectContent}
-        {#if template.state.style.containerLayout.contents[selectContent] == null}
+        {#if template.state.style.messageFrame.contents[selectContent] == null}
           <div class="hide-content-message">※メッセージ枠で割り当てられていない項目です</div>
           <!-- TODO: メッセージフレームとは関係なく非表示にする項目で false の部分を決定する -->
         {:else if !$template.style.contentsStyle[selectContent].visible}

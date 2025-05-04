@@ -1,11 +1,11 @@
-import type { ComejeneFrameNames, ComejeneFrameSettings } from "../../comejene_share/Frame";
 import type { ComejeneStyle } from "../../comejene_share/Message";
+import type { ComejeneMotionNames, ComejeneMotionSettings } from "../../comejene_share/Motion";
 
-export interface ComejeneTemplate<Name extends ComejeneFrameNames = ComejeneFrameNames> {
+export interface ComejeneTemplate<Name extends ComejeneMotionNames = ComejeneMotionNames> {
   name: string;
-  frame: {
+  motion: {
     name: Name;
-    setting: ComejeneFrameSettings<Name>;
+    setting: ComejeneMotionSettings<Name>;
   };
   style: ComejeneStyle;
 }

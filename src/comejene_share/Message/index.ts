@@ -9,15 +9,15 @@ import { ComejeneMessageFrame } from "./MessageFrame";
 import { ComejeneMessageStyle } from "./MessageStyle";
 
 export interface ComejeneStyle {
-  frameState: ComejeneMessageStyle;
-  containerLayout: ComejeneMessageFrame;
+  messageStyle: ComejeneMessageStyle;
+  messageFrame: ComejeneMessageFrame;
   contentsStyle: ComejeneContentStyleSet;
 }
 
 export const ComejeneStyle = {
   updateCss: (customCss: CustomCss, style: ComejeneStyle): void => {
-    ComejeneMessageStyle.updateCss(customCss, style.frameState);
-    ComejeneMessageFrame.updateCss(customCss, style.containerLayout);
+    ComejeneMessageStyle.updateCss(customCss, style.messageStyle);
+    ComejeneMessageFrame.updateCss(customCss, style.messageFrame);
     ComejeneContentStyleSet.updateCss(customCss, style.contentsStyle);
   },
 } as const;

@@ -1,23 +1,23 @@
 export * from "./OBS.svelte";
 
-import type { ComejeneFrameNames, ComejeneFrameSetting } from "../Frame";
 import type { ComejeneStyle } from "../Message";
+import type { ComejeneMotionNames, ComejeneMotionSetting } from "../Motion";
 import type { ComejeneContent } from "../type";
 import { ComejeneReceiverBrowser, ComejeneSenderBrowser, type BrowserExSenderOption } from "./BrowserEx.svelte";
 import { ComejeneReceiverOBS, ComejeneSenderOBS, type OBSSenderOption } from "./OBS.svelte";
 
-export type ComejeneEvent = ComejeneEventReset | ComejeneEventResetFrame | ComejeneEventResetStyle | ComejeneEventNewContent;
+export type ComejeneEvent = ComejeneEventReset | ComejeneEventResetMotion | ComejeneEventResetStyle | ComejeneEventNewContent;
 export type ComejeneEventType = ComejeneEvent["type"];
 
 export interface ComejeneEventReset {
   type: "reset-all";
-  frameName: ComejeneFrameNames;
-  frameSetting: ComejeneFrameSetting;
+  motionName: ComejeneMotionNames;
+  motionSetting: ComejeneMotionSetting;
   comejeneStyle: ComejeneStyle;
 }
-export interface ComejeneEventResetFrame {
-  type: "reset-frame";
-  frameSetting: ComejeneFrameSetting;
+export interface ComejeneEventResetMotion {
+  type: "reset-motion";
+  motionSetting: ComejeneMotionSetting;
 }
 export interface ComejeneEventResetStyle {
   type: "reset-style";

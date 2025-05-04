@@ -38,7 +38,7 @@ export interface IComejeneSenderStore {
   sendContent(content: ComejeneContent): void;
   sendReset(sendDummyCount?: number): void;
   sendResetAt(sender: ComejeneSender): void;
-  sendFrameSetting(template?: ComejeneTemplate): void;
+  sendMotionSetting(template?: ComejeneTemplate): void;
   sendComejeneStyle(template?: ComejeneTemplate): void;
 
   sendDummyContent(icon?: string, name?: string, message?: string): void;
@@ -151,20 +151,20 @@ export const ComejeneSenderStore: IComejeneSenderStore = (() => {
       }
     },
     sendResetAt: (sender): void => {
-      const { frame: { name, setting }, style } = ComejeneTemplateStore.getUseTemplate();
+      const { motion: { name, setting }, style } = ComejeneTemplateStore.getUseTemplate();
       sender.resetSenderState();
       sender.send({
         type: "reset-all",
-        frameName: name,
-        frameSetting: setting,
+        motionName: name,
+        motionSetting: setting,
         comejeneStyle: style as ComejeneStyle,
       });
     },
-    sendFrameSetting: (template): void => {
-      const { frame: { setting } } = template ?? ComejeneTemplateStore.getUseTemplate();
+    sendMotionSetting: (template): void => {
+      const { motion: { setting } } = template ?? ComejeneTemplateStore.getUseTemplate();
       for (const id in senders) {
         const sender = senders[id];
-        sender.send({ type: "reset-frame", frameSetting: setting }, true);
+        sender.send({ type: "reset-motion", motionSetting: setting }, true);
       }
     },
     sendComejeneStyle: (template): void => {

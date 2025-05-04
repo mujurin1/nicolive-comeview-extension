@@ -2,12 +2,12 @@ import type { CSSObject } from "@emotion/css/create-instance";
 import { tick } from "svelte";
 import { myz } from "../../../lib/Myz";
 import type { ComejeneContent } from "../../type";
-import { ComejeneFrameStyle, type ComejeneFrameSetting, type ComejeneFrameState } from "../type";
+import { ComejeneMotionStyle, type ComejeneMotionSetting, type ComejeneMotionState } from "../type";
 import { StackMessage } from "./StackMessage.svelte";
 
 
-export type StackFrameSetting = ComejeneFrameSetting<typeof StackFrameStyle.root>;
-export const StackFrameStyle = ComejeneFrameStyle.create(
+export type StackMotionSetting = ComejeneMotionSetting<typeof StackMotionStyle.root>;
+export const StackMotionStyle = ComejeneMotionStyle.create(
   {
     /**
      * 縦並び(flex-direction:column)にするか
@@ -107,13 +107,13 @@ export const StackFrameStyle = ComejeneFrameStyle.create(
       },
     };
 
-    customCss.updateCss("StackFrameStyle", [baseCss, animationCss]);
+    customCss.updateCss("StackMotionStyle", [baseCss, animationCss]);
   },
 );
 
 
-export class StackFrameState implements ComejeneFrameState<
-  StackFrameSetting,
+export class StackMotionState implements ComejeneMotionState<
+  StackMotionSetting,
   StackMessage
 > {
   private paddingSize: number = 0;
@@ -122,11 +122,11 @@ export class StackFrameState implements ComejeneFrameState<
   public messageAreaDiv: HTMLDivElement = null!;
   public paddingDiv: HTMLDivElement = null!;
 
-  public setting = $state<StackFrameSetting>(null!);
+  public setting = $state<StackMotionSetting>(null!);
   public messages = $state<StackMessage[]>([]);
 
   public constructor(
-    setting: StackFrameSetting,
+    setting: StackMotionSetting,
   ) {
     this.setting = setting;
   }
@@ -134,14 +134,14 @@ export class StackFrameState implements ComejeneFrameState<
   public onMount() {
     const resizeObserver = new ResizeObserver(() => this.updateMessageAreaStyle());
     resizeObserver.observe(this.comejeneContainerDiv);
-    void this.resetFrameLayout(this.setting);
+    void this.resetMotionLayout(this.setting);
 
     return () => {
       resizeObserver.disconnect();
     };
   }
 
-  public async resetFrameLayout(setting: StackFrameSetting) {
+  public async resetMotionLayout(setting: StackMotionSetting) {
     this.setting = setting;
 
     // Reset Element Padding
@@ -169,10 +169,10 @@ export class StackFrameState implements ComejeneFrameState<
     this.updateMessageAreaStyle();
 
     // アニメーションのCSSはこの中で設定 .await tick() をしているので多分中に入れなくても良い
-    requestAnimationFrame(() => {
-      // this.messageAreaDiv.style.transition = messageAreaTransform;
-      // this.messageAreaDiv.style.transition = "transform 1s ease-out";
-    });
+    // requestAnimationFrame(() => {
+    //   // this.messageAreaDiv.style.transition = messageAreaTransform;
+    //   // this.messageAreaDiv.style.transition = "transform 1s ease-out";
+    // });
   }
 
   public async addMessage(content: ComejeneContent) {

@@ -1,7 +1,7 @@
 import type { ComejeneContent } from "../../type";
-import type { ComejeneFrameMessage } from "../type";
+import type { ComejeneMotionMessage } from "../type";
 
-export class StackMessage implements ComejeneFrameMessage {
+export class SampleMessage implements ComejeneMotionMessage {
   public node = $state<HTMLDivElement>(null!);
 
   public constructor(

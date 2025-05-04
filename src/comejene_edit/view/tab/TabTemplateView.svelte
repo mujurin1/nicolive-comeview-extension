@@ -51,8 +51,8 @@
       <div>{template.name}</div>
     {/snippet}
     {#snippet body()}
-      <div>フレーム</div>
-      <div>{template.frame.name}</div>
+      <div>モーション</div>
+      <div>{template.motion.name}</div>
     {/snippet}
     {#snippet buttons()}
       <button onclick={copyTemplate} type="button">複製</button>

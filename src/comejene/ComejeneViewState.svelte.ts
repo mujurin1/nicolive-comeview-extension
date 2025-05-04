@@ -1,38 +1,38 @@
 import type { ComejeneContent } from "../comejene_share";
-import {
-  ComejeneFrameDefinitions,
-  type ComejeneFrameComponent,
-  type ComejeneFrameDefinition,
-  type ComejeneFrameNames,
-  type ComejeneFrameSetting,
-  type ComejeneFrameState
-} from "../comejene_share/Frame";
 import { createCustomCss } from "../comejene_share/func";
 import { ComejeneStyle } from "../comejene_share/Message";
+import {
+  ComejeneMotionDefinitions,
+  type ComejeneMotionComponent,
+  type ComejeneMotionDefinition,
+  type ComejeneMotionNames,
+  type ComejeneMotionSetting,
+  type ComejeneMotionState
+} from "../comejene_share/Motion";
 
-export class ComejeneViewState<Setting extends ComejeneFrameSetting, State extends ComejeneFrameState> {
+export class ComejeneViewState<Setting extends ComejeneMotionSetting, State extends ComejeneMotionState> {
   private readonly _customCss = createCustomCss();
 
-  public readonly frameDefinition: ComejeneFrameDefinition<ComejeneFrameNames>;
+  public readonly motionDefinition: ComejeneMotionDefinition<ComejeneMotionNames>;
 
-  public get Component(): ComejeneFrameComponent<Setting, State> {
-    return this.frameDefinition.component as unknown as ComejeneFrameComponent<Setting, State>;
+  public get Component(): ComejeneMotionComponent<Setting, State> {
+    return this.motionDefinition.component as unknown as ComejeneMotionComponent<Setting, State>;
   }
 
-  public component = $state<ReturnType<ComejeneFrameComponent<Setting, State>>>(null!);
-  private _frameSetting = $state<Setting>(null!);
+  public component = $state<ReturnType<ComejeneMotionComponent<Setting, State>>>(null!);
+  private _motionSetting = $state<Setting>(null!);
   private _comejeneStyle = $state<ComejeneStyle>(null!);
 
-  public get frameSetting() { return this._frameSetting; }
+  public get motionSetting() { return this._motionSetting; }
   public get comejeneStyle() { return this._comejeneStyle; }
 
   public constructor(
-    frameName: ComejeneFrameNames,
-    frameSetting: Setting,
+    motionName: ComejeneMotionNames,
+    motionSetting: Setting,
     comejeneStyle: ComejeneStyle,
   ) {
-    this.frameDefinition = ComejeneFrameDefinitions[frameName];
-    this.setFrameSetting(frameSetting);
+    this.motionDefinition = ComejeneMotionDefinitions[motionName];
+    this.setMotionSetting(motionSetting);
     this.setComejeneStyle(comejeneStyle);
   }
 
@@ -45,11 +45,11 @@ export class ComejeneViewState<Setting extends ComejeneFrameSetting, State exten
     void this.component.state.addMessage(content);
   }
 
-  public setFrameSetting(frameSetting: Setting): void {
-    this._frameSetting = frameSetting;
-    this.frameDefinition.css.updateCss(this._customCss, this._frameSetting as any);
+  public setMotionSetting(motionSetting: Setting): void {
+    this._motionSetting = motionSetting;
+    this.motionDefinition.css.updateCss(this._customCss, this._motionSetting as any);
     if (this.component == null) return;
-    void this.component.state.resetFrameLayout(this._frameSetting);
+    void this.component.state.resetMotionLayout(this._motionSetting);
   }
 
   public setComejeneStyle(comejeneStyle: ComejeneStyle): void {

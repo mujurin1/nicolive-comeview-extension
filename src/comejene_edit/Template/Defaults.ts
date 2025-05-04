@@ -44,26 +44,26 @@ export const DefaultComejeneFrames = {
 
 const デバッグ用 = (): ComejeneTemplate<"sample"> => ({
   name: "デバッグ用",
-  frame: {
+  motion: {
     name: "sample",
     setting: {},
   },
   style: {
     ...縦並び().style,
-    containerLayout: DefaultComejeneFrames["I-N-C"](),
+    messageFrame: DefaultComejeneFrames["I-N-C"](),
   },
 });
 const 横並び = (): ComejeneTemplate<"stack"> => {
   const v = 縦並び();
   v.name = "横並び";
-  v.style.containerLayout = DefaultComejeneFrames["I-N-C"]();
-  v.frame.setting.isVertical = false;
-  v.frame.setting.verticalGrow = false;
+  v.style.messageFrame = DefaultComejeneFrames["I-N-C"]();
+  v.motion.setting.isVertical = false;
+  v.motion.setting.verticalGrow = false;
   return v;
 };
 const 縦並び = (): ComejeneTemplate<"stack"> => ({
   name: "縦並び",
-  frame: {
+  motion: {
     name: "stack",
     setting: {
       isVertical: true,
@@ -80,12 +80,12 @@ const 縦並び = (): ComejeneTemplate<"stack"> => ({
     },
   },
   style: {
-    frameState: {
+    messageStyle: {
       backColor: "#D6D8FF",
       border: { style: "solid", color: "#923DFF81", width: 6, radius: 20 },
       padding: { top: 8, left: 8, right: 8, bottom: 8 },
     },
-    containerLayout: DefaultComejeneFrames["I-{N_/C}"](),
+    messageFrame: DefaultComejeneFrames["I-{N_/C}"](),
     contentsStyle: ComejeneContentStyleSet.new({
       icon: {
         visible: true,
