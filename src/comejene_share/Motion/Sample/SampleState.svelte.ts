@@ -1,6 +1,6 @@
 import type { CSSObject } from "@emotion/css/create-instance";
 import { tick } from "svelte";
-import type { ComejeneContent } from "../../type";
+import type { ComejeneContent } from "../../Message/ContentType";
 import { ComejeneMotionStyle, type ComejeneMotionSetting, type ComejeneMotionState } from "../type";
 import { SampleMessage } from "./SampleMessage.svelte";
 

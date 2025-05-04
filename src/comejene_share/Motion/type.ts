@@ -1,6 +1,6 @@
 import { myz, type Ignore, type MyzObjects, type MyzRoot, type MyzState } from "../../lib/Myz";
 import type { CustomCss } from "../func";
-import type { ComejeneContent } from "../type";
+import type { ComejeneContent } from "../Message/ContentType";
 
 export type ComejeneMotionSettingRoot<R extends MyzObjects = MyzObjects> = MyzRoot<R & ComejenMotionDefaultBase>;
 export type ComejeneMotionSetting<D extends ComejeneMotionSettingRoot = ComejeneMotionSettingRoot> = MyzState<D>;

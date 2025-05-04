@@ -1,4 +1,4 @@
-import type { ComejeneContent } from "../../type";
+import type { ComejeneContent } from "../../Message/ContentType";
 import type { ComejeneMotionMessage } from "../type";
 
 export class SampleMessage implements ComejeneMotionMessage {

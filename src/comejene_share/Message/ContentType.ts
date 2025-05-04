@@ -1,3 +1,17 @@
+/**
+ * メッセージの要素のキー
+ */
+export const ComejeneContentKeys = ["icon", "name", "message"] as const;
+export type ComejeneContentKeys = typeof ComejeneContentKeys[number];
+
+/**
+ * コメジェネが受信するメッセージ
+ */
+export interface ComejeneContent {
+  readonly icon: string | undefined;
+  readonly name: string | undefined;
+  readonly message: string;
+}
 
 /**
  * メッセージの要素の種類
@@ -5,11 +19,6 @@
 export const ComejeneContentTypes = ["img", "text"] as const;
 export type ComejeneContentTypes = typeof ComejeneContentTypes[number];
 
-/**
- * メッセージの要素のキー
- */
-export const ComejeneContentKeys = ["icon", "name", "message"] as const;
-export type ComejeneContentKeys = typeof ComejeneContentKeys[number];
 /**
  * メッセージ要素の日本語名
  */

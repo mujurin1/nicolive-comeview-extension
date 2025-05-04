@@ -1,8 +1,8 @@
 export * from "./OBS.svelte";
 
 import type { ComejeneStyle } from "../Message";
+import type { ComejeneContent } from "../Message/ContentType";
 import type { ComejeneMotionNames, ComejeneMotionSetting } from "../Motion";
-import type { ComejeneContent } from "../type";
 import { ComejeneReceiverBrowser, ComejeneSenderBrowser, type BrowserExSenderOption } from "./BrowserEx.svelte";
 import { ComejeneReceiverOBS, ComejeneSenderOBS, type OBSSenderOption } from "./OBS.svelte";
 
