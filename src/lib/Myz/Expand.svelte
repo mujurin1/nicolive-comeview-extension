@@ -23,6 +23,7 @@
 <style>
   .head-item {
     width: 100%;
+    min-height: 2em;
 
     &::before {
       display: inline-block;

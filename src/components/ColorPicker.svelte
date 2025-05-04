@@ -522,7 +522,7 @@
     height: var(--picker-button-size);
     aspect-ratio: 1;
 
-    margin: 1px;
+    margin-right: 1px;
     padding: 0;
     border: 2px solid white;
     border-radius: 2px;

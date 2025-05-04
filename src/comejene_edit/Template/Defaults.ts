@@ -58,7 +58,6 @@ const 横並び = (): ComejeneTemplate<"stack"> => {
   v.name = "横並び";
   v.style.messageFrame = DefaultComejeneFrames["I-N-C"]();
   v.motion.setting.isVertical = false;
-  v.motion.setting.verticalGrow = false;
   return v;
 };
 const 縦並び = (): ComejeneTemplate<"stack"> => ({
@@ -67,16 +66,13 @@ const 縦並び = (): ComejeneTemplate<"stack"> => ({
     name: "stack",
     setting: {
       isVertical: true,
-      verticalGrow: false,
+      verticalGrow: "左/上寄せ",
 
       reverseOrder: false,
       maxWidth: 0,
       gap: 8,
 
       listAnimation: true,
-
-      reverseGap: false,
-      reverseMargine: false,
     },
   },
   style: {
@@ -112,8 +108,7 @@ const 縦並び = (): ComejeneTemplate<"stack"> => ({
           color: "black",
           bold: false,
         },
-        banNewLine: true,
-        noNewLine: true,
+        newLine: "改行文字は無視する",
         border: { style: "solid", color: undefined, width: 0, radius: 0 },
       },
       message: {
@@ -130,8 +125,7 @@ const 縦並び = (): ComejeneTemplate<"stack"> => ({
           color: "black",
           bold: false,
         },
-        banNewLine: false,
-        noNewLine: true,
+        newLine: "改行文字は無視する",
         border: { style: "solid", color: undefined, width: 0, radius: 0 },
       },
     }),

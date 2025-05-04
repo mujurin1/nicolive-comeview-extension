@@ -108,13 +108,13 @@ export interface CssTextStyle {
 }
 export function createTextStyleBlock(displayOrParams: string | MyzBlockPart = "文字スタイル") {
   return myz.block(displayOrParams, {
-    size: myz.number({ display: "サイズ", min: 10 }),
+    color: myz.color("色"),
+    bold: myz.boolean("太字"),
     fontFamily: myz.string("フォント"),
+    size: myz.number({ display: "サイズ", min: 10 }),
     // shadow: myz.block("縁取り", {
     //   length: myz.number("太さ"),
     // }),
-    color: myz.color("色"),
-    bold: myz.boolean("太字"),
   });
 }
 //#endregion Utility

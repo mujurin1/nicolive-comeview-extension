@@ -18,7 +18,7 @@ export const _ComejeneContentStyle = {
       padding: dirNumbersToCssText(style.padding),
       margin: dirNumbersToCssText(style.margin),
       alignItems: FlexPosition.asCss(style.position.y),
-      overflow: "clip",
+      overflow: "hidden",
       ...borderToCss(style.border)
     };
     if (style.fitContent) {
@@ -29,9 +29,14 @@ export const _ComejeneContentStyle = {
   },
   asCss_Text: (style: _ComejeneContentStyle_Text): CSSObject => {
     const cssObj = _ComejeneContentStyle.asCss_Base(style);
+    const whiteSpace = {
+      "改行する": "pre-line",
+      "改行文字は無視する": "normal",
+      "改行しない": "nowrap",
+    }[style.newLine];
 
     cssObj[".content"] = {
-      whiteSpace: style.banNewLine ? "nowrap" : style.noNewLine ? "normal" : "pre-wrap",
+      whiteSpace,
       ...textStyleToCss(style.textStyle),
     };
     return cssObj;
@@ -66,6 +71,8 @@ export type _ComejeneContentStyleBase = typeof _ComejeneContentStyleBase;
 export const _ComejeneContentStyleBase = MyzUtil.group("default", {
   /** この項目を表示するかどうか */
   visible: myz.boolean("表示"),
+  backColor: myz.color("背景色", "optional"),
+  border: createBorderBlock(),
   /** X,Y 軸上の寄せ */
   position: myz.block("位置(寄せ)", {
     x: myz.list("よこ", FlexPositions),
@@ -75,8 +82,6 @@ export const _ComejeneContentStyleBase = MyzUtil.group("default", {
   fitContent: myz.boolean("フィットサイズ"),
   padding: createDirNumbersSwitch("余白 (内)"),
   margin: createDirNumbersSwitch("余白 (外)"),
-  backColor: myz.color("背景色", "optional"),
-  border: createBorderBlock(),
 });
 
 const ComejeneContentStyleRootBase = {
@@ -93,8 +98,14 @@ export const _ComejeneContentStyleRoot = {
   /** テキストタイプのメッセージの持つ属性 */
   text: ComejeneContentStyleRootBase.create("text", {
     textStyle: createTextStyleBlock({ display: "文字スタイル", defaultOpen: true }),
-    banNewLine: myz.boolean("折り返さない"),
-    noNewLine: myz.boolean("改行文字無視"),
+    // banNewLine: myz.boolean("折り返さない"),
+    // noNewLine: myz.boolean("改行文字無視"),
+    newLine: myz.list({
+      display: "改行",
+      desc: "幅が足りない場合や改行文字を含むコメントをどうするか",
+    },
+      ["改行する", "改行文字は無視する", "改行しない"]
+    ),
   }),
   /** 画像タイプのメッセージの持つ属性 */
   img: ComejeneContentStyleRootBase.create("image", {

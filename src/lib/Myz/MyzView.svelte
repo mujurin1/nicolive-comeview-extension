@@ -26,10 +26,10 @@
   .myz-column {
     display: flex;
     /* justify-content: space-between; */
-    column-gap: 6px;
+    column-gap: 0.6px;
     align-items: stretch;
     padding: 1px 0;
-    min-height: 32px;
+    min-height: 2em;
 
     & > .myz-column-label {
       flex: 0 0 8em;

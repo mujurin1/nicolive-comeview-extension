@@ -14,24 +14,27 @@ export const StackMotionStyle = ComejeneMotionStyle.create(
      */
     isVertical: myz.boolean("縦並び"),
     /**
-     * flex の垂直方向に広げるか
+     * flex の垂直方向の広がり方
      */
-    verticalGrow: myz.boolean({
-      display: "垂直に伸ばす",
-      desc: "「並ぶ向き」の垂直方向に向けて広げます",
-    }),
+    verticalGrow: myz.list(
+      {
+        display: "垂直方向",
+        desc: "並ぶ向きの垂直方向の広がり方を選択します",
+      },
+      ["左/上寄せ", "右/下寄せ", "いっぱいに広げる"],
+    ),
 
     /**
      * メッセージの順序(最新→古い)を標準(上/左が新しい)と逆にするか
      */
     reverseOrder: myz.boolean({
       display: "逆並び",
-      desc: "メッセージを標準(下/右が新しい)と逆にします"
+      desc: "メッセージの並びを上/左が新しくします"
     }),
 
     maxWidth: myz.number({
       display: "横幅の最大値",
-      desc: "0なら「縦並び」「垂直に伸ばす」に基づいて調整されます",
+      desc: "０にすると「縦並び」「垂直に伸ばす」に基づいて調整されます",
       control: "number",
       min: 0,
       step: 10,
@@ -46,30 +49,25 @@ export const StackMotionStyle = ComejeneMotionStyle.create(
      * アニメーションを有効化するか
      */
     listAnimation: myz.boolean({ display: "アニメーション", desc: "説明" }),
-
-
-    /**
-     * **TODO: 現在未対応**\
-     * メッセージの詰める方向を標準(下/右に詰める)と逆にするか
-     */
-    reverseGap: myz.boolean("reverseGap"),
-    /**
-     * **TODO: 現在未対応**\
-     * 余白を標準(右/上)と逆にするか
-     */
-    reverseMargine: myz.boolean("reverseMargine"),
   } as const,
 
   (customCss, setting) => {
     const direction = setting.isVertical ? "column" : "row";
+    const alignItems = {
+      "左/上寄せ": "flex-start",
+      "右/下寄せ": "flex-end",
+      "いっぱいに広げる": "stretch",
+    }[setting.verticalGrow];
+
     const baseCss: CSSObject = {
       ".message-area": {
         position: "relative",
         display: "flex",
+        alignItems,
         flexDirection: `${direction}${setting.reverseOrder ? "-reverse" : ""}`,
         gap: `${setting.gap}px`,
         width: setting.isVertical ? "100%" : "max-content",
-        height: !setting.isVertical && setting.verticalGrow ? "100%" : "max-content",
+        height: setting.isVertical ? "max-content" : "100%",
 
         "&::-webkit-scrollbar": {
           display: "none",
