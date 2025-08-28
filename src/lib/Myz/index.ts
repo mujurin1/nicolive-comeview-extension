@@ -4,6 +4,7 @@ interface MyzBase<TYPE extends MyzObjectType = MyzObjectType> {
   type: TYPE;
   /** 表示名 */
   display: string;
+  desc?: string;
   /** 表示グループ */
   group?: string;
 }
@@ -45,7 +46,6 @@ export interface MyzValueable<
   TYPE extends MyzValueType = MyzValueType,
   EXTRA extends MyzExtraTypes = never,
 > extends MyzBase<TYPE> {
-  desc?: string;
   extra: MyzExtraRecord<EXTRA>;
 }
 
@@ -96,7 +96,7 @@ interface MyzSwitchBuilder<
     STATE,
     BLOCKS & { [K in KEY]: MyzSwitchBlock<STATE, KEY, BLOCK>; }
   >;
-  build: (defaultSelectKey?: ((status: STATE) => keyof BLOCKS)) => MyzSwitch<STATE, BLOCKS>;
+  build: (selectKey?: ((status: STATE) => keyof BLOCKS)) => MyzSwitch<STATE, BLOCKS>;
 }
 //#endregion SWITCH
 //#endregion MyzRooter
@@ -175,7 +175,7 @@ export const myz = {
         blocks,
         selectKey: typeof params === "function"
           ? params as any
-          : () => blocks[0].key,
+          : () => blocks[Object.keys(blocks)[0]].key,
       }),
     };
 

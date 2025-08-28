@@ -72,7 +72,11 @@ const 縦並び = (): ComejeneTemplate<"stack"> => ({
       maxWidth: 0,
       gap: 8,
 
-      listAnimation: true,
+      animation: {
+        enabled: false,
+        newAnime: "下から",
+        newTime: 300,
+      },
     },
   },
   style: {

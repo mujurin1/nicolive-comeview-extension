@@ -30,6 +30,7 @@
     () => {
       itemState.state = _switch.blocks[selectKey.state].toBlockState(state);
       untrack(() => {
+        console.log("update");
         if (_switch.updateWithChangeKey) {
           state = selectItem.bind(itemState.state);
         }
@@ -56,7 +57,7 @@
     </select>
   </div>
 
-  <div class="myz-switch-content">
+  <div class="myz-switch-content" class:hide={Object.keys(selectItem.block).length === 0}>
     {#key itemState.state}
       <MyzRootView {path} root={selectItem} bind:state={$itemState} />
     {/key}
@@ -71,12 +72,12 @@
     --switch-brder-radius: 5px;
     --switch-brder-width: 2px;
     --switch-focus-outline-color: hsl(222, 100%, 60%);
+    min-height: 2em;
 
     .myz-switch-header > .myz-switch-selector {
       width: auto;
       background-color: var(--switch-back-color);
       border: var(--switch-brder-width) solid var(--switch-brder-color);
-      border-bottom-width: 0;
       border-radius: var(--switch-brder-radius) var(--switch-brder-radius) 0 0;
       margin-bottom: calc(-1 * var(--switch-brder-width));
 
@@ -103,5 +104,9 @@
     .myz-switch-selector {
       flex: 0 1 0;
     }
+  }
+
+  .hide {
+    display: none;
   }
 </style>

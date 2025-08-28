@@ -1,3 +1,4 @@
+import { keyframes } from "@emotion/css";
 import type { CSSObject } from "@emotion/css/create-instance";
 import { tick } from "svelte";
 import { myz } from "../../../lib/Myz";
@@ -5,6 +6,28 @@ import type { ComejeneContent } from "../../Message/ContentType";
 import { ComejeneMotionStyle, type ComejeneMotionSetting, type ComejeneMotionState } from "../type";
 import { StackMessage } from "./StackMessage.svelte";
 
+const animationTypes = ["なし", "左から", "右から", "上から", "下から"] as const;
+type AnimationType = typeof animationTypes[number];
+
+const AnimationTypeToCss = {
+  "なし": undefined,
+  "左から": {
+    from: { transform: "translateX(-100%)", },
+    to: { transform: "translateX(0)", },
+  },
+  "右から": {
+    from: { transform: "translateX(100%)", },
+    to: { transform: "translateX(0)", },
+  },
+  "上から": {
+    from: { transform: "translateY(-100%)", },
+    to: { transform: "translateY(0)", },
+  },
+  "下から": {
+    from: { transform: "translateY(100%)", },
+    to: { transform: "translateY(0)", },
+  },
+} as const satisfies Record<AnimationType, { from: CSSObject, to: CSSObject; } | undefined>;
 
 export type StackMotionSetting = ComejeneMotionSetting<typeof StackMotionStyle.root>;
 export const StackMotionStyle = ComejeneMotionStyle.create(
@@ -45,10 +68,38 @@ export const StackMotionStyle = ComejeneMotionStyle.create(
      */
     gap: myz.number("コメント間隔"),
 
-    /**
-     * アニメーションを有効化するか
-     */
-    listAnimation: myz.boolean({ display: "アニメーション", desc: "説明" }),
+    animation: myz.switch<{
+      enabled: boolean;
+      newAnime: AnimationType;
+      newTime: number;
+    }>({
+      display: "アニメーション",
+      desc: "説明",
+      updateWithChangeKey: true,
+    })
+      .addBlock(
+        "無効",
+        {},
+        state => state,
+        state => ({ ...state, enabled: false }),
+      )
+      .addBlock(
+        "有効",
+        {
+          newAnime: myz.list(
+            { display: "表示時", desc: "コメントが表示されるアニメーション" },
+            animationTypes
+          ),
+          newTime: myz.number({
+            display: "表示時間",
+            desc: "コメントが表示されるアニメーションの時間 (ms)",
+            max: 1000,
+          }),
+        },
+        state => state,
+        state => ({ ...state, enabled: true }),
+      )
+      .build(state => state.enabled ? "有効" : "無効"),
   } as const,
 
   (customCss, setting) => {
@@ -80,29 +131,34 @@ export const StackMotionStyle = ComejeneMotionStyle.create(
       },
 
       ".padding": {
-        /* DEBUG: 確認用の強調色 */
+        /* TODO: DEBUG: 確認用の強調色 */
         backgroundColor: "#f6b7b7",
       },
     };
 
-    const animationCss: CSSObject = !setting.listAnimation ? {} : {
+    const animationCss: CSSObject = !setting.animation.enabled ? {} : {
       ".message-area": {
         // willChange: "transform",
-        transition: "transform 0.3s ease",
+        // transition: "transform 0.3s ease",
+        transitionDuration: `${setting.animation.newTime}ms`,
+        // animation: "enter-message 0.3s ease-out",
       },
 
       ".message-container": {
-        animation: "enter-message 0.3s ease-out",
+        animationName: keyframes(AnimationTypeToCss[setting.animation.newAnime]),
+        transitionDuration: `${setting.animation.newTime}ms`,
+        // animation: "enter-message 0.3s ease-out",
       },
 
-      "@keyframes enter-message": {
-        from: {
-          transform: "translateY(100%)",
-        },
-        to: {
-          transform: "translateY(0)",
-        },
-      },
+      // "@keyframes enter-message": keyframes(AnimationTypeToCss[setting.animation.newAnime]),
+      // "@keyframes enter-message": {
+      //   from: {
+      //     transform: "translateY(100%)",
+      //   },
+      //   to: {
+      //     transform: "translateY(0)",
+      //   },
+      // },
     };
 
     customCss.updateCss("StackMotionStyle", [baseCss, animationCss]);

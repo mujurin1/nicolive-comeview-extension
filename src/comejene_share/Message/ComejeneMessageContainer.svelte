@@ -3,6 +3,13 @@
 
   let { message }: { message: ComejeneMotionMessage } = $props();
 
+  let show = $state(false);
+
+  setTimeout(() => {
+    void message.node.offsetWidth;
+    show = true;
+  }, 100);
+
   /** 1x1 透明 */
   const nicoliveNoneIcon =
     "data:image/gif;base64,R0lGODlhAQABAGAAACH5BAEKAP8ALAAAAAABAAEAAAgEAP8FBAA7";
@@ -18,7 +25,7 @@
     +div.content-frame.コンテンツ名 > div.content > CONTENT
  -->
 
-<div bind:this={message.node} class="message-container">
+<div bind:this={message.node} class="message-container" class:show>
   <div class="content-frame icon">
     <!-- svelte-ignore a11y_missing_attribute -->
     <img class="content" onerror={onErrorImage} src={message.content.icon} />
@@ -39,5 +46,12 @@
 <style>
   .content {
     font-family: "Segoe UI Emoji";
+  }
+
+  .message-container {
+    opacity: 1;
+    &:not(.show) {
+      opacity: 0;
+    }
   }
 </style>

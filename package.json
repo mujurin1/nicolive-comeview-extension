@@ -46,6 +46,7 @@
   "dependencies": {
     "@bufbuild/buf": "^1.48.0",
     "@emotion/css": "^11.13.5",
+    "@mujurin/nicolive-api-ts": "file:../nicolive-comeview-extension/NDGRClient-ts",
     "@types/stylis": "^4.2.7",
     "css-flatten": "^2.0.0",
     "obs-websocket-js": "^5.0.6",
