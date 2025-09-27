@@ -5,7 +5,7 @@
 
   const names = [
     ["pinned", "ピン留め"],
-    ["feature", "機能紹介 (v0.3.1)"],
+    ["feature", "機能紹介 (v0.3.2)"],
   ] as const;
 </script>
 

@@ -26,13 +26,12 @@ CONTENT
 
 <div class="content-box">
   <div class="content issue">
-    <div class="title">不具合情報 （2024.10.1 v0.3.1）</div>
+    <div class="title">不具合情報 （2025.9.27 v0.3.2）</div>
 
     <div class="section">
       <div class="section-title">既知の問題はありません</div>
       <div class="section-content">
-        <div>通信部分を全て作り直したため通信に関わる不具合は解消されました</div>
-        <div>接続中に問題が発生した場合は自動で再接続されます</div>
+        <div>来場やエモーションなどが通知されない問題が解消されました</div>
         <div>
           問題が見つかった場合は
           {@render Link("フィードバック", "フィードバック")}
@@ -42,20 +41,41 @@ CONTENT
     </div>
 
     <details class="section">
-      <summary class="section-title">v0.3.1で修正された不具合</summary>
+      <summary class="section-title">v0.3.2 の更新内容</summary>
       <div class="section-content">
-        <div>
-          放送終了後にウェブソケットが再接続をしてしまう（フィードバックありがとうございます m(_
-          _)m）
-        </div>
-        <div>
-          ウェブソケットが終了メッセージを受信する前に切断された場合に自動再接続されなかった
-        </div>
-        <div>
-          再接続時に以下の条件を満たしていた時にエラーが出る（可能性があった）<br />
-          ・接続後にリアルタイムコメントを受信する前に切断していた時<br />
-          ・最後にコメントを取得してから数十秒経過後に切断していた時
-        </div>
+        <ul>
+          <li>
+            来場やエモーションが表示されない問題の修正（フィードバックありがとうございます m(_ _)m）
+          </li>
+          <li>
+            <div>カラーピッカーの変更</div>
+            <div>・ブラウザ標準から、自作のカラーピッカーに変わりました</div>
+            <div>
+              ・透明色やカラーコード (orange, blue など)
+              を直接入力可能になり、正しい色でプレビューされます
+            </div>
+          </li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="section">
+      <summary class="section-title">v0.3.1 の更新内容</summary>
+      <div class="section-content">
+        <ul>
+          <li>
+            放送終了後にウェブソケットが再接続をしてしまう（フィードバックありがとうございます m(_
+            _)m）
+          </li>
+          <li>
+            ウェブソケットが終了メッセージを受信する前に切断された場合に自動再接続されなかった
+          </li>
+          <li>
+            <div>再接続時に以下の条件を満たしていた時にエラーが出る（可能性があった）</div>
+            <div>・接続後にリアルタイムコメントを受信する前に切断していた時</div>
+            <div>・最後にコメントを取得してから数十秒経過後に切断していた時</div>
+          </li>
+        </ul>
       </div>
     </details>
   </div>
@@ -244,6 +264,10 @@ CONTENT
     & > .section-content {
       font-size: 0.9em;
       margin-left: 1.5em;
+
+      ul {
+        padding-left: 1em;
+      }
 
       & > div {
         text-indent: -1em;
