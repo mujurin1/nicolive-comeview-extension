@@ -20,8 +20,11 @@
 <div class="additional">
   {#if userId != null}
     <div class="format">
-      {@render close(() => (userId = undefined))}
-      <UserSetting noAccordion={true} platformId="nicolive" {userId} />
+      <UserSetting noAccordion={true} platformId="nicolive" {userId}>
+        {#snippet headerLight()}
+          {@render close(() => (userId = undefined))}
+        {/snippet}
+      </UserSetting>
     </div>
   {:else if SettingStore.state.nicolive.showPostArea && Nicolive.pageData?.nicoliveInfo?.loginUser != null}
     <NicolivePostComment />

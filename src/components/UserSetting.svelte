@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { Snippet } from "svelte";
   import { notifierStore } from "../lib/CustomStore.svelte";
   import { getNicoliveIconUrl, onErrorImage, type PlatformsId } from "../Platform";
   import { NceUserStore } from "../store/NceUserStore.svelte";
@@ -10,10 +11,12 @@
     platformId,
     userId,
     noAccordion = false,
+    headerLight,
   }: {
     platformId: PlatformsId;
     userId: string;
     noAccordion?: boolean;
+    headerLight?: Snippet;
   } = $props();
 
   const userS = notifierStore<StorageUser>(
@@ -57,6 +60,9 @@
     {/if}
     {#if $userS.format != null}
       <div style:color="orange" title="フォーマットが設定されています">★</div>
+    {/if}
+    {#if headerLight != null}
+      <div style:margin-left="auto">{@render headerLight()}</div>
     {/if}
   </div>
 {/snippet}
@@ -122,7 +128,7 @@
 
 {#if noAccordion}
   <div class="user-content">
-    <div class="header">
+    <div class="header no-accordion-header">
       {@render header()}
     </div>
     {@render content()}
@@ -166,6 +172,13 @@
     padding: 5px;
   }
 
+  .no-accordion-header {
+    position: sticky;
+    top: 0;
+    background-color: #e8ede6;
+    z-index: 1;
+  }
+
   .header-icon {
     flex: 0 1 0;
     height: 25px;
@@ -173,6 +186,7 @@
   }
   .header-title {
     display: flex;
+    width: 100%;
     align-items: center;
     column-gap: 5px;
     justify-content: flex-start;

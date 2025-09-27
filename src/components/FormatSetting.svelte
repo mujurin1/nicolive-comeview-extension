@@ -123,6 +123,10 @@
 </div>
 
 <style>
+  input {
+    width: 100%;
+  }
+
   .item {
     display: grid;
     grid-auto-flow: column;
