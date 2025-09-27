@@ -139,7 +139,6 @@ export const StorageUserStore: StorageUserStore = (() => {
       get users() { return users.nicolive; },
       updated: new EventEmitter<StorageUserUpdate>(),
       upsert: user => {
-        console.log("change", $state.snapshot(user));
         fixStorageUser(user);
         const event = users[platformId][user.id] == null ? "new" : "update";
         users[platformId][user.id] = user;
