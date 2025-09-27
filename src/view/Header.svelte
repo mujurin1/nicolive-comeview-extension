@@ -56,6 +56,17 @@
       <label for="speak">読み上げ</label>
       <input id="speak" type="checkbox" bind:checked={$settingViewStore.yomiage.isSpeak} />
     </div>
+
+    {#if Nicolive.pageData?.nicoliveInfo?.loginUser != null}
+      <div class="head-item">
+        <label for="show-post-area">コメント投稿欄</label>
+        <input
+          id="show-post-area"
+          type="checkbox"
+          bind:checked={$settingViewStore.nicolive.showPostArea}
+        />
+      </div>
+    {/if}
   </div>
 
   <button class="setting-btn" onclick={() => settingPage?.switchOpen(true)} type="button">
