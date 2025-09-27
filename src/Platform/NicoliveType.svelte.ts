@@ -1,7 +1,21 @@
 import type { NicoliveInfoProviderType } from "@mujurin/nicolive-api-ts";
+import { SimpleNotificationV2_NotificationType } from "@mujurin/nicolive-api-ts/build/_protobuf/dwango_pb";
 import { SettingStore } from "../store/SettingStore.svelte";
 import { StorageUserStore, type StorageUser } from "../store/StorageUserStore.svelte";
 import { PlatformsId, type ExtMessageType, type NceUserType } from "./index";
+
+
+export const SimpleNotificationV2Type = {
+  [SimpleNotificationV2_NotificationType.UNKNOWN]: "unknown",
+  [SimpleNotificationV2_NotificationType.ICHIBA]: "ichiba",
+  [SimpleNotificationV2_NotificationType.EMOTION]: "emotion",
+  [SimpleNotificationV2_NotificationType.CRUISE]: "cruise",
+  [SimpleNotificationV2_NotificationType.PROGRAM_EXTENDED]: "programExtended",
+  [SimpleNotificationV2_NotificationType.RANKING_IN]: "ranking",
+  [SimpleNotificationV2_NotificationType.VISITED]: "visited",
+  [SimpleNotificationV2_NotificationType.SUPPORTER_REGISTERED]: "supporterRegistered",
+  [SimpleNotificationV2_NotificationType.USER_LEVEL_UP]: "userLevelUp",
+} as const satisfies Record<SimpleNotificationV2_NotificationType, SystemMessageType>;
 
 /**
  * MEMO: `"rankingIn"`,`"rankingUpdated"` は冗長なのでどちらも`"ranking"`として扱う
@@ -10,6 +24,8 @@ export const SystemMessageType = [
   "nicoad", "gift", "enquete",
   // simpleNotification
   "ichiba", "quote", "emotion", "cruise", "programExtended", "ranking" /* "rankingIn", "rankingUpdated" */, "visited",
+  "supporterRegistered", "userLevelUp",
+  "unknown",
 ] as const;
 export type SystemMessageType = typeof SystemMessageType[number];
 export const SystemMessageTypeDisplayName = {
@@ -26,6 +42,9 @@ export const SystemMessageTypeDisplayName = {
   // rankingIn: "ランクイン",
   // rankingUpdated: "ランキング更新",
   visited: "来場",
+  supporterRegistered: "サポーター登録",
+  userLevelUp: "ユーザーレベルアップ",
+  unknown: "その他",
 } as const satisfies Record<SystemMessageType, string>;
 
 

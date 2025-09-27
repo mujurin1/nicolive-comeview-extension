@@ -8,7 +8,7 @@ import { StorageUserStore } from "../store/StorageUserStore.svelte";
 import { timeString } from "../util/utils";
 import { ExtMessenger, type ExtentionMessage } from "./Extention.svelte";
 import type { NceConnection, NceConnectionSetting, NceConnectionState } from "./NceConnection";
-import { NicoliveMessage, NicoliveUser, type SystemMessageType } from "./NicoliveType.svelte";
+import { NicoliveMessage, NicoliveUser, SimpleNotificationV2Type, type SystemMessageType } from "./NicoliveType.svelte";
 
 export class NicoliveConnection implements NceConnection<"nicolive"> {
   public readonly connectionId: string;
@@ -243,6 +243,8 @@ class Connector {
   }
 
   private onChunkedMessage(chunkedMessages: dwango.ChunkedMessage) {
+    _show_dbg(chunkedMessages);
+
     const message = this.createMessage(chunkedMessages);
     if (message == null) return;
     this.onMessage(message);
@@ -522,7 +524,7 @@ function upsertUser(user: NicoliveUser, comment: string, no?: number): NicoliveU
 function createMessage(
   payload: dwango.ChunkedMessage["payload"],
   builder: ReturnType<typeof NicoliveMessage.builder>,
-  ownerId: string
+  ownerId: string,
 ): NicoliveMessage | undefined {
   if (payload.case === "message") {
     const data = payload.value.data;
@@ -566,8 +568,12 @@ function createMessage(
         else
           type = message.case;
         content = message.value;
-      } else
+      } else if (data.case === "simpleNotificationV2") {
+        content = data.value.message;
+        type = SimpleNotificationV2Type[data.value.type];
+      } else {
         return;
+      }
       return builder.system(content, type);
     }
   } else if (payload.case === "state") {
@@ -655,5 +661,8 @@ function _show_dbg(message: dwango.ChunkedMessage) {
   } else if (_case === "message") {
     console.log("###", _case, value.data.case, meta);
     console.log(value.data.value);
+  } else {
+    console.log("### unknown", _case, meta, value);
+    console.log(value);
   }
 }
