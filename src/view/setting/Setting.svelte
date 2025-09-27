@@ -2,7 +2,6 @@
   import { tick } from "svelte";
   import Tab from "../../components/Tab.svelte";
   import AdvancedSetting from "./AdvancedSetting.svelte";
-  import ComejeneSetting from "./ComejeneSetting.svelte";
   import GeneralSetting from "./GeneralSetting.svelte";
   import NicoliveSetting from "./NicoliveSetting.svelte";
   import UsersSetting from "./UsersSetting.svelte";
@@ -15,7 +14,6 @@
     "ニコ生",
     "リスナー",
     "コメント表示",
-    "コメジェネ",
     "フィードバック",
     "Advanced",
   ] as const;
@@ -94,8 +92,6 @@
                   フィードバックを貰えると開発の励みになるので、ぜひ、フィードバックをください！
                 </p>
               </div>
-            {:else if tabId === "コメジェネ"}
-              <ComejeneSetting />
             {:else if tabId === "Advanced"}
               <AdvancedSetting />
             {/if}

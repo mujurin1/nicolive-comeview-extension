@@ -23,11 +23,6 @@ export interface NceConnectionSetting {
    * 全体で読み上げOFFならこの値に依らず読み上げない
    */
   isSpeak: boolean;
-  /**
-   * コメジェネに送信するか (この接続の受信したメッセージのみに関係する)
-   * コメジェネはまだ他に設定あるかも。それならObjectにするかな
-   */
-  // useComejene: boolean;
 }
 
 /**

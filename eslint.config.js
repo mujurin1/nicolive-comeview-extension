@@ -6,7 +6,7 @@ import svelteParser from "svelte-eslint-parser";
 import tsEslint from "typescript-eslint";
 
 const isProduction = () => process.env.NODE_ENV === "production";
-const roots = ["src", "comejene"];
+const roots = ["src"];
 /**
  * @param {string[]} pathes 
  * @returns {string[]}

@@ -4,7 +4,7 @@ import { defineConfig } from "vite";
 import zipPack from "vite-plugin-zip-pack";
 
 // https://crxjs.dev/vite-plugin/concepts/manifest
-const manifest = defineManifest({
+const manifest = defineManifest(({ mode }) => ({
   manifest_version: 3,
   name: "ニコ生コメビュ",
   version: "0.3.1",
@@ -29,6 +29,9 @@ const manifest = defineManifest({
     "*://*.nicovideo.jp/*",
     "*://*.nimg.jp/*",
     "*://*.dmc.nico/*",
+
+    // dev 用  https://www.masaakiota.net/2025/02/02/【crxjs-vite-plugin】cors、websocket、諸々エラー/
+    ...(mode === "development" ? ["<all_urls>"] : []),
   ],
   content_scripts: [
     // {
@@ -44,7 +47,7 @@ const manifest = defineManifest({
   background: {
     service_worker: "src/background.ts"
   },
-});
+}));
 
 export default defineConfig({
   plugins: [
@@ -57,7 +60,6 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: "./index.html",
-        comejene_edit: "./comejene_edit.html",
       }
     },
   },
@@ -66,5 +68,9 @@ export default defineConfig({
   server: {
     hmr: { port: 5174 },
     port: 5173
-  }
+  },
+
+  legacy: {
+    skipWebSocketTokenCheck: true,
+  },
 });
