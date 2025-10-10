@@ -5,7 +5,7 @@
 
   const names = [
     ["pinned", "ピン留め"],
-    ["feature", "機能紹介 (v0.3.2)"],
+    ["feature", "機能紹介 (v0.3.3)"],
   ] as const;
 </script>
 
@@ -51,12 +51,12 @@
 
         /* 特定のヘッダーのみ */
         :global(&.feature) {
-          background-color: hsl(100, 70%, 94%);
+          background-color: hsl(274, 68%, 94%);
           :global(&:not(.selected):hover) {
-            background-color: hsl(100, 70%, 92%);
+            background-color: hsl(274, 70%, 92%);
           }
           :global(&.selected) {
-            background-color: hsl(100, 80%, 94%);
+            background-color: hsl(274, 80%, 94%);
           }
         }
       }

@@ -26,12 +26,12 @@ CONTENT
 
 <div class="content-box">
   <div class="content issue">
-    <div class="title">不具合情報 （2025.9.27 v0.3.2）</div>
+    <div class="title">不具合情報</div>
 
     <div class="section">
       <div class="section-title">既知の問題はありません</div>
       <div class="section-content">
-        <div>来場やエモーションなどが通知されない問題が解消されました</div>
+        <div>放送に接続できない問題が解消されました</div>
         <div>
           問題が見つかった場合は
           {@render Link("フィードバック", "フィードバック")}
@@ -39,6 +39,15 @@ CONTENT
         </div>
       </div>
     </div>
+
+    <details class="section">
+      <summary class="section-title">v0.3.3 の更新内容</summary>
+      <div class="section-content">
+        <ul>
+          <li>放送に接続できない問題の修正（沢山のフィードバックありがとうございます m(_ _)m）</li>
+        </ul>
+      </div>
+    </details>
 
     <details class="section">
       <summary class="section-title">v0.3.2 の更新内容</summary>
